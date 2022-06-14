@@ -2,8 +2,10 @@ package trade
 
 import "github.com/longbridgeapp/openapi-go/http"
 
+const DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com"
+
 type Options struct {
-	TradeURL string
+	TradeURL   string
 	HttpClient *http.Client
 }
 
@@ -22,7 +24,9 @@ func WithHttpClient(client *http.Client) Option {
 }
 
 func newOptions(opt ...Option) *Options {
-	opts := Options{}
+	opts := Options{
+		TradeURL: DefaultTradeUrl,
+	}
 	for _, o := range opt {
 		o(&opts)
 	}

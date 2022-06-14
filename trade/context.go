@@ -4,14 +4,14 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/longbridgeapp/openapi-protocol/go/client"
 	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/pkg/errors"
 )
 
 type TradeContext struct {
-	opts         Options
-	streamClient client.Client
-	core         *Core
+	opts *Options
+	core *Core
 }
 
 func (c *TradeContext) Subscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
@@ -22,11 +22,8 @@ func (c *TradeContext) Unsubscribe(ctx context.Context, symbols []string) (unsub
 	return c.core.Unsubscribe(ctx, symbols)
 }
 
-func (c *TradeContext) HistoryExecutions(ctx context.Context, params GetHistoryExecutions) (trades []Execution, err error) {
-	type Response struct {
-		Trades []Execution
-	}
-	resp := &Response{}
+func (c *TradeContext) HistoryExecutions(ctx context.Context, params GetHistoryExecutions) (trades []*Execution, err error) {
+	resp := &Executions{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/history", params, trades)
 	if err != nil {
 		return
@@ -35,11 +32,8 @@ func (c *TradeContext) HistoryExecutions(ctx context.Context, params GetHistoryE
 	return
 }
 
-func (c *TradeContext) TodayExecutions(ctx context.Context, params GetTodayExecutions) (trades []Execution, err error) {
-	type Response struct {
-		Trades []Execution
-	}
-	resp := &Response{}
+func (c *TradeContext) TodayExecutions(ctx context.Context, params GetTodayExecutions) (trades []*Execution, err error) {
+	resp := &Executions{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/today", params, resp)
 	if err != nil {
 		return
@@ -49,10 +43,7 @@ func (c *TradeContext) TodayExecutions(ctx context.Context, params GetTodayExecu
 }
 
 func (c *TradeContext) HistoryOrders(ctx context.Context, params GetHistoryOrders) (orders []Order, err error) {
-	type Response struct {
-		Orders []Order
-	}
-	resp := &Response{}
+	resp := &Orders{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/history", params, resp)
 	if err != nil {
 		return
@@ -61,11 +52,8 @@ func (c *TradeContext) HistoryOrders(ctx context.Context, params GetHistoryOrder
 	return
 }
 
-func (c *TradeContext) TodayOrders(ctx context.Context, params GetTodayOrders) (orders []Order, err error) {
-	type Response struct {
-		Orders []Order
-	}
-	resp := &Response{}
+func (c *TradeContext) TodayOrders(ctx context.Context, params GetTodayOrders) (orders []*Order, err error) {
+	resp := &Orders{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/today", params, resp)
 	if err != nil {
 		return
@@ -92,11 +80,8 @@ func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err e
 	return
 }
 
-func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []AccountBalance, err error) {
-	type Response struct {
-		List []AccountBalance
-	}
-	resp := &Response{}
+func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountBalance, err error) {
+	resp := &AccountBalances{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/account", nil, resp)
 	if err != nil {
 		return
@@ -105,11 +90,8 @@ func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []AccountBa
 	return
 }
 
-func (c *TradeContext) CashFlow(ctx context.Context, params GetCashFlow) (cashflows []CashFlow, err error) {
-	type Response struct {
-		List []CashFlow
-	}
-	resp := &Response{}
+func (c *TradeContext) CashFlow(ctx context.Context, params GetCashFlow) (cashflows []*CashFlow, err error) {
+	resp := &CashFlows{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/cashflow", params, cashflows)
 	if err != nil {
 		return
@@ -118,13 +100,15 @@ func (c *TradeContext) CashFlow(ctx context.Context, params GetCashFlow) (cashfl
 	return
 }
 
-func (c *TradeContext) FundPositions(ctx context.Context, symbols []string) (fundPositions *FundPositions, err error) {
+func (c *TradeContext) FundPositions(ctx context.Context, symbols []string) (fundPositions []*FundPosition, err error) {
 	params := &GetFundPositions{
 		Symbols: symbols,
 	}
-	fundPositions = &FundPositions{}
+	resp := &FundPositions{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/fund", params, fundPositions)
+	fundPositions = resp.List
 	return
+
 }
 
 func (c *TradeContext) StockPositions(ctx context.Context, params GetStockPositions) (stockPositions *StockPositions, err error) {
@@ -133,10 +117,40 @@ func (c *TradeContext) StockPositions(ctx context.Context, params GetStockPositi
 	return
 }
 
-func NewFromCfg(config.Config) *TradeContext {
-	return nil
+func NewFormEnv(callback func(*PushEvent)) (*TradeContext, error) {
+	cfg, err := config.NewFormEnv()
+	if err != nil {
+		return nil, err
+	}
+	return NewFromCfg(cfg, callback)
 }
 
-func New(opts ...Option) {
+func NewFromCfg(cfg *config.Config, callback func(*PushEvent)) (*TradeContext, error) {
+	httpClient, err := http.New(
+		http.WithAccessToken(cfg.AccessToken),
+		http.WithAppKey(cfg.AppKey),
+		http.WithAppSecret(cfg.AppSecret),
+		http.WithURL(cfg.HttpURL),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "create http client error")
+	}
+	return New(callback, WithTradeURL(cfg.TradeUrl), WithHttpClient(httpClient))
+}
 
+func New(callback func(*PushEvent), opt ...Option) (*TradeContext, error) {
+	opts := newOptions(opt...)
+	otp, err := opts.HttpClient.GetOTP(context.Background())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get otp")
+	}
+	core, err := NewCore(opts.TradeURL, otp, callback)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create core")
+	}
+	tc := &TradeContext{
+		opts: opts,
+		core: core,
+	}
+	return tc, nil
 }

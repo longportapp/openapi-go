@@ -2,8 +2,10 @@ package quote
 
 import "github.com/longbridgeapp/openapi-go/http"
 
+const DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com"
+
 type Options struct {
-	QuoteURL string
+	QuoteURL   string
 	HttpClient *http.Client
 }
 
@@ -22,7 +24,9 @@ func WithHttpClient(client *http.Client) Option {
 }
 
 func newOptions(opt ...Option) *Options {
-	opts := Options{}
+	opts := Options{
+		QuoteURL: DefaultQuoteUrl,
+	}
 	for _, o := range opt {
 		o(&opts)
 	}

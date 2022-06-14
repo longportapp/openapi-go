@@ -7,19 +7,23 @@ import (
 	"io"
 	nhttp "net/http"
 	"net/url"
+	"time"
 
 	"github.com/google/go-querystring/query"
 )
 
-
 type ApiResponse struct {
-	code int
-	message string
-	data json.RawMessage
+	Code    int
+	Message string
+	Data    json.RawMessage
+}
+
+type OTPResponse struct {
+	Otp string
 }
 
 type Client struct {
-	opts *Options
+	opts       *Options
 	httpClient *nhttp.Client
 }
 
@@ -39,12 +43,21 @@ func (c *Client) Delete(ctx context.Context, path string, queryParams interface{
 	return c.Call(ctx, "DELETE", path, queryParams, nil, resp)
 }
 
+func (c *Client) GetOTP(ctx context.Context) (string, error) {
+	res := &OTPResponse{}
+	err := c.Get(ctx, "/v1/socket/token", nil, res)
+	if err != nil {
+		return "", err
+	}
+	return res.Otp, nil
+}
+
 func (c *Client) Call(ctx context.Context, method, path string, queryParams interface{}, body interface{}, resp interface{}) (err error) {
 	var (
-		br io.Reader
-	    bb []byte
+		br       io.Reader
+		bb       []byte
 		httpResp *nhttp.Response
-		rb []byte
+		rb       []byte
 	)
 
 	if body != nil {
@@ -54,7 +67,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		}
 		br = bytes.NewReader(bb)
 	}
-	req, err := nhttp.NewRequestWithContext(ctx, method, c.opts.URL + path, br)
+	req, err := nhttp.NewRequestWithContext(ctx, method, c.opts.URL+path, br)
 	if err != nil {
 		return err
 	}
@@ -66,7 +79,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 				return
 			}
 		}
-		req.URL.RawQuery =  vals.Encode()
+		req.URL.RawQuery = vals.Encode()
 	}
 	req.Header.Add("X-Api-Key", c.opts.AppKey)
 	req.Header.Add("Authorization", c.opts.AccessToken)
@@ -89,16 +102,24 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return err
 	}
 
-	if httpResp.StatusCode != nhttp.StatusOK || apiResp.code != 0 {
+	if httpResp.StatusCode != nhttp.StatusOK || apiResp.Code != 0 {
 		return NewError(httpResp.StatusCode, apiResp)
 	}
 
 	if resp == nil {
 		return
 	}
-	if err = json.Unmarshal(apiResp.data, resp); err != nil {
+	if err = json.Unmarshal(apiResp.Data, resp); err != nil {
 		return err
 	}
 	return nil
 }
 
+func New(opt ...Option) (*Client, error) {
+	opts := newOptions(opt...)
+	client := &Client{
+		opts:       opts,
+		httpClient: &nhttp.Client{Timeout: opts.Timeout},
+	}
+	return client, nil
+}

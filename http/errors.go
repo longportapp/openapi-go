@@ -6,8 +6,8 @@ import (
 
 type ApiError struct {
 	HttpStatus int
-	Code int
-	Message string
+	Code       int
+	Message    string
 }
 
 func (ae *ApiError) Error() string {
@@ -17,7 +17,7 @@ func (ae *ApiError) Error() string {
 func NewError(httpStatus int, resp *ApiResponse) error {
 	return &ApiError{
 		HttpStatus: httpStatus,
-		Code: resp.code,
-		Message: resp.message,
+		Code:       resp.Code,
+		Message:    resp.Message,
 	}
 }

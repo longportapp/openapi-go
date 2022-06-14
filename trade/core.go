@@ -3,20 +3,20 @@ package trade
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 
+	"github.com/golang/glog"
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
-	"google.golang.org/protobuf/proto"
+	"github.com/pkg/errors"
 )
 
 type Core struct {
-	client *client.Client
-	url    string
+	client        *client.Client
+	url           string
 	subscriptions []string
-	mu sync.Mutex
+	mu            sync.Mutex
 }
 
 func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
@@ -30,9 +30,9 @@ func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
 		return nil, err
 	}
 	core := &Core{client: cl, url: url}
-	cl.AfterReconnected(func (){
+	cl.AfterReconnected(func() {
 		if err := core.resubscribe(context.Background()); err != nil {
-			log.Error(err)
+			glog.Error(err)
 		}
 	})
 	cl.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
@@ -42,11 +42,11 @@ func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
 func (c *Core) Subscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.doSubscirbe(ctx, symbols)
+	c.doSubscribe(ctx, symbols)
 	return
 }
 
-func (c *Core) doSubscirbe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
+func (c *Core) doSubscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
 	var res *protocol.Packet
 	req := &tradev1.Sub{Topics: symbols}
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_SUB), Body: req})
@@ -68,12 +68,12 @@ func (c *Core) doSubscirbe(ctx context.Context, symbols []string) (subRes *SubRe
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, symbols []string) (unsubRes *UnsubResponse, err error){
+func (c *Core) Unsubscribe(ctx context.Context, symbols []string) (unsubRes *UnsubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	var res *protocol.Packet
 	req := &tradev1.Unsub{Topics: symbols}
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_UNSUB), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_UNSUB), Body: req})
 	if err != nil {
 		return
 	}
@@ -90,12 +90,12 @@ func (c *Core) Unsubscribe(ctx context.Context, symbols []string) (unsubRes *Uns
 func (c *Core) resubscribe(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	res, err := c.doSubscirbe(ctx, c.subscriptions)
+	res, err := c.doSubscribe(ctx, c.subscriptions)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "resubscribe error")
 	}
-	if len(res.Fail) >0 {
-		log.Errorf(res.Fail)
+	if len(res.Fail) > 0 {
+		glog.Errorf("resubscirbe subscription some failed %v", res.Fail)
 	}
 	return nil
 }
@@ -104,16 +104,16 @@ func parseNotifyFunc(f func(*PushEvent)) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var notify tradev1.Notification
 		if err := packet.Unmarshal(&notify); err != nil {
-			log.Errorf(err)
+			glog.Error(err)
 			return
 		}
 		if notify.GetContentType() != 1 {
-			log.Error("trade context event content type not json")
+			glog.Error("trade context event content type not json")
 			return
 		}
 		var orderChange PushOrderChanged
-	    if err := json.Unmarshal(notify.GetData(), orderChange); err != nil {
-			log.Error(err)
+		if err := json.Unmarshal(notify.GetData(), orderChange); err != nil {
+			glog.Error(err)
 		}
 		var event PushEvent
 		event.orderChanged = &orderChange

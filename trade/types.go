@@ -1,168 +1,1 @@
-package trade
-
-import "time"
-
-type OrderType string
-type OrderSide string
-type TimeInForce string
-type OutsideRTH string // Outside regular trading hours
-type OrderStatus string
-type Market string
-type OrderTag string
-type TriggerStatus string
-
-type Execution struct  {
-    // Order ID
-    OrderId string
-    // Execution ID
-    TradeId string
-    // Security code
-    Symbol string
-    // Trade done time
-    TradeDoneAt time.Time
-    // Executed quantity
-    Quantity string
-    // Executed price
-    Price string
-}
-
-type SubmitOrderResponse struct {
-    OrderId string
-}
-
-
-type Order struct {
-    // Order ID
-    OrderId string
-    // Order status
-    Status OrderStatus
-    // Stock name
-    StockName string
-    // Submitted quantity
-    Quantity string
-    // Executed quantity
-    ExecutedQuantity string
-    // Submitted price
-    Price string
-    // Executed price
-    ExecutedPrice string
-    // Submitted time
-    SubmittedAt time.Time
-    // Order side
-    Side OrderSide
-    // Security code
-    Symbol string
-    // Order type
-    OrderType OrderType
-    // Last done
-    LastDone string
-    // `LIT` / `MIT` Order Trigger Price
-    TriggerPrice string
-    // Rejected Message or remark
-    Msg string
-    // Order ta
-    Tag OrderTag
-    // Time in force type
-    TimeInForce TimeInForceType
-    // Long term order expire date
-    ExpireDate string
-    // Last updated time
-    UpdatedAt time.Time
-    // Conditional order trigger time
-    TriggerAt time.Time
-    // `TSMAMT` / `TSLPAMT` order trailing amount
-    TrailingAmount string
-    // `TSMPCT` / `TSLPPCT` order trailing percent
-    TrailingPercent string
-    // `TSLPAMT` / `TSLPPCT` order limit offset amount
-    LimitOffset string
-    // Conditional order trigger status
-    TriggerStatus TriggerStatus
-    // Currency
-    Currency string
-    // Enable or disable outside regular trading hours
-    OutsideRth OutsideRTH
-}
-
-
-type AccountBalance struct {
-
-}
-
-type FundPositions struct {
-
-}
-
-type StockPositions struct {
-
-}
-
-type CashFlow struct {
-
-}
-
-type PushEvent struct {
-	orderChanged *PushOrderChanged
-}
-
-type PushOrderChanged struct {
-    /// Order side
-    Side OrderSide
-    /// Stock name
-    StockName string
-    /// Submitted quantity
-    Quantity string
-    /// Order symbol
-    Symbol string
-    /// Order type
-    OrderType OrderType
-    /// Submitted price
-    Price string
-    /// Executed quantity
-    ExecutedQuantity int64
-    /// Executed price
-    ExecutedPrice string
-    /// Order ID
-    OrderId string
-    /// Currency
-    Currency string
-    /// Order status
-    Status OrderStatus
-    /// Submitted time
-    SubmittedAt time.Time
-    /// Last updated time
-    UpdatedAt time.Time
-    /// Order trigger price
-    TriggerPrice string
-    /// Rejected message or remark
-    Msg string
-    /// Order tag
-    Tag OrderTag
-    /// Conditional order trigger status
-    TriggerStatus *TriggerStatus
-    /// Conditional order trigger time
-    TriggerAt time.Time
-    /// Trailing amount
-    TrailingAmount string
-    /// Trailing percent
-    TrailingPercent string
-    /// Limit offset amount
-    LimitOffset string
-    // Account no
-    AccountNo string
-}
-
-type SubResponse struct {
-    Success []string
-    Fail    []*SubResponseFail
-    Current []string
-}
-
-type SubResponseFail struct {
-    Topic string
-    Reason string
-}
-
-type UnsubResponse struct {
-    Current []string
-}
+package tradeimport (	"time"	"github.com/longbridgeapp/openapi-go")type OrderType stringtype OrderSide stringtype TimeInForce stringtype OutsideRTH string // Outside regular trading hourstype OrderStatus stringtype Market stringtype OrderTag stringtype TriggerStatus stringtype BalanceType int32type CfDirection int32type TimeType stringconst (	BalanceTypeUnknown BalanceType = 0	BalanceTypeCash    BalanceType = 1	BalanceTypeStock   BalanceType = 2	BalanceTypeFund    BalanceType = 3	CfDirectionUnkown CfDirection = 0	CfDirectionOut    CfDirection = 1	CfDirectionIn     CfDirection = 2	TimeTypeDay TimeType = "Day"	TimeTypeGTC TimeType = "GTC"	TimeTypeGTD TimeType = "GTD")type Execution struct {	OrderId     string	TradeId     string	Symbol      string	TradeDoneAt time.Time	Quantity    string	Price       string}type Executions struct {	Trades []*Execution}type SubmitOrderResponse struct {	OrderId string}type Orders struct {	Orders []*Order}type Order struct {	OrderId          string	Status           OrderStatus	StockName        string	Quantity         string	ExecutedQuantity string	Price            string	ExecutedPrice    string	SubmittedAt      *time.Time	Side             OrderSide	Symbol           string	OrderType        OrderType	LastDone         string	TriggerPrice     string	Msg              string	Tag              OrderTag	TimeInForce      TimeType	ExpireDate       string	UpdatedAt        *time.Time	TriggerAt        *time.Time	TrailingAmount   string	TrailingPercent  string	LimitOffset      string	TriggerStatus    TriggerStatus	Currency         string	OutsideRth       OutsideRTH}type AccountBalances struct {	List []*AccountBalance}type AccountBalance struct {	TotalCache             string	MaxFinanceAmount       string	RemainingFinanceAmount string	RiskLevel              string	MarginCall             string	Currency               string	CashInfos              []*CashInfo}type FundPositions struct {	List []*FundPositionChannel}type FundPositionChannel struct {	AccountChannel string	Positions      []*FundPoistion}type FundPoistion struct {	Symbol               string	CurrentNetAssetValue string	NetAssetValueDay     *time.Time	SymbolName           string	Currency             string	CostNetAssetValue    string	HoldingUnits         string}type StockPositions struct {	Symbol            string	SymbolName        string	Quantity          int	AvailableQuantity int	Currency          string	CostPrice         string	Market            openapi.Market}type CashFlows struct {	List []*CashFlow}type CashFlow struct {	TransactionFlowName string	Direction           CfDirection	BusinessType        BalanceType	Balance             string	Currency            string	BusinessTime        *time.Time	Symbol              string	Description         string}type CashInfo struct {	WithdrawCash  string	AvailableCash string	FrozenCash    string	SettlingCash  string	Currency      string}type PushEvent struct {	orderChanged *PushOrderChanged}type PushOrderChanged struct {	Side             OrderSide	StockName        string	Quantity         string	Symbol           string	OrderType        OrderType	Price            string	ExecutedQuantity int64	ExecutedPrice    string	OrderId          string	Currency         string	Status           OrderStatus	SubmittedAt      time.Time	UpdatedAt        time.Time	TriggerPrice     string	Msg              string	Tag              OrderTag	TriggerStatus    *TriggerStatus	TriggerAt        time.Time	TrailingAmount   string	TrailingPercent  string	LimitOffset      string	AccountNo        string}type SubResponse struct {	Success []string	Fail    []*SubResponseFail	Current []string}type SubResponseFail struct {	Topic  string	Reason string}type UnsubResponse struct {	Current []string}

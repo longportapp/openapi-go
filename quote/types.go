@@ -4,32 +4,62 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
+	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
+	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type TradeStatus int32
 type TradeSession int32
 type TradeSessionType int32
+type EventType int8
+
+const (
+	EventQuote EventType = iota
+	EventBroker
+	EventTrade
+	EventDepth
+)
 
 type PushEvent struct {
-	Quote   *PushQuote
-	Depth   *PushDepth
-	Brokers *PushBrokers
-	Trade   *PushTrades
+	Type     EventType
+	Symbol   string
+	Sequence int64
+	Quote    *PushQuote
+	Depth    *PushDepth
+	Brokers  *PushBrokers
+	Trade    *PushTrade
 }
 
 type PushQuote struct {
 	Symbol       string
 	Sequence     int64
-	LastDone     float64
-	Open         float64
-	High         float64
-	Low          float64
+	LastDone     string
+	Open         string
+	High         string
+	Low          string
 	Timestamp    int64
 	Volume       int64
-	Turnover     float64
+	Turnover     string
 	TradeStatus  TradeStatus
 	TradeSession TradeSessionType
+}
+
+func toPushQuote(origin *quotev1.PushQuote) *PushQuote {
+	return &PushQuote{
+		Symbol:       origin.GetSymbol(),
+		Sequence:     origin.GetSequence(),
+		LastDone:     origin.GetLastDone(),
+		Open:         origin.GetOpen(),
+		High:         origin.GetHigh(),
+		Low:          origin.GetLow(),
+		Timestamp:    origin.GetTimestamp(),
+		Volume:       origin.GetVolume(),
+		Turnover:     origin.GetTurnover(),
+		TradeStatus:  TradeStatus(origin.GetTradeStatus()),
+		TradeSession: TradeSessionType(origin.GetTradeSession()),
+	}
 }
 
 type PushDepth struct {
@@ -37,6 +67,45 @@ type PushDepth struct {
 	Sequence int64
 	Ask      []*Depth
 	Bid      []*Depth
+}
+
+func toPushDepth(origin *quotev1.PushDepth) *PushDepth {
+	return &PushDepth{
+		Symbol:   origin.GetSymbol(),
+		Sequence: origin.GetSequence(),
+		Ask:      toDepths(origin.GetAsk()),
+		Bid:      toDepths(origin.GetBid()),
+	}
+}
+
+type PushBrokers struct {
+	Symbol     string
+	Sequence   int64
+	AskBrokers []*Brokers
+	BidBrokers []*Brokers
+}
+
+func toPushBrokers(origin *quotev1.PushBrokers) *PushBrokers {
+	return &PushBrokers{
+		Symbol:     origin.GetSymbol(),
+		Sequence:   origin.GetSequence(),
+		AskBrokers: toBrokers(origin.GetAskBrokers()),
+		BidBrokers: toBrokers(origin.GetBidBrokers()),
+	}
+}
+
+type PushTrade struct {
+	Symbol   string
+	Sequence int64
+	Trade    []*Trade
+}
+
+func toPushTrades(origin *quotev1.PushTrade) *PushTrade {
+	return &PushTrade{
+		Symbol:   origin.GetSymbol(),
+		Sequence: origin.GetSequence(),
+		Trade:    toTrades(origin.GetTrade()),
+	}
 }
 
 type Depth struct {
@@ -63,13 +132,6 @@ func toDepths(origin []*quotev1.Depth) (depths []*Depth) {
 	return
 }
 
-type PushBrokers struct {
-	Symbol     string
-	Sequence   int64
-	AskBrokers []*Brokers
-	BidBrokers []*Brokers
-}
-
 type Brokers struct {
 	Position  int32
 	BrokerIds []int32
@@ -84,12 +146,6 @@ func toBrokers(origin []*quotev1.Brokers) (brokers []*Brokers) {
 		})
 	}
 	return
-}
-
-type PushTrades struct {
-	Symbol   string
-	Sequence int64
-	Trade    []*Trade
 }
 
 type Trade struct {
@@ -168,6 +224,25 @@ type OptionQuote struct {
 	OptionExtend *OptionExtend
 }
 
+func toOptionQuotes(origin []*quotev1.OptionQuote) (quotes []*OptionQuote) {
+	quotes = make([]*OptionQuote, 0, len(origin))
+	for _, item := range origin {
+		quotes = append(quotes, &OptionQuote{
+			Symbol:       item.GetSymbol(),
+			LastDone:     item.GetLastDone(),
+			Open:         item.GetOpen(),
+			High:         item.GetHigh(),
+			Low:          item.GetLow(),
+			Timestamp:    item.GetTimestamp(),
+			Volume:       item.GetVolume(),
+			Turnover:     item.GetTurnover(),
+			TradeStatus:  TradeStatus(item.GetTradeStatus()),
+			OptionExtend: toOptionExtend(item.GetOptionExtend()),
+		})
+	}
+	return
+}
+
 type OptionExtend struct {
 	ImpliedVolatility    string
 	OpenInterest         int64
@@ -179,6 +254,21 @@ type OptionExtend struct {
 	Direction            string
 	HistoricalVolatility string
 	UnderlyingSymbol     string
+}
+
+func toOptionExtend(origin *quotev1.OptionExtend) *OptionExtend {
+	return &OptionExtend{
+		ImpliedVolatility:    origin.GetImpliedVolatility(),
+		OpenInterest:         origin.GetOpenInterest(),
+		ExpiryDate:           origin.GetExpiryDate(),
+		StrikePrice:          origin.GetStrikePrice(),
+		ContractMultiplier:   origin.GetContractMultiplier(),
+		ContractType:         origin.GetContractType(),
+		ContractSize:         origin.GetContractSize(),
+		Direction:            origin.GetDirection(),
+		HistoricalVolatility: origin.GetHistoricalVolatility(),
+		UnderlyingSymbol:     origin.GetUnderlyingSymbol(),
+	}
 }
 
 type StrikePriceInfo struct {
@@ -193,10 +283,10 @@ func toStrikePriceInfos(origin []*quotev1.StrikePriceInfo) (priceInfos []*Strike
 	// TODO use copier
 	for _, item := range origin {
 		priceInfos = append(priceInfos, &StrikePriceInfo{
-			Price: item.GetPrice(),
+			Price:      item.GetPrice(),
 			CallSymbol: item.GetCallSymbol(),
-			PutSymbol: item.GetPutSymbol(),
-			Standard: item.GetStandard(),
+			PutSymbol:  item.GetPutSymbol(),
+			Standard:   item.GetStandard(),
 		})
 	}
 	return priceInfos
@@ -376,8 +466,8 @@ const (
 type AdjustType int32
 
 const (
-	AdjustType_NO_ADJUST       = AdjustType(quotev1.AdjustType_NO_ADJUST)
-	AdjustType_FORWARD_ADJUST  = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
+	AdjustType_NO_ADJUST      = AdjustType(quotev1.AdjustType_NO_ADJUST)
+	AdjustType_FORWARD_ADJUST = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
 )
 
 type Candlestick struct {
@@ -395,16 +485,29 @@ func toCandlesticks(origin []*quotev1.Candlestick) (sticks []*Candlestick) {
 	// TODO use copier
 	for _, item := range origin {
 		sticks = append(sticks, &Candlestick{
-			Close: item.GetClose(),
-			Open: item.GetOpen(),
-			Low: item.GetLow(),
-			High: item.GetHigh(),
-			Volume: item.GetVolume(),
-			Turnover: item.GetTurnover(),
+			Close:     item.GetClose(),
+			Open:      item.GetOpen(),
+			Low:       item.GetLow(),
+			High:      item.GetHigh(),
+			Volume:    item.GetVolume(),
+			Turnover:  item.GetTurnover(),
 			Timestamp: item.GetTimestamp(),
 		})
 	}
 	return
+}
+
+type Quote struct {
+	Symbol       string
+	LastDone     string
+	Open         string
+	High         string
+	Low          string
+	Timestamp    int64
+	Volume       int64
+	Turnover     string
+	TradeStatus  TradeStatus
+	TradeSession TradeSessionType
 }
 
 type SecurityQuote struct {
@@ -551,7 +654,7 @@ func toIssueInfos(origin []*quotev1.IssuerInfo) (infos []*IssuerInfo) {
 	infos = make([]*IssuerInfo, len(origin))
 	for _, item := range origin {
 		infos = append(infos, &IssuerInfo{
-			Id: item.GetId(),
+			Id:     item.GetId(),
 			NameCn: item.GetNameCn(),
 			NameEn: item.GetNameEn(),
 			NameHk: item.GetNameHk(),
@@ -569,7 +672,7 @@ func toMarketTradingSessions(origin []*quotev1.MarketTradePeriod) (sessions []*M
 	sessions = make([]*MarketTradingSession, len(origin))
 	for _, item := range origin {
 		sessions = append(sessions, &MarketTradingSession{
-			Market: openapi.Market(item.GetMarket()),
+			Market:       openapi.Market(item.GetMarket()),
 			TradeSession: toTradePeriods(item.GetTradeSession()),
 		})
 	}
@@ -586,8 +689,8 @@ func toTradePeriods(origin []*quotev1.TradePeriod) (periods []*TradePeriod) {
 	periods = make([]*TradePeriod, len(origin))
 	for _, item := range origin {
 		periods = append(periods, &TradePeriod{
-			BegTime: item.GetBegTime(),
-			EndTime: item.GetEndTime(),
+			BegTime:      item.GetBegTime(),
+			EndTime:      item.GetEndTime(),
 			TradeSession: TradeSession(item.GetTradeSession()),
 		})
 	}

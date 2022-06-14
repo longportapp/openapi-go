@@ -9,6 +9,7 @@ import (
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/signer"
 )
+
 var sign = &signer.Signer{}
 
 func signature(req *nhttp.Request, secret string, body []byte) error {

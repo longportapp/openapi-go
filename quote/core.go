@@ -5,40 +5,47 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/longbridgeapp/openapi-go"
+	"github.com/mohae/deepcopy"
 
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
 )
 
-
 type Core struct {
-    client *client.Client
-	url string
-	mu sync.Mutex
+	client        *client.Client
+	url           string
+	mu            sync.Mutex
 	subscriptions map[string][]SubFlag
+	store         *Store
 }
 
 func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
-		Version: 1,
-		Codec:  protocol.CodecProtobuf,
+		Version:  1,
+		Codec:    protocol.CodecProtobuf,
 		Platform: protocol.PlatformOpenapi,
 	}, client.WithAuthToken(otp))
 	if err != nil {
 		return nil, err
 	}
 
-	core := &Core{client: cl, url: url, subscriptions: make(map[string][]SubFlag)}
-	cl.AfterReconnected(func (){
+	core := &Core{
+		client:        cl,
+		url:           url,
+		subscriptions: make(map[string][]SubFlag),
+		store:         &Store{},
+	}
+	cl.AfterReconnected(func() {
 		core.resubscribe(context.Background())
 	})
-	cl.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushFunc(f))
-	cl.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushFunc(f))
-	cl.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushFunc(f))
-	cl.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f))
+	cl.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushFunc(f, core))
+	cl.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushFunc(f, core))
+	cl.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushFunc(f, core))
+	cl.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, core))
 
 	return core, nil
 }
@@ -52,9 +59,9 @@ func (c *Core) Subscribe(ctx context.Context, symbols []string, subFlags []SubFl
 
 func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subFlags []SubFlag, isFirstPush bool) (err error) {
 	req := &quotev1.SubscribeRequest{
-	    IsFirstPush: isFirstPush,
-	    SubType: toSubTypes(subFlags),
-	    Symbol: symbols,
+		IsFirstPush: isFirstPush,
+		SubType:     toSubTypes(subFlags),
+		Symbol:      symbols,
 	}
 	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscribe), Body: req})
 	if err != nil {
@@ -66,14 +73,14 @@ func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subFlags []Sub
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string) (err error){
+func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	req := &quotev1.UnsubscribeRequest{
-		Symbol: symbols,
+		Symbol:   symbols,
 		UnsubAll: unSubAll,
 	}
-	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Unsubscribe), Body: req })
+	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Unsubscribe), Body: req})
 	if err != nil {
 		return
 	}
@@ -101,7 +108,7 @@ func (c *Core) resubscribe(ctx context.Context) error {
 func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubFlag, err error) {
 	req := &quotev1.SubscriptionRequest{}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscription), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscription), Body: req})
 	if err != nil {
 		return
 	}
@@ -119,10 +126,10 @@ func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 
 func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*SecurityStaticInfo, err error) {
 	req := &quotev1.MultiSecurityRequest{
-		Symbol:  symbols,
+		Symbol: symbols,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityStaticInfo), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityStaticInfo), Body: req})
 	if err != nil {
 		return
 	}
@@ -154,12 +161,12 @@ func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []
 	return
 }
 
-func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQuote, err error){
+func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
-		Symbol:  symbols,
+		Symbol: symbols,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityQuote), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityQuote), Body: req})
 	if err != nil {
 		return
 	}
@@ -172,13 +179,12 @@ func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQ
 	return
 }
 
-
 func (c *Core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes []*OptionQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
-		Symbol:  symbols,
+		Symbol: symbols,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityQuote), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityQuote), Body: req})
 	if err != nil {
 		return
 	}
@@ -194,10 +200,10 @@ func (c *Core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 
 func (c *Core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuotes []*WarrantQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
-		Symbol:  symbols,
+		Symbol: symbols,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryWarrantQuote), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryWarrantQuote), Body: req})
 	if err != nil {
 		return
 	}
@@ -210,12 +216,12 @@ func (c *Core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuote
 	return
 }
 
-func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error){
+func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
 	req := &quotev1.SecurityRequest{
-		Symbol:  symbol,
+		Symbol: symbol,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryDepth), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryDepth), Body: req})
 	if err != nil {
 		return
 	}
@@ -228,12 +234,12 @@ func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *Securit
 	return
 }
 
-func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error){
+func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
 	req := &quotev1.SecurityRequest{
-		Symbol:  symbol,
+		Symbol: symbol,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryBrokers), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryBrokers), Body: req})
 	if err != nil {
 		return
 	}
@@ -246,8 +252,7 @@ func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 	return
 }
 
-
-func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err error){
+func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryBrokers)})
 	if err != nil {
@@ -262,11 +267,10 @@ func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err 
 	return
 }
 
-
-func (c *Core) Trade(ctx context.Context, symbol string, count int32) (trades []*Trade, err error){
+func (c *Core) Trades(ctx context.Context, symbol string, count int32) (trades []*Trade, err error) {
 	req := &quotev1.SecurityTradeRequest{
 		Symbol: symbol,
-		Count: count,
+		Count:  count,
 	}
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryTrade), Body: req})
@@ -282,7 +286,7 @@ func (c *Core) Trade(ctx context.Context, symbol string, count int32) (trades []
 	return
 }
 
-func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLine, err error){
+func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLine, err error) {
 	req := &quotev1.SecurityIntradayRequest{
 		Symbol: symbol,
 	}
@@ -300,12 +304,11 @@ func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLi
 	return
 }
 
-
-func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, count int32, adjustType AdjustType) (sticks []*Candlestick, err error){
+func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, count int32, adjustType AdjustType) (sticks []*Candlestick, err error) {
 	req := &quotev1.SecurityCandlestickRequest{
-		Symbol: symbol,
-		Period: quotev1.Period(period),
-		Count: count,
+		Symbol:     symbol,
+		Period:     quotev1.Period(period),
+		Count:      count,
 		AdjustType: quotev1.AdjustType(adjustType),
 	}
 	var res *protocol.Packet
@@ -322,13 +325,12 @@ func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, c
 	return
 }
 
-
-func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []*time.Time, err error){
+func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []*time.Time, err error) {
 	req := &quotev1.SecurityRequest{
-		Symbol:  symbol,
+		Symbol: symbol,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req})
 	if err != nil {
 		return
 	}
@@ -338,7 +340,7 @@ func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 		return
 	}
 	times = make([]*time.Time, len(ret.GetExpiryDate()))
-	for _, dateStr := range ret.GetExpiryDate(){
+	for _, dateStr := range ret.GetExpiryDate() {
 		var dt time.Time
 		dt, err = time.Parse(DateLayout, dateStr)
 		if err != nil {
@@ -349,13 +351,13 @@ func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 	return
 }
 
-func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (priceInfos []*StrikePriceInfo, err error){
+func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (priceInfos []*StrikePriceInfo, err error) {
 	req := &quotev1.OptionChainDateStrikeInfoRequest{
-		Symbol:  symbol,
+		Symbol:     symbol,
 		ExpiryDate: expiryDate.Format(DateLayout),
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req})
 	if err != nil {
 		return
 	}
@@ -368,7 +370,7 @@ func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryD
 	return
 }
 
-func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err error){
+func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryWarrantIssuerInfo)})
 	if err != nil {
@@ -383,7 +385,7 @@ func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err err
 	return
 }
 
-func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSession, err error){
+func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSession, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryMarketTradePeriod)})
 	if err != nil {
@@ -398,14 +400,14 @@ func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSes
 	return
 }
 
-func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *time.Time, end *time.Time) (days *MarketTradingDay, err error){
+func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *time.Time, end *time.Time) (days *MarketTradingDay, err error) {
 	req := &quotev1.MarketTradeDayRequest{
-		Market:  string(market),
+		Market: string(market),
 		BegDay: begin.Format(DateLayout),
 		EndDay: end.Format(DateLayout),
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryMarketTradeDay), Body: req })
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryMarketTradeDay), Body: req})
 	if err != nil {
 		return
 	}
@@ -415,8 +417,8 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 		return
 	}
 	var day time.Time
-	tradingDays := make([]*time.Time, len(ret.GetTradeDay()))
-	halfTradeDays := make([]*time.Time, len(ret.GetTradeDay()))
+	tradingDays := make([]*time.Time, 0, len(ret.GetTradeDay()))
+	halfTradeDays := make([]*time.Time, 0, len(ret.GetHalfTradeDay()))
 	for _, dateStr := range ret.GetTradeDay() {
 		day, err = time.Parse(DateLayout, dateStr)
 		if err != nil {
@@ -432,14 +434,93 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 		halfTradeDays = append(halfTradeDays, &day)
 	}
 	days = &MarketTradingDay{
-		TradeDay: tradingDays,
+		TradeDay:     tradingDays,
 		HalfTradeDay: halfTradeDays,
 	}
 	return
 }
 
-func parsePushFunc(f func(*PushEvent)) func(*protocol.Packet) {
-	return func (packet *protocol.Packet) {
-		f(nil)
+func (c *Core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Quote, err error) {
+	quotes = make([]*Quote, len(symbols))
+	for _, symbol := range symbols {
+		quotes = append(quotes, c.store.GetQuote(symbol))
 	}
+	return
+}
+
+func (c *Core) RealtimeDepth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
+	askDepths, bidDepths := c.store.GetDepth(symbol)
+	return &SecurityDepth{
+		Symbol: symbol,
+		Ask:    askDepths,
+		Bid:    bidDepths,
+	}, nil
+}
+
+func (c *Core) RealtimeTrades(ctx context.Context, symbol string) (trades []*Trade, err error) {
+	return c.store.GetTrades(symbol), nil
+}
+
+func (c *Core) RealtimeBrokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
+	askBrokers, bidBorkers := c.store.GetBrokers(symbol)
+	return &SecurityBrokers{
+		Symbol:     symbol,
+		AskBrokers: askBrokers,
+		BidBrokers: bidBorkers,
+	}, nil
+}
+
+func parsePushFunc(f func(*PushEvent), core *Core) func(*protocol.Packet) {
+	return func(packet *protocol.Packet) {
+		event, err := newPushEvent(packet)
+		if err != nil {
+			glog.Errorf("new push event error:%v", err)
+			return
+		}
+		core.store.HandlePushEvent(event)
+		f(event)
+	}
+}
+
+func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
+	event = &PushEvent{}
+	switch packet.CMD() {
+	case uint32(quotev1.Command_PushBrokersData):
+		event.Type = EventBroker
+		var data quotev1.PushBrokers
+		if err = packet.Unmarshal(data); err != nil {
+			return
+		}
+		event.Brokers = toPushBrokers(&data)
+		event.Symbol = data.GetSymbol()
+		event.Sequence = data.GetSequence()
+	case uint32(quotev1.Command_PushDepthData):
+		event.Type = EventDepth
+		var data quotev1.PushDepth
+		if err = packet.Unmarshal(data); err != nil {
+			return
+		}
+		event.Depth = toPushDepth(&data)
+		event.Symbol = data.GetSymbol()
+		event.Sequence = data.GetSequence()
+	case uint32(quotev1.Command_PushQuoteData):
+		event.Type = EventQuote
+		var data quotev1.PushQuote
+		if err = packet.Unmarshal(data); err != nil {
+			return
+		}
+		event.Quote = toPushQuote(&data)
+		event.Symbol = data.GetSymbol()
+		event.Sequence = data.GetSequence()
+	case uint32(quotev1.Command_PushTradeData):
+		event.Type = EventTrade
+		var data quotev1.PushTrade
+		if err = packet.Unmarshal(data); err != nil {
+			return
+		}
+		event.Trade = toPushTrades(&data)
+		event.Symbol = data.GetSymbol()
+		event.Sequence = data.GetSequence()
+	}
+	return
 }

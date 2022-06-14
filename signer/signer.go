@@ -20,7 +20,6 @@ var ErrInvalidHashAlg = errors.New("invalid hash algorithm")
 
 var supportSigner = []string{AlgHmacSHA256, AlgHmacSHA1, AlgHmacMD5}
 
-
 func isSupportedSigner(s string) bool {
 	for _, item := range supportSigner {
 		if s == item {
