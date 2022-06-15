@@ -4,10 +4,7 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
-	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
-	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
 )
 
 type TradeStatus int32
@@ -172,7 +169,7 @@ func toTrades(origin []*quotev1.Trade) (trades []*Trade) {
 	return
 }
 
-type SecurityStaticInfo struct {
+type StaticInfo struct {
 	Symbol            string
 	NameCn            string
 	NameEn            string
@@ -188,6 +185,30 @@ type SecurityStaticInfo struct {
 	Bps               string
 	DividendYield     string
 	StockDerivatives  []int32
+}
+
+func toStaticInfos(origin []*quotev1.StaticInfo) (staticInfos []*StaticInfo) {
+	staticInfos = make([]*StaticInfo, 0, len(origin))
+	for _, item := range origin {
+		staticInfos = append(staticInfos, &StaticInfo{
+			Symbol:            item.GetSymbol(),
+			NameCn:            item.GetNameCn(),
+			NameEn:            item.GetNameEn(),
+			NameHk:            item.GetNameHk(),
+			Exchange:          item.GetExchange(),
+			Currency:          item.GetCurrency(),
+			LotSize:           item.GetLotSize(),
+			TotalShares:       item.GetTotalShares(),
+			CirculatingShares: item.GetCirculatingShares(),
+			HkShares:          item.GetHkShares(),
+			Eps:               item.GetEps(),
+			EpsTtm:            item.GetEpsTtm(),
+			Bps:               item.GetBps(),
+			DividendYield:     item.GetDividendYield(),
+			StockDerivatives:  item.GetStockDerivatives(),
+		})
+	}
+	return
 }
 
 type Issuer struct {

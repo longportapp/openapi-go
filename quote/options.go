@@ -13,13 +13,17 @@ type Option func(*Options)
 
 func WithQuoteURL(url string) Option {
 	return func(o *Options) {
-		o.QuoteURL = url
+		if url != "" {
+			o.QuoteURL = url
+		}
 	}
 }
 
 func WithHttpClient(client *http.Client) Option {
 	return func(o *Options) {
-		o.HttpClient = client
+		if client != nil {
+			o.HttpClient = client
+		}
 	}
 }
 

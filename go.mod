@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/golang/glog v1.0.0
 	github.com/google/go-querystring v1.1.0
-	github.com/longbridgeapp/openapi-protobufs v0.0.0-20220518070748-434871eb5a94
+	github.com/longbridgeapp/openapi-protobufs v0.0.0-20220614104051-4fb15e74b9eb
 	github.com/longbridgeapp/openapi-protocol/go v0.0.0-20220601064651-91e116d9507b
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1

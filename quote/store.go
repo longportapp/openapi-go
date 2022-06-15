@@ -1,7 +1,6 @@
 package quote
 
 import (
-	"go/format"
 	"sync"
 )
 

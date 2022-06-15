@@ -7,7 +7,6 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/longbridgeapp/openapi-go"
-	"github.com/mohae/deepcopy"
 
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
@@ -22,7 +21,7 @@ type Core struct {
 	store         *Store
 }
 
-func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
+func NewCore(url string, otp string) (*Core, error) {
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
@@ -32,22 +31,23 @@ func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	core := &Core{
 		client:        cl,
 		url:           url,
 		subscriptions: make(map[string][]SubFlag),
 		store:         &Store{},
 	}
-	cl.AfterReconnected(func() {
-		core.resubscribe(context.Background())
-	})
-	cl.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushFunc(f, core))
-	cl.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushFunc(f, core))
-	cl.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushFunc(f, core))
-	cl.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, core))
-
 	return core, nil
+}
+
+func (c *Core) SetHandler(f func(*PushEvent)) {
+	c.client.AfterReconnected(func() {
+		c.resubscribe(context.Background())
+	})
+	c.client.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushFunc(f, c))
+	c.client.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushFunc(f, c))
+	c.client.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushFunc(f, c))
+	c.client.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, c))
 }
 
 func (c *Core) Subscribe(ctx context.Context, symbols []string, subFlags []SubFlag, isFirstPush bool) (err error) {
@@ -113,7 +113,7 @@ func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 		return
 	}
 	var ret quotev1.SubscriptionResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -124,7 +124,7 @@ func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 	return
 }
 
-func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*SecurityStaticInfo, err error) {
+func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*StaticInfo, err error) {
 	req := &quotev1.MultiSecurityRequest{
 		Symbol: symbols,
 	}
@@ -134,30 +134,11 @@ func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []
 		return
 	}
 	var ret quotev1.SecurityStaticInfoResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
-	staticInfos = make([]*SecurityStaticInfo, 0, len(ret.GetSecuStaticInfo()))
-	for _, item := range ret.GetSecuStaticInfo() {
-		staticInfos = append(staticInfos, &SecurityStaticInfo{
-			Symbol:            item.GetSymbol(),
-			NameCn:            item.GetNameCn(),
-			NameEn:            item.GetNameEn(),
-			NameHk:            item.GetNameHk(),
-			Exchange:          item.GetExchange(),
-			Currency:          item.GetCurrency(),
-			LotSize:           item.GetLotSize(),
-			TotalShares:       item.GetTotalShares(),
-			CirculatingShares: item.GetCirculatingShares(),
-			HkShares:          item.GetHkShares(),
-			Eps:               item.GetEps(),
-			EpsTtm:            item.GetEpsTtm(),
-			Bps:               item.GetBps(),
-			DividendYield:     item.GetDividendYield(),
-			StockDerivatives:  item.GetStockDerivatives(),
-		})
-	}
+	staticInfos = toStaticInfos(ret.GetSecuStaticInfo())
 	return
 }
 
@@ -171,7 +152,7 @@ func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQ
 		return
 	}
 	var ret quotev1.SecurityQuoteResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -189,7 +170,7 @@ func (c *Core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 		return
 	}
 	var ret quotev1.OptionQuoteResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -208,7 +189,7 @@ func (c *Core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuote
 		return
 	}
 	var ret quotev1.WarrantQuoteResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -226,7 +207,7 @@ func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *Securit
 		return
 	}
 	var ret quotev1.SecurityDepthResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -244,7 +225,7 @@ func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 		return
 	}
 	var ret quotev1.SecurityBrokersResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -259,7 +240,7 @@ func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err 
 		return
 	}
 	var ret quotev1.ParticipantBrokerIdsResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -278,7 +259,7 @@ func (c *Core) Trades(ctx context.Context, symbol string, count int32) (trades [
 		return
 	}
 	var ret quotev1.SecurityTradeResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -296,7 +277,7 @@ func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLi
 		return
 	}
 	var ret quotev1.SecurityIntradayResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -317,7 +298,7 @@ func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, c
 		return
 	}
 	var ret quotev1.SecurityCandlestickResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -335,7 +316,7 @@ func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 		return
 	}
 	var ret quotev1.OptionChainDateListResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -362,7 +343,7 @@ func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryD
 		return
 	}
 	var ret quotev1.OptionChainDateStrikeInfoResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -377,7 +358,7 @@ func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err err
 		return
 	}
 	var ret quotev1.IssuerInfoResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -392,7 +373,7 @@ func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSes
 		return
 	}
 	var ret quotev1.MarketTradePeriodResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -412,7 +393,7 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 		return
 	}
 	var ret quotev1.MarketTradeDayResponse
-	err = res.Unmarshal(ret)
+	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
@@ -468,6 +449,10 @@ func (c *Core) RealtimeBrokers(ctx context.Context, symbol string) (securityBork
 		AskBrokers: askBrokers,
 		BidBrokers: bidBorkers,
 	}, nil
+}
+
+func (c *Core) Close() error {
+	return c.client.Close(nil)
 }
 
 func parsePushFunc(f func(*PushEvent), core *Core) func(*protocol.Packet) {

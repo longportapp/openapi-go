@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	nhttp "net/http"
 	"net/url"
-	"time"
 
+	"github.com/golang/glog"
 	"github.com/google/go-querystring/query"
 )
 
@@ -27,7 +28,7 @@ type Client struct {
 	httpClient *nhttp.Client
 }
 
-func (c *Client) Get(ctx context.Context, path string, queryParams interface{}, resp interface{}) error {
+func (c *Client) Get(ctx context.Context, path string, queryParams url.Values, resp interface{}) error {
 	return c.Call(ctx, "GET", path, queryParams, nil, resp)
 }
 
@@ -65,7 +66,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		if err != nil {
 			return err
 		}
-		br = bytes.NewReader(bb)
+		br = bytes.NewBuffer(bb)
 	}
 	req, err := nhttp.NewRequestWithContext(ctx, method, c.opts.URL+path, br)
 	if err != nil {
@@ -81,11 +82,13 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		}
 		req.URL.RawQuery = vals.Encode()
 	}
-	req.Header.Add("X-Api-Key", c.opts.AppKey)
-	req.Header.Add("Authorization", c.opts.AccessToken)
-
+	req.Header.Add("x-api-key", c.opts.AppKey)
+	req.Header.Add("authorization", c.opts.AccessToken)
+	req.Header.Add("content-type", "application/json; charset=utf-8")
 	signature(req, c.opts.AppSecret, bb)
 
+	glog.Infof("method:%v url:%v body:%v", req.Method, req.URL, string(bb))
+	req.Close = true
 	httpResp, err = c.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -117,6 +120,9 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 
 func New(opt ...Option) (*Client, error) {
 	opts := newOptions(opt...)
+	if opts.URL == "" {
+		return nil, errors.New("http url is empty")
+	}
 	client := &Client{
 		opts:       opts,
 		httpClient: &nhttp.Client{Timeout: opts.Timeout},

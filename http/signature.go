@@ -13,12 +13,12 @@ import (
 var sign = &signer.Signer{}
 
 func signature(req *nhttp.Request, secret string, body []byte) error {
-	req.Header.Add("X-Timestamp", strconv.FormatInt(time.Now().Unix(), 10))
-	req.Header.Add("X-Api-Signuature", "HMAC-SHA256 SignedHeaders=authorization;x-api-key;x-timestamp")
+	req.Header.Add("x-timestamp", strconv.FormatInt(time.Now().Unix(), 10))
+	req.Header.Add("x-api-signature", "HMAC-SHA256 SignedHeaders=authorization;x-api-key;x-timestamp")
 	signstr, _, _, err := sign.Sign(context.Background(), util.UnsafeStringToBytes(secret), req, body)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("X-Api-Signuature", signstr)
+	req.Header.Set("x-api-signature", "HMAC-SHA256 SignedHeaders=authorization;x-api-key;x-timestamp, Signature="+signstr)
 	return nil
 }

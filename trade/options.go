@@ -13,13 +13,17 @@ type Option func(*Options)
 
 func WithTradeURL(url string) Option {
 	return func(o *Options) {
-		o.TradeURL = url
+		if url != "" {
+			o.TradeURL = url
+		}
 	}
 }
 
 func WithHttpClient(client *http.Client) Option {
 	return func(o *Options) {
-		o.HttpClient = client
+		if client != nil {
+			o.HttpClient = client
+		}
 	}
 }
 

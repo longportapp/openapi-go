@@ -17,6 +17,10 @@ type QuoteContext struct {
 	core *Core
 }
 
+func (c *QuoteContext) SetOnQuote(f func(*PushEvent)) {
+	c.core.SetHandler(f)
+}
+
 func (c *QuoteContext) Subscribe(ctx context.Context, symbols []string, subFlags []SubFlag, isFirstPush bool) (err error) {
 	return c.core.Subscribe(ctx, symbols, subFlags, isFirstPush)
 }
@@ -29,7 +33,7 @@ func (c *QuoteContext) Subscriptions(ctx context.Context) (subscriptions map[str
 	return c.core.Subscriptions(ctx)
 }
 
-func (c *QuoteContext) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*SecurityStaticInfo, err error) {
+func (c *QuoteContext) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*StaticInfo, err error) {
 	return c.core.StaticInfo(ctx, symbols)
 }
 
@@ -105,15 +109,19 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 	return c.core.RealtimeBrokers(ctx, symbol)
 }
 
-func NewFormEnv(callback func(*PushEvent)) (*QuoteContext, error) {
+func (c *QuoteContext) Close() error {
+	return c.core.Close()
+}
+
+func NewFormEnv() (*QuoteContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {
 		return nil, err
 	}
-	return NewFromCfg(cfg, callback)
+	return NewFromCfg(cfg)
 }
 
-func NewFromCfg(cfg *config.Config, callback func(*PushEvent)) (*QuoteContext, error) {
+func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 	httpClient, err := http.New(
 		http.WithAccessToken(cfg.AccessToken),
 		http.WithAppKey(cfg.AppKey),
@@ -123,16 +131,16 @@ func NewFromCfg(cfg *config.Config, callback func(*PushEvent)) (*QuoteContext, e
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")
 	}
-	return New(callback, WithQuoteURL(cfg.QuoteUrl), WithHttpClient(httpClient))
+	return New(WithQuoteURL(cfg.QuoteUrl), WithHttpClient(httpClient))
 }
 
-func New(callback func(*PushEvent), opt ...Option) (*QuoteContext, error) {
+func New(opt ...Option) (*QuoteContext, error) {
 	opts := newOptions(opt...)
 	otp, err := opts.HttpClient.GetOTP(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get otp")
 	}
-	core, err := NewCore(opts.QuoteURL, otp, callback)
+	core, err := NewCore(opts.QuoteURL, otp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}

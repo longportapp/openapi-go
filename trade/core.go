@@ -19,7 +19,7 @@ type Core struct {
 	mu            sync.Mutex
 }
 
-func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
+func NewCore(url string, otp string) (*Core, error) {
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
@@ -30,13 +30,16 @@ func NewCore(url string, otp string, f func(*PushEvent)) (*Core, error) {
 		return nil, err
 	}
 	core := &Core{client: cl, url: url}
-	cl.AfterReconnected(func() {
-		if err := core.resubscribe(context.Background()); err != nil {
+	return core, nil
+}
+
+func (c *Core) SetHandler(f func(*PushEvent)) {
+	c.client.AfterReconnected(func() {
+		if err := c.resubscribe(context.Background()); err != nil {
 			glog.Error(err)
 		}
 	})
-	cl.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
-	return core, nil
+	c.client.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
 }
 
 func (c *Core) Subscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
@@ -98,6 +101,10 @@ func (c *Core) resubscribe(ctx context.Context) error {
 		glog.Errorf("resubscirbe subscription some failed %v", res.Fail)
 	}
 	return nil
+}
+
+func (c *Core) Close() error {
+	return c.client.Close(nil)
 }
 
 func parseNotifyFunc(f func(*PushEvent)) func(*protocol.Packet) {
