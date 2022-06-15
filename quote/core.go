@@ -398,21 +398,21 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 		return
 	}
 	var day time.Time
-	tradingDays := make([]*time.Time, 0, len(ret.GetTradeDay()))
-	halfTradeDays := make([]*time.Time, 0, len(ret.GetHalfTradeDay()))
+	tradingDays := make([]time.Time, 0, len(ret.GetTradeDay()))
+	halfTradeDays := make([]time.Time, 0, len(ret.GetHalfTradeDay()))
 	for _, dateStr := range ret.GetTradeDay() {
 		day, err = time.Parse(DateLayout, dateStr)
 		if err != nil {
 			return
 		}
-		tradingDays = append(tradingDays, &day)
+		tradingDays = append(tradingDays, day)
 	}
 	for _, dateStr := range ret.GetHalfTradeDay() {
 		day, err = time.Parse(DateLayout, dateStr)
 		if err != nil {
 			return
 		}
-		halfTradeDays = append(halfTradeDays, &day)
+		halfTradeDays = append(halfTradeDays, day)
 	}
 	days = &MarketTradingDay{
 		TradeDay:     tradingDays,

@@ -11,8 +11,14 @@ type TradeStatus int32
 type TradeSession int32
 type TradeSessionType int32
 type EventType int8
+type SubFlag uint8
 
 const (
+	SUBFLAG_QUOTE  SubFlag = 0x1
+	SUBFLAG_DEPTH  SubFlag = 0x2
+	SUBFLAG_BROKER SubFlag = 0x4
+	SUBFLAG_TRADE  SubFlag = 0x8
+
 	EventQuote EventType = iota
 	EventBroker
 	EventTrade
@@ -719,6 +725,22 @@ func toTradePeriods(origin []*quotev1.TradePeriod) (periods []*TradePeriod) {
 }
 
 type MarketTradingDay struct {
-	TradeDay     []*time.Time
-	HalfTradeDay []*time.Time
+	TradeDay     []time.Time
+	HalfTradeDay []time.Time
+}
+
+func toSubTypes(flags []SubFlag) []quotev1.SubType {
+	subTypes := make([]quotev1.SubType, 0, len(flags))
+	for _, flag := range subTypes {
+		subTypes = append(subTypes, quotev1.SubType(flag))
+	}
+	return subTypes
+}
+
+func toSubFlags(flags []quotev1.SubType) []SubFlag {
+	subTypes := make([]SubFlag, 0, len(flags))
+	for _, flag := range subTypes {
+		subTypes = append(subTypes, SubFlag(flag))
+	}
+	return subTypes
 }
