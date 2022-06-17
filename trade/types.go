@@ -128,17 +128,17 @@ type FundPositions struct {
 
 type FundPositionChannel struct {
 	AccountChannel string          `json:"account_channel"`
-	Positions      []*FundPosition `json:"positions"`
+	Positions      []*FundPosition `json:"fund_info"`
 }
 
 type FundPosition struct {
-	Symbol               string     `json:"symbol"`
-	CurrentNetAssetValue string     `json:"current_net_assset_value"`
-	NetAssetValueDay     *time.Time `json:"net_asseet_value_day"`
-	SymbolName           string     `json:"symbol_name"`
-	Currency             string     `json:"currency"`
-	CostNetAssetValue    string     `json:"cost_net_asset_value"`
-	HoldingUnits         string     `json:"holding_units"`
+	Symbol               string `json:"symbol"`
+	CurrentNetAssetValue string `json:"current_net_asset_value"`
+	NetAssetValueDay     string `json:"net_asset_value_day"` // timestamp
+	SymbolName           string `json:"symbol_name"`
+	Currency             string `json:"currency"`
+	CostNetAssetValue    string `json:"cost_net_asset_value"`
+	HoldingUnits         string `json:"holding_units"`
 }
 
 type StockPositions struct {
