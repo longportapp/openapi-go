@@ -4,13 +4,16 @@ import "github.com/longbridgeapp/openapi-go/http"
 
 const DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com"
 
+// Options for quote context
 type Options struct {
 	QuoteURL   string
 	HttpClient *http.Client
 }
 
+// Option
 type Option func(*Options)
 
+// WithQuoteURL to set url for quote context
 func WithQuoteURL(url string) Option {
 	return func(o *Options) {
 		if url != "" {
@@ -19,6 +22,7 @@ func WithQuoteURL(url string) Option {
 	}
 }
 
+// WithHttpClient to set http client for quote context
 func WithHttpClient(client *http.Client) Option {
 	return func(o *Options) {
 		if client != nil {

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/longbridgeapp/openapi-go/internal/signer"
 	"github.com/longbridgeapp/openapi-go/internal/util"
-	"github.com/longbridgeapp/openapi-go/signer"
 )
 
 var sign = &signer.Signer{}

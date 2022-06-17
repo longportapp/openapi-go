@@ -13,39 +13,46 @@ import (
 	"github.com/longbridgeapp/openapi-go/log"
 )
 
-type ApiResponse struct {
+type apiResponse struct {
 	Code    int
 	Message string
 	Data    json.RawMessage
 }
 
-type OTPResponse struct {
+type otpResponse struct {
 	Otp string
 }
 
+// Client is a http client to access Longbridge REST OpenAPI
 type Client struct {
 	opts       *Options
 	httpClient *nhttp.Client
 }
 
+// Get sends Get request with queryParams
 func (c *Client) Get(ctx context.Context, path string, queryParams url.Values, resp interface{}) error {
 	return c.Call(ctx, "GET", path, queryParams, nil, resp)
 }
 
+// Post sends Post request with json body
 func (c *Client) Post(ctx context.Context, path string, body interface{}, resp interface{}) error {
 	return c.Call(ctx, "POST", path, nil, body, resp)
 }
 
+// Put sends Put request with json body
 func (c *Client) Put(ctx context.Context, path string, body interface{}, resp interface{}) error {
 	return c.Call(ctx, "PUT", path, nil, body, resp)
 }
 
+// Delete sends Delete request with queryParams
 func (c *Client) Delete(ctx context.Context, path string, queryParams interface{}, resp interface{}) error {
 	return c.Call(ctx, "DELETE", path, queryParams, nil, resp)
 }
 
+// GetOTP to get one time password
+// Reference: https://open.longbridgeapp.com/en/docs/socket-token-api
 func (c *Client) GetOTP(ctx context.Context) (string, error) {
-	res := &OTPResponse{}
+	res := &otpResponse{}
 	err := c.Get(ctx, "/v1/socket/token", nil, res)
 	if err != nil {
 		return "", err
@@ -53,6 +60,7 @@ func (c *Client) GetOTP(ctx context.Context) (string, error) {
 	return res.Otp, nil
 }
 
+// Call will send request with signature to http server
 func (c *Client) Call(ctx context.Context, method, path string, queryParams interface{}, body interface{}, resp interface{}) (err error) {
 	var (
 		br       io.Reader
@@ -101,7 +109,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return err
 	}
 	log.Debugf("http call response body:%v", string(rb))
-	apiResp := &ApiResponse{}
+	apiResp := &apiResponse{}
 	if err = json.Unmarshal(rb, apiResp); err != nil {
 		return err
 	}
@@ -119,6 +127,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	return nil
 }
 
+// New create http client to call Longbridge REST OpenAPI
 func New(opt ...Option) (*Client, error) {
 	opts := newOptions(opt...)
 	if opts.URL == "" {

@@ -30,6 +30,7 @@ func isSupportedSigner(s string) bool {
 	return false
 }
 
+// Signer is for to sign request can access longbridge api
 type Signer struct{}
 
 func (_ *Signer) String() string {
@@ -92,7 +93,7 @@ func (s *Signer) parseSignature(str string) (signer string, signerHeaders []stri
 	return
 }
 
-// Sign signature method of longbridge
+// Sign signature method of Longbridge OpenApi
 func (s *Signer) Sign(ctx context.Context, secret []byte, req *http.Request, body []byte) (signature string, plain string, equal bool, err error) {
 	var (
 		signedHeaders  []string

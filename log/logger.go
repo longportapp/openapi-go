@@ -24,6 +24,7 @@ func init() {
 	logger = dlogger
 }
 
+// SetLogger set another logger
 func SetLogger(nlog Logger) {
 	logger = nlog
 }
@@ -41,6 +42,7 @@ type Logger interface {
 	Debugf(fmt string, args ...interface{})
 }
 
+// DefaultLogger implement by fmt
 type DefaultLogger struct {
 	lvl LogLevel
 }

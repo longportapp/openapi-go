@@ -25,7 +25,10 @@ type TradesData struct {
 	Sequence int64
 	Trades   []*Trade
 }
-type Store struct {
+
+// store is an storeage to save quote, brokers, depth,
+// trades information from server push event.
+type store struct {
 	quoteMut    sync.RWMutex
 	quoteData   map[string]*QuoteData
 	brokersMut  sync.RWMutex
@@ -36,8 +39,8 @@ type Store struct {
 	depthData   map[string]*DepthData
 }
 
-func NewStore() *Store {
-	return &Store{
+func newStore() *store {
+	return &store{
 		quoteData:   make(map[string]*QuoteData),
 		brokersData: make(map[string]*BrokersData),
 		tradesData:  make(map[string]*TradesData),
@@ -45,7 +48,7 @@ func NewStore() *Store {
 	}
 }
 
-func (s *Store) HandlePushEvent(event *PushEvent) {
+func (s *store) HandlePushEvent(event *PushEvent) {
 	switch event.Type {
 	case EventBroker:
 		s.MergeBroker(event.Brokers)
@@ -58,7 +61,7 @@ func (s *Store) HandlePushEvent(event *PushEvent) {
 	}
 }
 
-func (s *Store) MergeBroker(brokers *PushBrokers) {
+func (s *store) MergeBroker(brokers *PushBrokers) {
 	s.brokersMut.Lock()
 	defer s.brokersMut.Unlock()
 	data := s.brokersData[brokers.Symbol]
@@ -78,7 +81,7 @@ func (s *Store) MergeBroker(brokers *PushBrokers) {
 	data.BidBrokers = replaceBrokers(data.BidBrokers, brokers.BidBrokers)
 }
 
-func (s *Store) MergeDepth(depth *PushDepth) {
+func (s *store) MergeDepth(depth *PushDepth) {
 	s.depthMut.Lock()
 	defer s.depthMut.Unlock()
 	data := s.depthData[depth.Symbol]
@@ -98,7 +101,7 @@ func (s *Store) MergeDepth(depth *PushDepth) {
 	data.Bid = replaceDepth(data.Bid, depth.Bid)
 }
 
-func (s *Store) MergeQuote(quote *PushQuote) {
+func (s *store) MergeQuote(quote *PushQuote) {
 	s.quoteMut.Lock()
 	defer s.quoteMut.Unlock()
 	data := s.quoteData[quote.Symbol]
@@ -142,7 +145,7 @@ func (s *Store) MergeQuote(quote *PushQuote) {
 	data.Quote = newQuote
 }
 
-func (s *Store) MergeTrade(trade *PushTrade) {
+func (s *store) MergeTrade(trade *PushTrade) {
 	s.tradesMut.Lock()
 	defer s.tradesMut.Unlock()
 	data := s.tradesData[trade.Symbol]
@@ -160,7 +163,7 @@ func (s *Store) MergeTrade(trade *PushTrade) {
 	data.Trades = append(data.Trades, trade.Trade...)
 }
 
-func (s *Store) GetTrades(symbol string) []*Trade {
+func (s *store) GetTrades(symbol string) []*Trade {
 	s.tradesMut.RLock()
 	defer s.tradesMut.RUnlock()
 	data := s.tradesData[symbol]
@@ -177,7 +180,7 @@ func (s *Store) GetTrades(symbol string) []*Trade {
 	return trades
 }
 
-func (s *Store) GetBrokers(symbol string) ([]*Brokers, []*Brokers) {
+func (s *store) GetBrokers(symbol string) ([]*Brokers, []*Brokers) {
 	s.brokersMut.RLock()
 	defer s.brokersMut.RUnlock()
 	data := s.brokersData[symbol]
@@ -187,7 +190,7 @@ func (s *Store) GetBrokers(symbol string) ([]*Brokers, []*Brokers) {
 	return copyBrokers(data.AskBrokers), copyBrokers(data.BidBrokers)
 }
 
-func (s *Store) GetDepth(symbol string) ([]*Depth, []*Depth) {
+func (s *store) GetDepth(symbol string) ([]*Depth, []*Depth) {
 	s.depthMut.RLock()
 	defer s.depthMut.RUnlock()
 	data := s.depthData[symbol]
@@ -197,7 +200,7 @@ func (s *Store) GetDepth(symbol string) ([]*Depth, []*Depth) {
 	return copyDepth(data.Ask), copyDepth(data.Bid)
 }
 
-func (s *Store) GetQuote(symbol string) *Quote {
+func (s *store) GetQuote(symbol string) *Quote {
 	s.quoteMut.RLock()
 	defer s.quoteMut.RUnlock()
 	data := s.quoteData[symbol]

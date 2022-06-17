@@ -5,6 +5,7 @@ import "time"
 const DefaultHttpUrl = "https://openapi.longbridgeapp.com"
 const DefaultTimeout = 5 * time.Second
 
+// Options for http client
 type Options struct {
 	URL         string
 	AppKey      string
@@ -13,8 +14,10 @@ type Options struct {
 	Timeout     time.Duration
 }
 
+// Option for http client
 type Option func(*Options)
 
+// WithURL to set url
 func WithURL(url string) Option {
 	return func(opts *Options) {
 		if url != "" {
@@ -23,6 +26,7 @@ func WithURL(url string) Option {
 	}
 }
 
+// WithAppKey to set app key
 func WithAppKey(appKey string) Option {
 	return func(opts *Options) {
 		if appKey != "" {
@@ -31,6 +35,7 @@ func WithAppKey(appKey string) Option {
 	}
 }
 
+// WithAppSecret to set app secret
 func WithAppSecret(appSecret string) Option {
 	return func(opts *Options) {
 		if appSecret != "" {
@@ -39,6 +44,7 @@ func WithAppSecret(appSecret string) Option {
 	}
 }
 
+// WithAccessToken to set access token
 func WithAccessToken(accessToken string) Option {
 	return func(opts *Options) {
 		if accessToken != "" {
@@ -47,6 +53,7 @@ func WithAccessToken(accessToken string) Option {
 	}
 }
 
+// WithTimeout to set timeout
 func WithTimeout(timeout time.Duration) Option {
 	return func(opts *Options) {
 		if timeout > 0 {

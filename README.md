@@ -7,7 +7,7 @@
 _With Go module support , simply add the following import_
 
 ```golang
-import "google.golang.org/grpc"
+import "github.com/longbridgeapp/openapi-go"
 ```
 
 _Setting environment variables(MacOS/Linux)_

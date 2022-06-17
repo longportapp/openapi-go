@@ -20,7 +20,7 @@ type core struct {
 	url           string
 	mu            sync.Mutex
 	subscriptions map[string][]SubType
-	store         *Store
+	store         *store
 }
 
 func newCore(url string, otp string) (*core, error) {
@@ -38,7 +38,7 @@ func newCore(url string, otp string) (*core, error) {
 		client:        cl,
 		url:           url,
 		subscriptions: make(map[string][]SubType),
-		store:         NewStore(),
+		store:         newStore(),
 	}
 	return core, nil
 }

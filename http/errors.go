@@ -14,7 +14,7 @@ func (ae *ApiError) Error() string {
 	return fmt.Sprintf("longbridge openapi error, httpStatus:%d code:%d message:%s", ae.HttpStatus, ae.Code, ae.Message)
 }
 
-func NewError(httpStatus int, resp *ApiResponse) error {
+func NewError(httpStatus int, resp *apiResponse) error {
 	return &ApiError{
 		HttpStatus: httpStatus,
 		Code:       resp.Code,

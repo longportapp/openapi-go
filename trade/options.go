@@ -4,13 +4,16 @@ import "github.com/longbridgeapp/openapi-go/http"
 
 const DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com"
 
+// Options for quote context
 type Options struct {
 	TradeURL   string
 	HttpClient *http.Client
 }
 
+// Option
 type Option func(*Options)
 
+// WithTradeURL to set trade url for trade context
 func WithTradeURL(url string) Option {
 	return func(o *Options) {
 		if url != "" {
@@ -19,6 +22,7 @@ func WithTradeURL(url string) Option {
 	}
 }
 
+// WithHttpClient to set http client for trade context
 func WithHttpClient(client *http.Client) Option {
 	return func(o *Options) {
 		if client != nil {
