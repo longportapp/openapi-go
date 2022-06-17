@@ -3,7 +3,6 @@ package trade
 import (
 	"encoding/json"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
@@ -91,36 +90,14 @@ func (r *GetTodayOrders) Values() url.Values {
 }
 
 type ReplaceOrder struct {
-	OrderId         string // required
-	Quantity        uint64 // required
-	Price           string // LO / ELO / ALO / ODD / LIT Order Required
-	TriggerPrice    string // LIT / MIT Order Required
-	LimitOffset     string // TSLPAMT / TSLPPCT Order Required
-	TrailingAmount  string // TSLPAMT / TSMAMT Order Required
-	TrailingPercent string // TSLPPCT / TSMAPCT Order Required
-	Remark          string
-}
-
-func (r *ReplaceOrder) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		OrderId         string `json:"order_id"`
-		Quantity        string `json:"quantity"`
-		Price           string `json:"price"`
-		TriggerPrice    string `json:"trigger_price"`
-		LimitOffset     string `json:"limit_offset"`
-		TrailingAmount  string `json:"trailing_ammount"`
-		TrailingPercent string `json:"trailing_percent"`
-		Remark          string `json:"remark"`
-	}{
-		OrderId:         r.OrderId,
-		Quantity:        strconv.FormatUint(r.Quantity, 10),
-		Price:           r.Price,
-		TriggerPrice:    r.TriggerPrice,
-		LimitOffset:     r.LimitOffset,
-		TrailingAmount:  r.TrailingAmount,
-		TrailingPercent: r.TrailingPercent,
-		Remark:          r.Remark,
-	})
+	OrderId         string `json:"order_id"`         // required
+	Quantity        uint64 `json:"quantity,string"`  // required
+	Price           string `json:"price"`            // LO / ELO / ALO / ODD / LIT Order Required
+	TriggerPrice    string `json:"trigger_price"`    // LIT / MIT Order Required
+	LimitOffset     string `json:"limit_offset"`     // TSLPAMT / TSLPPCT Order Required
+	TrailingAmount  string `json:"trailing_ammount"` // TSLPAMT / TSMAMT Order Required
+	TrailingPercent string `json:"trailing_percent"` // TSLPPCT / TSMAPCT Order Required
+	Remark          string `json:"remark"`
 }
 
 type SubmitOrder struct {
@@ -144,7 +121,7 @@ func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
 		Symbol            string `json:"symbol"`
 		OrderType         string `json:"order_type"`
 		Side              string `json:"side"`
-		SubmittedQuantity string `json:"submitted_quantity"`
+		SubmittedQuantity uint64 `json:"submitted_quantity,string"`
 		SubmittedPrice    string `json:"submitted_price,omitempty"`
 		TriggerPrice      string `json:"trigger_price,omitempty"`
 		LimitOffset       string `json:"limit_offset,omitempty"`
@@ -158,7 +135,7 @@ func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
 		Symbol:            r.Symbol,
 		OrderType:         string(r.OrderType),
 		Side:              string(r.Side),
-		SubmittedQuantity: strconv.FormatUint(r.SubmittedQuantity, 10),
+		SubmittedQuantity: r.SubmittedQuantity,
 		SubmittedPrice:    r.SubmittedPrice,
 		TriggerPrice:      r.TriggerPrice,
 		LimitOffset:       r.LimitOffset,

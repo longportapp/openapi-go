@@ -134,7 +134,7 @@ type FundPositionChannel struct {
 type FundPosition struct {
 	Symbol               string `json:"symbol"`
 	CurrentNetAssetValue string `json:"current_net_asset_value"`
-	NetAssetValueDay     string `json:"net_asset_value_day"` // timestamp
+	NetAssetValueDay     int64  `json:"net_asset_value_day,string"` // timestamp
 	SymbolName           string `json:"symbol_name"`
 	Currency             string `json:"currency"`
 	CostNetAssetValue    string `json:"cost_net_asset_value"`
