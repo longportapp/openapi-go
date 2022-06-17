@@ -18,7 +18,7 @@ type AdjustType int32
 const (
 	// SubType
 	SubTypeUnknown SubType = SubType(quotev1.SubType_UNKNOWN_TYPE)
-	SubTytpeQuote  SubType = SubType(quotev1.SubType_QUOTE)
+	SubTypeQuote   SubType = SubType(quotev1.SubType_QUOTE)
 	SubTypeDepth   SubType = SubType(quotev1.SubType_DEPTH)
 	SubTypeBrokers SubType = SubType(quotev1.SubType_BROKERS)
 	SubTypeTrade   SubType = SubType(quotev1.SubType_TRADE)
@@ -45,11 +45,7 @@ const (
 	AdjustTypeForward = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
 )
 
-type QotSubscription struct {
-	Symbol        string
-	Subscriptions []SubType
-}
-
+// PushEvent is quote context callback event
 type PushEvent struct {
 	Type     EventType
 	Symbol   string
@@ -60,6 +56,7 @@ type PushEvent struct {
 	Trade    *PushTrade
 }
 
+// PushQuote is quote info push from server
 type PushQuote struct {
 	Symbol       string
 	Sequence     int64
@@ -90,6 +87,7 @@ func toPushQuote(origin *quotev1.PushQuote) *PushQuote {
 	}
 }
 
+// PushDepth is depth info push from server
 type PushDepth struct {
 	Symbol   string
 	Sequence int64
@@ -106,6 +104,7 @@ func toPushDepth(origin *quotev1.PushDepth) *PushDepth {
 	}
 }
 
+// PushBrokers is brokers info push from server
 type PushBrokers struct {
 	Symbol     string
 	Sequence   int64
@@ -122,6 +121,7 @@ func toPushBrokers(origin *quotev1.PushBrokers) *PushBrokers {
 	}
 }
 
+// PushTrade is trade info push from server
 type PushTrade struct {
 	Symbol   string
 	Sequence int64
@@ -136,6 +136,7 @@ func toPushTrades(origin *quotev1.PushTrade) *PushTrade {
 	}
 }
 
+// Depth store depth details
 type Depth struct {
 	Position int32
 	Price    string
@@ -176,10 +177,10 @@ func toBrokers(origin []*quotev1.Brokers) (brokers []*Brokers) {
 	return
 }
 
+// Trade store trade details
 type Trade struct {
-	Price  string
-	Volume int64
-	// Timestamp of trading
+	Price     string
+	Volume    int64
 	Timestamp int64
 	// TradeType
 	// HK
@@ -232,6 +233,7 @@ func toTrades(origin []*quotev1.Trade) (trades []*Trade) {
 	return
 }
 
+// StaticInfo store static details
 type StaticInfo struct {
 	Symbol            string
 	NameCn            string
@@ -274,6 +276,7 @@ func toStaticInfos(origin []*quotev1.StaticInfo) (staticInfos []*StaticInfo) {
 	return
 }
 
+// Issuer to save issuer id
 type Issuer struct {
 	ID     int32
 	NameCn string
@@ -281,19 +284,7 @@ type Issuer struct {
 	NameHk string
 }
 
-type RealtimeOptionQuote struct {
-	Symbol       string
-	LastDone     float64
-	PrevClose    float64
-	Open         float64
-	High         float64
-	Low          float64
-	Timestamp    int64
-	Volume       int64
-	Turnover     float64
-	OptionExtend *OptionExtend
-}
-
+// OptionQuote to option quote details
 type OptionQuote struct {
 	Symbol       string
 	LastDone     string
@@ -327,6 +318,7 @@ func toOptionQuotes(origin []*quotev1.OptionQuote) (quotes []*OptionQuote) {
 	return
 }
 
+// OptionExtend is option extended properties
 type OptionExtend struct {
 	ImpliedVolatility    string
 	OpenInterest         int64
@@ -355,6 +347,7 @@ func toOptionExtend(origin *quotev1.OptionExtend) *OptionExtend {
 	}
 }
 
+// StrikePriceInfo is strike price details
 type StrikePriceInfo struct {
 	Price      string
 	CallSymbol string
@@ -375,6 +368,7 @@ func toStrikePriceInfos(origin []*quotev1.StrikePriceInfo) (priceInfos []*Strike
 	return priceInfos
 }
 
+// WarrantExtend is warrant extended properties
 type WarrantExtend struct {
 	ImpliedVolatility string
 	ExpiryDate        string
@@ -388,19 +382,6 @@ type WarrantExtend struct {
 	LowerStrikePrice  string
 	CallPrice         string
 	UnderlyingSymbol  string
-}
-
-type RealtimeWarrantQuote struct {
-	Symbol        string
-	LastDone      float64
-	PrevClose     float64
-	Open          float64
-	High          float64
-	Low           float64
-	Timestamp     int64
-	Volume        int64
-	Turnover      float64
-	WarrantExtend *WarrantExtend
 }
 
 func toWarrantExtend(origin *quotev1.WarrantExtend) *WarrantExtend {
@@ -420,6 +401,7 @@ func toWarrantExtend(origin *quotev1.WarrantExtend) *WarrantExtend {
 	}
 }
 
+// WarrantQuote is warrant quote details
 type WarrantQuote struct {
 	Symbol        string
 	LastDone      string
@@ -454,39 +436,7 @@ func toWarrantQuotes(origin []*quotev1.WarrantQuote) (warrantQuotes []*WarrantQu
 	return
 }
 
-type WarrantFilter struct {
-	Symbol   string
-	Language string
-
-	SortBy     int32
-	SortOrder  int32 // 0 Ascending 1 Desending
-	SortOffset int32
-	PageSize   int32 // Up to 500
-
-	// The following are optional
-
-	Type      []int32 // optional values: 0 - Call	1 - Put 2 - Bull 3 - Bear 4 - Inline
-	IssuerIDs []int32
-
-	// ExpiryDateType can have the following values.
-	// 1 - Less than 3 months
-	// 2 - 3 - 6 months
-	// 3 - 6 - 12 months
-	// 4 - greater than 12 months
-	ExpiryDateType []int32
-
-	// Optional values for PriceType
-	// 1 - In bounds
-	// 2 - Out bounds
-	PriceType []int32
-
-	// Optional values for Status:
-	// 2 - Suspend trading
-	// 3 - Papare List
-	// 4 - Normal
-	Status []int32
-}
-
+// Warrant is warrant details
 type Warrant struct {
 	Symbol            string
 	Name              string
@@ -512,11 +462,13 @@ type Warrant struct {
 	State             string
 }
 
+// TradeDate
 type TradeDate struct {
 	Date          string
 	TradeDateType int32 // 0 full day, 1 morning only, 2 afternoon only(not happened before)
 }
 
+// Candlestick is candlestick details
 type Candlestick struct {
 	Close     string
 	Open      string
@@ -543,6 +495,7 @@ func toCandlesticks(origin []*quotev1.Candlestick) (sticks []*Candlestick) {
 	return
 }
 
+// Quote is quote details
 type Quote struct {
 	Symbol       string
 	LastDone     string
@@ -556,6 +509,7 @@ type Quote struct {
 	TradeSession TradeSessionType
 }
 
+// SecurityQuote is quote details with pre market and post market
 type SecurityQuote struct {
 	Symbol          string
 	LastDone        string
@@ -608,6 +562,7 @@ func toSecurityQuotes(origin []*quotev1.SecurityQuote) (quotes []*SecurityQuote)
 	return
 }
 
+// PrePostQuote is pre or post quote details
 type PrePostQuote struct {
 	LastDone  string
 	Timestamp int64
@@ -618,6 +573,7 @@ type PrePostQuote struct {
 	PrevClose string
 }
 
+// SecurityDepth
 type SecurityDepth struct {
 	Symbol string
 	Ask    []*Depth
@@ -632,6 +588,7 @@ func toSecurityDepth(origin *quotev1.SecurityDepthResponse) *SecurityDepth {
 	}
 }
 
+// SecurityBrokers is security brokers details
 type SecurityBrokers struct {
 	Symbol     string
 	AskBrokers []*Brokers
@@ -646,6 +603,7 @@ func toSecurityBrokers(origin *quotev1.SecurityBrokersResponse) *SecurityBrokers
 	}
 }
 
+// ParticipantInfo has all participant brokers
 type ParticipantInfo struct {
 	BrokerIds         []int32
 	ParticipantNameCn string
@@ -666,6 +624,7 @@ func toParticipantInfos(origin []*quotev1.ParticipantInfo) (participantInfos []*
 	return
 }
 
+// IntradayLine is k line
 type IntradayLine struct {
 	Price     string
 	Timestamp int64
@@ -688,6 +647,7 @@ func toIntradayLines(origin []*quotev1.Line) (lines []*IntradayLine) {
 	return
 }
 
+// IssuerInfo is issuer infomation
 type IssuerInfo struct {
 	Id     int32
 	NameCn string
@@ -708,6 +668,7 @@ func toIssueInfos(origin []*quotev1.IssuerInfo) (infos []*IssuerInfo) {
 	return
 }
 
+// MarketTradingSession is market's session details
 type MarketTradingSession struct {
 	Market       openapi.Market
 	TradeSession []*TradePeriod
@@ -724,6 +685,7 @@ func toMarketTradingSessions(origin []*quotev1.MarketTradePeriod) (sessions []*M
 	return
 }
 
+// TradePeriod
 type TradePeriod struct {
 	BegTime      int32
 	EndTime      int32
@@ -742,6 +704,7 @@ func toTradePeriods(origin []*quotev1.TradePeriod) (periods []*TradePeriod) {
 	return
 }
 
+// MarketTradingDay contains market open trade days
 type MarketTradingDay struct {
 	TradeDay     []time.Time
 	HalfTradeDay []time.Time

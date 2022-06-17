@@ -15,7 +15,7 @@ import (
 	"github.com/longbridgeapp/openapi-protocol/go/client"
 )
 
-type Core struct {
+type core struct {
 	client        *client.Client
 	url           string
 	mu            sync.Mutex
@@ -23,7 +23,7 @@ type Core struct {
 	store         *Store
 }
 
-func NewCore(url string, otp string) (*Core, error) {
+func newCore(url string, otp string) (*core, error) {
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
@@ -34,7 +34,7 @@ func NewCore(url string, otp string) (*Core, error) {
 		return nil, err
 	}
 	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
-	core := &Core{
+	core := &core{
 		client:        cl,
 		url:           url,
 		subscriptions: make(map[string][]SubType),
@@ -43,7 +43,7 @@ func NewCore(url string, otp string) (*Core, error) {
 	return core, nil
 }
 
-func (c *Core) SetHandler(f func(*PushEvent)) {
+func (c *core) SetHandler(f func(*PushEvent)) {
 	c.client.AfterReconnected(func() {
 		c.resubscribe(context.Background())
 	})
@@ -53,14 +53,14 @@ func (c *Core) SetHandler(f func(*PushEvent)) {
 	c.client.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, c))
 }
 
-func (c *Core) Subscribe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
+func (c *core) Subscribe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.doSubscirbe(ctx, symbols, subTypes, isFirstPush)
 	return
 }
 
-func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
+func (c *core) doSubscirbe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
 	req := &quotev1.SubscribeRequest{
 		IsFirstPush: isFirstPush,
 		SubType:     toQuoteSubTypes(subTypes),
@@ -76,7 +76,7 @@ func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subTypes []Sub
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string, subTypes []SubType) (err error) {
+func (c *core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string, subTypes []SubType) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	req := &quotev1.UnsubscribeRequest{
@@ -97,7 +97,7 @@ func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string,
 	return
 }
 
-func (c *Core) resubscribe(ctx context.Context) error {
+func (c *core) resubscribe(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for symbol, subflags := range c.subscriptions {
@@ -109,7 +109,7 @@ func (c *Core) resubscribe(ctx context.Context) error {
 	return nil
 }
 
-func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubType, err error) {
+func (c *core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubType, err error) {
 	req := &quotev1.SubscriptionRequest{}
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscription), Body: req})
@@ -128,7 +128,7 @@ func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 	return
 }
 
-func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*StaticInfo, err error) {
+func (c *core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []*StaticInfo, err error) {
 	req := &quotev1.MultiSecurityRequest{
 		Symbol: symbols,
 	}
@@ -146,7 +146,7 @@ func (c *Core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []
 	return
 }
 
-func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQuote, err error) {
+func (c *core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
 		Symbol: symbols,
 	}
@@ -164,7 +164,7 @@ func (c *Core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQ
 	return
 }
 
-func (c *Core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes []*OptionQuote, err error) {
+func (c *core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes []*OptionQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
 		Symbol: symbols,
 	}
@@ -183,7 +183,7 @@ func (c *Core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 
 }
 
-func (c *Core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuotes []*WarrantQuote, err error) {
+func (c *core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuotes []*WarrantQuote, err error) {
 	req := &quotev1.MultiSecurityRequest{
 		Symbol: symbols,
 	}
@@ -201,7 +201,7 @@ func (c *Core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuote
 	return
 }
 
-func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
+func (c *core) Depth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
 	req := &quotev1.SecurityRequest{
 		Symbol: symbol,
 	}
@@ -219,7 +219,7 @@ func (c *Core) Depth(ctx context.Context, symbol string) (securityDepth *Securit
 	return
 }
 
-func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
+func (c *core) Brokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
 	req := &quotev1.SecurityRequest{
 		Symbol: symbol,
 	}
@@ -237,7 +237,7 @@ func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 	return
 }
 
-func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err error) {
+func (c *core) Participants(ctx context.Context) (infos []*ParticipantInfo, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryParticipantBrokerIds)})
 	if err != nil {
@@ -252,7 +252,7 @@ func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err 
 	return
 }
 
-func (c *Core) Trades(ctx context.Context, symbol string, count int32) (trades []*Trade, err error) {
+func (c *core) Trades(ctx context.Context, symbol string, count int32) (trades []*Trade, err error) {
 	req := &quotev1.SecurityTradeRequest{
 		Symbol: symbol,
 		Count:  count,
@@ -271,7 +271,7 @@ func (c *Core) Trades(ctx context.Context, symbol string, count int32) (trades [
 	return
 }
 
-func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLine, err error) {
+func (c *core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLine, err error) {
 	req := &quotev1.SecurityIntradayRequest{
 		Symbol: symbol,
 	}
@@ -289,7 +289,7 @@ func (c *Core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLi
 	return
 }
 
-func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, count int32, adjustType AdjustType) (sticks []*Candlestick, err error) {
+func (c *core) Candlesticks(ctx context.Context, symbol string, period Period, count int32, adjustType AdjustType) (sticks []*Candlestick, err error) {
 	req := &quotev1.SecurityCandlestickRequest{
 		Symbol:     symbol,
 		Period:     quotev1.Period(period),
@@ -310,7 +310,7 @@ func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, c
 	return
 }
 
-func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []time.Time, err error) {
+func (c *core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []time.Time, err error) {
 	req := &quotev1.SecurityRequest{
 		Symbol: symbol,
 	}
@@ -331,7 +331,7 @@ func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 	return
 }
 
-func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (times []time.Time, err error) {
+func (c *core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (times []time.Time, err error) {
 	req := &quotev1.OptionChainDateStrikeInfoRequest{
 		Symbol:     symbol,
 		ExpiryDate: util.FormatDateSimple(expiryDate),
@@ -353,7 +353,7 @@ func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryD
 	return
 }
 
-func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err error) {
+func (c *core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryWarrantIssuerInfo)})
 	if err != nil {
@@ -368,7 +368,7 @@ func (c *Core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err err
 	return
 }
 
-func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSession, err error) {
+func (c *core) TradingSession(ctx context.Context) (sessions []*MarketTradingSession, err error) {
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryMarketTradePeriod)})
 	if err != nil {
@@ -383,7 +383,7 @@ func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSes
 	return
 }
 
-func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *time.Time, end *time.Time) (days *MarketTradingDay, err error) {
+func (c *core) TradingDays(ctx context.Context, market openapi.Market, begin *time.Time, end *time.Time) (days *MarketTradingDay, err error) {
 	var (
 		tradingDays   []time.Time
 		halfTradeDays []time.Time
@@ -419,7 +419,7 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 	return
 }
 
-func (c *Core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Quote, err error) {
+func (c *core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Quote, err error) {
 	quotes = make([]*Quote, 0, len(symbols))
 	for _, symbol := range symbols {
 		quotes = append(quotes, c.store.GetQuote(symbol))
@@ -427,7 +427,7 @@ func (c *Core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Q
 	return
 }
 
-func (c *Core) RealtimeDepth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
+func (c *core) RealtimeDepth(ctx context.Context, symbol string) (securityDepth *SecurityDepth, err error) {
 	askDepths, bidDepths := c.store.GetDepth(symbol)
 	return &SecurityDepth{
 		Symbol: symbol,
@@ -436,11 +436,11 @@ func (c *Core) RealtimeDepth(ctx context.Context, symbol string) (securityDepth 
 	}, nil
 }
 
-func (c *Core) RealtimeTrades(ctx context.Context, symbol string) (trades []*Trade, err error) {
+func (c *core) RealtimeTrades(ctx context.Context, symbol string) (trades []*Trade, err error) {
 	return c.store.GetTrades(symbol), nil
 }
 
-func (c *Core) RealtimeBrokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
+func (c *core) RealtimeBrokers(ctx context.Context, symbol string) (securityBorkers *SecurityBrokers, err error) {
 	askBrokers, bidBorkers := c.store.GetBrokers(symbol)
 	return &SecurityBrokers{
 		Symbol:     symbol,
@@ -449,11 +449,11 @@ func (c *Core) RealtimeBrokers(ctx context.Context, symbol string) (securityBork
 	}, nil
 }
 
-func (c *Core) Close() error {
+func (c *core) Close() error {
 	return c.client.Close(nil)
 }
 
-func parsePushFunc(f func(*PushEvent), core *Core) func(*protocol.Packet) {
+func parsePushFunc(f func(*PushEvent), core *core) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		event, err := newPushEvent(packet)
 		if err != nil {

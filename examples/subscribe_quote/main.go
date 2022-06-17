@@ -21,12 +21,12 @@ func main() {
 	}
 	defer quoteContext.Close()
 	ctx := context.Background()
-	quoteContext.SetOnQuote(func(pe *quote.PushEvent) {
+	quoteContext.OnQuote(func(pe *quote.PushEvent) {
 		bytes, _ := json.Marshal(pe)
 		fmt.Println(string(bytes))
 	})
 	// Subscribe some symbols
-	err = quoteContext.Subscribe(ctx, []string{"700.HK"}, []quote.SubType{quote.SubTypeBrokers, quote.SubTypeDepth, quote.SubTypeTrade, quote.SubTytpeQuote}, true)
+	err = quoteContext.Subscribe(ctx, []string{"700.HK"}, []quote.SubType{quote.SubTypeBrokers, quote.SubTypeDepth, quote.SubTypeTrade, quote.SubTypeQuote}, true)
 	if err != nil {
 		log.Fatal(err)
 		return

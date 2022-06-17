@@ -13,14 +13,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Core struct {
+type core struct {
 	client        *client.Client
 	url           string
 	subscriptions []string
 	mu            sync.Mutex
 }
 
-func NewCore(url string, otp string) (*Core, error) {
+func newCore(url string, otp string) (*core, error) {
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
@@ -31,11 +31,11 @@ func NewCore(url string, otp string) (*Core, error) {
 		return nil, err
 	}
 	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
-	core := &Core{client: cl, url: url}
+	core := &core{client: cl, url: url}
 	return core, nil
 }
 
-func (c *Core) SetHandler(f func(*PushEvent)) {
+func (c *core) SetHandler(f func(*PushEvent)) {
 	c.client.AfterReconnected(func() {
 		if err := c.resubscribe(context.Background()); err != nil {
 			log.Error(err)
@@ -44,13 +44,13 @@ func (c *Core) SetHandler(f func(*PushEvent)) {
 	c.client.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
 }
 
-func (c *Core) Subscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
+func (c *core) Subscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.doSubscribe(ctx, topics)
 }
 
-func (c *Core) doSubscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
+func (c *core) doSubscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
 	var res *protocol.Packet
 	req := &tradev1.Sub{Topics: topics}
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_SUB), Body: req})
@@ -72,7 +72,7 @@ func (c *Core) doSubscribe(ctx context.Context, topics []string) (subRes *SubRes
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, topics []string) (unsubRes *UnsubResponse, err error) {
+func (c *core) Unsubscribe(ctx context.Context, topics []string) (unsubRes *UnsubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	var res *protocol.Packet
@@ -91,7 +91,7 @@ func (c *Core) Unsubscribe(ctx context.Context, topics []string) (unsubRes *Unsu
 	return
 }
 
-func (c *Core) resubscribe(ctx context.Context) error {
+func (c *core) resubscribe(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	res, err := c.doSubscribe(ctx, c.subscriptions)
@@ -104,7 +104,7 @@ func (c *Core) resubscribe(ctx context.Context) error {
 	return nil
 }
 
-func (c *Core) Close() error {
+func (c *core) Close() error {
 	return c.client.Close(nil)
 }
 

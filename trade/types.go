@@ -58,6 +58,7 @@ const (
 	OutsideRTHUnknown OutsideRTH = "UnknownOutsideRth" // Default is UnknownOutsideRth when the order is not a US stock
 )
 
+// Execution is execution details
 type Execution struct {
 	OrderId     string
 	TradeId     string
@@ -67,19 +68,22 @@ type Execution struct {
 	Price       string
 }
 
+// Executions has a Execution list
 type Executions struct {
 	Trades []*Execution
 }
 
-type SubmitOrderResponse struct {
+type submitOrderResponse struct {
 	OrderId string `json:"order_id"`
 }
 
+// Orders has a Order details
 type Orders struct {
 	HasMore bool     `json:"has_more"`
 	Orders  []*Order `json:"orders"`
 }
 
+// Order is order details
 type Order struct {
 	OrderId          string        `json:"order_id"`
 	Status           OrderStatus   `json:"status"`
@@ -108,10 +112,12 @@ type Order struct {
 	OutsideRth       OutsideRTH    `json:"outside_rth"`
 }
 
+// AccountBalances has a AccountBalance list
 type AccountBalances struct {
 	List []*AccountBalance `json:"list"`
 }
 
+// AccountBalance is user account balance
 type AccountBalance struct {
 	TotalCash              string      `json:"total_cash"`
 	MaxFinanceAmount       string      `json:"max_finance_amount"`
@@ -122,15 +128,18 @@ type AccountBalance struct {
 	CashInfos              []*CashInfo `json:"cash_infos"`
 }
 
+// FundPositions has a FundPosition list
 type FundPositions struct {
 	List []*FundPositionChannel `json:"list"`
 }
 
+// FundPositionChannel is a account channel's fund position details
 type FundPositionChannel struct {
 	AccountChannel string          `json:"account_channel"`
 	Positions      []*FundPosition `json:"fund_info"`
 }
 
+// FundPosition is fund position details
 type FundPosition struct {
 	Symbol               string `json:"symbol"`
 	CurrentNetAssetValue string `json:"current_net_asset_value"`
@@ -141,15 +150,18 @@ type FundPosition struct {
 	HoldingUnits         string `json:"holding_units"`
 }
 
+// StockPositions has a StockPosition list
 type StockPositions struct {
 	List []*StockPositionChannel `json:"list"`
 }
 
+// StockPositionChannel is a account channel's stock positions details
 type StockPositionChannel struct {
 	AccountChannel string           `json:"account_channel"`
 	Positions      []*StockPosition `json:"stock_info"`
 }
 
+// StockPosition is user stock position details
 type StockPosition struct {
 	Symbol            string         `json:"symbol"`
 	SymbolName        string         `json:"symbol_name"`
@@ -160,10 +172,12 @@ type StockPosition struct {
 	Market            openapi.Market `json:"market"`
 }
 
+// CashFlows has a CashFlow list
 type CashFlows struct {
 	List []*CashFlow `json:"list"`
 }
 
+// CashFlow is cash flow details
 type CashFlow struct {
 	TransactionFlowName string      `json:"transaction_flow_name"`
 	Direction           OfDirection `json:"direction"`
@@ -175,6 +189,7 @@ type CashFlow struct {
 	Description         string      `json:"description"`
 }
 
+// CashInfo
 type CashInfo struct {
 	WithdrawCash  string `json:"withdraw_cash"`
 	AvailableCash string `json:"avaliable_cash"`
@@ -183,11 +198,13 @@ type CashInfo struct {
 	Currency      string `json:"currency"`
 }
 
+// PushEvent is quote context callback event
 type PushEvent struct {
 	Event string            `json:"event"`
 	Data  *PushOrderChanged `json:"data"`
 }
 
+// PushOrderChanged is order change event details
 type PushOrderChanged struct {
 	Side             OrderSide     `json:"side"`
 	StockName        string        `json:"stock_name"`
@@ -213,12 +230,14 @@ type PushOrderChanged struct {
 	AccountNo        string        `json:"account_no"`
 }
 
+// SubResponse is subscribe function response
 type SubResponse struct {
 	Success []string
 	Fail    []*SubResponseFail
 	Current []string
 }
 
+// SubResponseFail contains subscribe failed reason
 type SubResponseFail struct {
 	Topic  string
 	Reason string

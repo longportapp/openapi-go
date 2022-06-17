@@ -10,12 +10,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+// QuoteContext is a client for interacting with Longbridge Quote OpenAPI
+// Longbrige Quote OpenAPI document is https://open.longbridgeapp.com/en/docs/quote/overview
 type QuoteContext struct {
 	opts *Options
-	core *Core
+	core *core
 }
 
-func (c *QuoteContext) SetOnQuote(f func(*PushEvent)) {
+// OnQuote set callback function which will be called when server push events.
+func (c *QuoteContext) OnQuote(f func(*PushEvent)) {
 	c.core.SetHandler(f)
 }
 
@@ -147,10 +150,12 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 	return c.core.RealtimeBrokers(ctx, symbol)
 }
 
+// Close
 func (c *QuoteContext) Close() error {
 	return c.core.Close()
 }
 
+// NewFromEnv return QuoteContext with environment variables.
 func NewFormEnv() (*QuoteContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {
@@ -159,6 +164,7 @@ func NewFormEnv() (*QuoteContext, error) {
 	return NewFromCfg(cfg)
 }
 
+// NewFromCfg return QuoteContext with config.Config
 func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 	httpClient, err := http.New(
 		http.WithAccessToken(cfg.AccessToken),
@@ -172,13 +178,15 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 	return New(WithQuoteURL(cfg.QuoteUrl), WithHttpClient(httpClient))
 }
 
+// New return QuoteContext with option.
+// A connection will be created with quote server.
 func New(opt ...Option) (*QuoteContext, error) {
 	opts := newOptions(opt...)
 	otp, err := opts.HttpClient.GetOTP(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get otp")
 	}
-	core, err := NewCore(opts.QuoteURL, otp)
+	core, err := newCore(opts.QuoteURL, otp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}

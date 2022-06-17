@@ -10,12 +10,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TradeContext is a client for interacting with Longbridge Trade OpenAPI.
+// Longbrige Quote OpenAPI document is https://open.longbridgeapp.com/en/docs/trade/trade-overview
 type TradeContext struct {
 	opts *Options
-	core *Core
+	core *core
 }
 
-func (c *TradeContext) SetOnTrade(f func(*PushEvent)) {
+// OnQuote set callback function which will be called when server push events.
+func (c *TradeContext) OnTrade(f func(*PushEvent)) {
 	c.core.SetHandler(f)
 }
 
@@ -90,7 +93,7 @@ func (c *TradeContext) ReplaceOrder(ctx context.Context, params *ReplaceOrder) (
 // SubmitOrder HK and US stocks, warrant and option
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/submit
 func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (orderId string, err error) {
-	resp := &SubmitOrderResponse{}
+	resp := &submitOrderResponse{}
 	err = c.opts.HttpClient.Post(ctx, "/v1/trade/order", params, resp)
 	if err != nil {
 		return
@@ -156,10 +159,12 @@ func (c *TradeContext) StockPositions(ctx context.Context, symbols []string) (st
 	return
 }
 
+// Close
 func (c *TradeContext) Close() error {
 	return c.core.Close()
 }
 
+// NewFormEnv return TradeContext with environment variables.
 func NewFormEnv() (*TradeContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {
@@ -168,6 +173,7 @@ func NewFormEnv() (*TradeContext, error) {
 	return NewFromCfg(cfg)
 }
 
+// NewFromCfg return TradeContext with config.Config.
 func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 	httpClient, err := http.New(
 		http.WithAccessToken(cfg.AccessToken),
@@ -181,13 +187,15 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 	return New(WithTradeURL(cfg.TradeUrl), WithHttpClient(httpClient))
 }
 
+// New return TradeContext with option.
+// A connection will be created with Trade server.
 func New(opt ...Option) (*TradeContext, error) {
 	opts := newOptions(opt...)
 	otp, err := opts.HttpClient.GetOTP(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get otp")
 	}
-	core, err := NewCore(opts.TradeURL, otp)
+	core, err := newCore(opts.TradeURL, otp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}
