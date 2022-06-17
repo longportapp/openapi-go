@@ -9,8 +9,8 @@ import (
 	nhttp "net/http"
 	"net/url"
 
-	"github.com/golang/glog"
 	"github.com/google/go-querystring/query"
+	"github.com/longbridgeapp/openapi-go/log"
 )
 
 type ApiResponse struct {
@@ -87,19 +87,20 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	req.Header.Add("content-type", "application/json; charset=utf-8")
 	signature(req, c.opts.AppSecret, bb)
 
-	glog.Infof("method:%v url:%v body:%v", req.Method, req.URL, string(bb))
+	log.Debugf("http call method:%v url:%v body:%v", req.Method, req.URL, string(bb))
 	req.Close = true
 	httpResp, err = c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
+	log.Debugf("http call response headers:%v", httpResp.Header)
 
 	defer httpResp.Body.Close()
 	rb, err = io.ReadAll(httpResp.Body)
 	if err != nil {
 		return err
 	}
-
+	log.Debugf("http call response body:%v", string(rb))
 	apiResp := &ApiResponse{}
 	if err = json.Unmarshal(rb, apiResp); err != nil {
 		return err

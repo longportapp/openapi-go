@@ -66,6 +66,7 @@ func (s *Store) MergeBroker(brokers *PushBrokers) {
 		data = &BrokersData{
 			AskBrokers: make([]*Brokers, 0),
 			BidBrokers: make([]*Brokers, 0),
+			Sequence:   -1,
 		}
 		s.brokersData[brokers.Symbol] = data
 	}
@@ -83,8 +84,9 @@ func (s *Store) MergeDepth(depth *PushDepth) {
 	data := s.depthData[depth.Symbol]
 	if data == nil {
 		data = &DepthData{
-			Ask: make([]*Depth, 0),
-			Bid: make([]*Depth, 0),
+			Ask:      make([]*Depth, 0),
+			Bid:      make([]*Depth, 0),
+			Sequence: -1,
 		}
 		s.depthData[depth.Symbol] = data
 	}
@@ -102,7 +104,10 @@ func (s *Store) MergeQuote(quote *PushQuote) {
 	data := s.quoteData[quote.Symbol]
 	if data == nil {
 		data = &QuoteData{
-			Quote: &PushQuote{},
+			Quote: &PushQuote{
+				Symbol: quote.Symbol,
+			},
+			Sequence: -1,
 		}
 		s.quoteData[quote.Symbol] = data
 	}
@@ -110,7 +115,8 @@ func (s *Store) MergeQuote(quote *PushQuote) {
 		return
 	}
 	data.Sequence = quote.Sequence
-	newQuote := *(data.Quote)
+	newQuote := new(PushQuote)
+	*newQuote = *data.Quote
 	if quote.LastDone != "" {
 		newQuote.LastDone = quote.LastDone
 	}
@@ -133,7 +139,7 @@ func (s *Store) MergeQuote(quote *PushQuote) {
 	newQuote.TradeSession = quote.TradeSession
 	newQuote.TradeStatus = quote.TradeStatus
 	newQuote.Sequence = quote.Sequence
-	data.Quote = &newQuote
+	data.Quote = newQuote
 }
 
 func (s *Store) MergeTrade(trade *PushTrade) {
@@ -142,7 +148,8 @@ func (s *Store) MergeTrade(trade *PushTrade) {
 	data := s.tradesData[trade.Symbol]
 	if data == nil {
 		data = &TradesData{
-			Trades: make([]*Trade, 0),
+			Trades:   make([]*Trade, 0),
+			Sequence: -1,
 		}
 		s.tradesData[trade.Symbol] = data
 	}
@@ -161,7 +168,7 @@ func (s *Store) GetTrades(symbol string) []*Trade {
 		return nil
 	}
 	// copy
-	trades := make([]*Trade, len(data.Trades))
+	trades := make([]*Trade, 0, len(data.Trades))
 	for _, trade := range data.Trades {
 		n := new(Trade)
 		*n = *trade
@@ -198,6 +205,7 @@ func (s *Store) GetQuote(symbol string) *Quote {
 		return nil
 	}
 	return &Quote{
+		Symbol:       data.Quote.Symbol,
 		Open:         data.Quote.Open,
 		High:         data.Quote.High,
 		Low:          data.Quote.Low,
@@ -211,7 +219,7 @@ func (s *Store) GetQuote(symbol string) *Quote {
 }
 
 func copyDepth(depths []*Depth) []*Depth {
-	newDepths := make([]*Depth, len(depths))
+	newDepths := make([]*Depth, 0, len(depths))
 	for _, depth := range depths {
 		n := new(Depth)
 		*n = *depth
@@ -221,7 +229,7 @@ func copyDepth(depths []*Depth) []*Depth {
 }
 
 func copyBrokers(brokers []*Brokers) []*Brokers {
-	newBrokers := make([]*Brokers, len(brokers))
+	newBrokers := make([]*Brokers, 0, len(brokers))
 	for _, broker := range brokers {
 		n := new(Brokers)
 		*n = *broker

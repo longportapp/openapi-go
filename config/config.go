@@ -30,16 +30,13 @@ func NewFormEnv() (*Config, error) {
 	if appSecret == "" {
 		return nil, errors.New("Don't has appSecret. Please set app secret on LONGBRIDGE_APP_Secret env")
 	}
-	tradeUrl := GetTradeUrlFromEnv()
-	quoteUrl := GetQuoteUrlFromEnv()
-	httpUrl := GetHttpUrlFromEnv()
 	conf := &Config{
 		AppKey:      appKey,
 		AppSecret:   appSecret,
 		AccessToken: accessToken,
-		TradeUrl:    tradeUrl,
-		QuoteUrl:    quoteUrl,
-		HttpURL:     httpUrl,
+		TradeUrl:    GetTradeUrlFromEnv(),
+		QuoteUrl:    GetQuoteUrlFromEnv(),
+		HttpURL:     GetHttpUrlFromEnv(),
 	}
 	return conf, nil
 }
@@ -66,4 +63,8 @@ func GetQuoteUrlFromEnv() string {
 
 func GetHttpUrlFromEnv() string {
 	return os.Getenv("LONGBRIDGE_HTTP_URL")
+}
+
+func GetLogLevelFromEnv() string {
+	return os.Getenv("LONGBRIDGE_LOG_LEVEL")
 }

@@ -20,13 +20,23 @@ func (p params) AddInt(key string, val int64) {
 	p[key] = strconv.FormatInt(val, 10)
 }
 
+func (p params) AddUInt(key string, val int64) {
+	p[key] = strconv.FormatInt(val, 10)
+}
+
 func (p params) AddDate(key string, val time.Time) {
 	if !val.IsZero() {
-		p[key] = util.FormatDate(val)
+		p[key] = util.FormatDate(&val)
 	}
 }
 
-func (p params) AddOptInt(key string, val *int64) {
+func (p params) AddOptInt(key string, val int64) {
+	if val == 0 {
+		p.AddInt(key, val)
+	}
+}
+
+func (p params) AddPoniterInt(key string, val *int64) {
 	if val != nil {
 		p.AddInt(key, *val)
 	}

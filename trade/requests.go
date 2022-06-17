@@ -3,6 +3,7 @@ package trade
 import (
 	"encoding/json"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
@@ -10,12 +11,15 @@ import (
 )
 
 type GetHistoryExecutions struct {
-	Symbol  string
-	StartAt time.Time
-	EndAt   time.Time
+	Symbol  string    // optional
+	StartAt time.Time // optional
+	EndAt   time.Time // optional
 }
 
-func (req GetHistoryExecutions) Values() url.Values {
+func (req *GetHistoryExecutions) Values() url.Values {
+	if req == nil {
+		return url.Values{}
+	}
 	p := &params{}
 	p.Add("symbol", req.Symbol)
 	p.AddDate("start_at", req.StartAt)
@@ -24,11 +28,14 @@ func (req GetHistoryExecutions) Values() url.Values {
 }
 
 type GetTodayExecutions struct {
-	Symbol  string
-	OrderId string
+	Symbol  string // optional
+	OrderId string // optional
 }
 
-func (req GetTodayExecutions) Values() url.Values {
+func (req *GetTodayExecutions) Values() url.Values {
+	if req == nil {
+		return url.Values{}
+	}
 	p := &params{}
 	p.Add("symbol", req.Symbol)
 	p.Add("order_id", req.OrderId)
@@ -36,15 +43,18 @@ func (req GetTodayExecutions) Values() url.Values {
 }
 
 type GetHistoryOrders struct {
-	Symbol  string
-	Status  []OrderStatus
-	Side    OrderSide
-	Market  openapi.Market
-	StartAt int64
-	EndAt   int64
+	Symbol  string         // optional
+	Status  []OrderStatus  // optional
+	Side    OrderSide      // optional
+	Market  openapi.Market // optional
+	StartAt int64          // optional
+	EndAt   int64          // optional
 }
 
 func (r *GetHistoryOrders) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
 	p := &params{}
 	p.Add("symbol", string(r.Symbol))
 	p.Add("side", string(r.Side))
@@ -59,13 +69,16 @@ func (r *GetHistoryOrders) Values() url.Values {
 }
 
 type GetTodayOrders struct {
-	Symbol string
-	Status []OrderStatus
-	Side   OrderSide
-	Market openapi.Market
+	Symbol string         // optional
+	Status []OrderStatus  // optional
+	Side   OrderSide      // optional
+	Market openapi.Market // optional
 }
 
 func (r *GetTodayOrders) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
 	p := &params{}
 	p.Add("symbol", string(r.Symbol))
 	p.Add("side", string(r.Side))
@@ -78,30 +91,52 @@ func (r *GetTodayOrders) Values() url.Values {
 }
 
 type ReplaceOrder struct {
-	OrderId         string `json:"order_id"`
-	Quantity        int64  `json:"quantity"`
-	Price           string `json:"price"`
-	TriggerPrice    string `json:"trigger_price"`
-	LimitOffset     string `json:"limit_offset"`
-	TrailingAmount  string `json:"trailing_ammount"`
-	TrailingPercent string `json:"trailing_percent"`
-	Remark          string `json:"remark"`
+	OrderId         string // required
+	Quantity        uint64 // required
+	Price           string // LO / ELO / ALO / ODD / LIT Order Required
+	TriggerPrice    string // LIT / MIT Order Required
+	LimitOffset     string // TSLPAMT / TSLPPCT Order Required
+	TrailingAmount  string // TSLPAMT / TSMAMT Order Required
+	TrailingPercent string // TSLPPCT / TSMAPCT Order Required
+	Remark          string
+}
+
+func (r *ReplaceOrder) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		OrderId         string `json:"order_id"`
+		Quantity        string `json:"quantity"`
+		Price           string `json:"price"`
+		TriggerPrice    string `json:"trigger_price"`
+		LimitOffset     string `json:"limit_offset"`
+		TrailingAmount  string `json:"trailing_ammount"`
+		TrailingPercent string `json:"trailing_percent"`
+		Remark          string `json:"remark"`
+	}{
+		OrderId:         r.OrderId,
+		Quantity:        strconv.FormatUint(r.Quantity, 10),
+		Price:           r.Price,
+		TriggerPrice:    r.TriggerPrice,
+		LimitOffset:     r.LimitOffset,
+		TrailingAmount:  r.TrailingAmount,
+		TrailingPercent: r.TrailingPercent,
+		Remark:          r.Remark,
+	})
 }
 
 type SubmitOrder struct {
-	Symbol            string
-	OrderType         OrderType
-	Side              OrderSide
-	SubmittedQuantity int64
-	SubmittedPrice    string
-	TriggerPrice      string
-	LimitOffset       string
-	TrailingAmount    string
-	TrailingPercent   string
-	ExpireDate        time.Time
+	Symbol            string    // required
+	OrderType         OrderType // required
+	Side              OrderSide // required
+	SubmittedQuantity uint64    // required
+	SubmittedPrice    string    // LO / ELO / ALO / ODD / LIT Order Required
+	TriggerPrice      string    // LIT / MIT Order Required
+	LimitOffset       string    // TSLPAMT / TSLPPCT Order Required
+	TrailingAmount    string    // TSLPAMT / TSMAMT Order Required
+	TrailingPercent   string    // TSLPPCT / TSMAPCT Order Required
+	ExpireDate        time.Time // required when time_in_force is GTD
 	OutsideRTH        OutsideRTH
 	Remark            string
-	TimeInForce       TimeType
+	TimeInForce       TimeType // required
 }
 
 func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
@@ -109,27 +144,27 @@ func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
 		Symbol            string `json:"symbol"`
 		OrderType         string `json:"order_type"`
 		Side              string `json:"side"`
-		SubmittedQuantity int64  `json:"submitted_quantity"`
-		SubmittedPrice    string `json:"submitted_price"`
-		TriggerPrice      string `json:"trigger_price"`
-		LimitOffset       string `json:"limit_offset"`
-		TrailingAmount    string `json:"trailing_amount"`
-		TrailingPercent   string `json:"trailing_percent"`
-		ExpireDate        string `json:"expire_date"`
-		OutsideRTH        string `json:"outside_rth"`
-		Remark            string `json:"remark"`
+		SubmittedQuantity string `json:"submitted_quantity"`
+		SubmittedPrice    string `json:"submitted_price,omitempty"`
+		TriggerPrice      string `json:"trigger_price,omitempty"`
+		LimitOffset       string `json:"limit_offset,omitempty"`
+		TrailingAmount    string `json:"trailing_amount,omitempty"`
+		TrailingPercent   string `json:"trailing_percent,omitempty"`
+		ExpireDate        string `json:"expire_date,omitempty"`
+		OutsideRTH        string `json:"outside_rth,omitempty"`
+		Remark            string `json:"remark,omitempty"`
 		TimeInForce       string `json:"time_in_force"`
 	}{
 		Symbol:            r.Symbol,
 		OrderType:         string(r.OrderType),
 		Side:              string(r.Side),
-		SubmittedQuantity: r.SubmittedQuantity,
+		SubmittedQuantity: strconv.FormatUint(r.SubmittedQuantity, 10),
 		SubmittedPrice:    r.SubmittedPrice,
 		TriggerPrice:      r.TriggerPrice,
 		LimitOffset:       r.LimitOffset,
 		TrailingAmount:    r.TrailingAmount,
 		TrailingPercent:   r.TrailingPercent,
-		ExpireDate:        util.FormatDate(r.ExpireDate),
+		ExpireDate:        util.FormatDate(&r.ExpireDate),
 		OutsideRTH:        string(r.OutsideRTH),
 		Remark:            r.Remark,
 		TimeInForce:       string(r.TimeInForce),
@@ -137,10 +172,13 @@ func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
 }
 
 type GetFundPositions struct {
-	Symbols []string
+	Symbols []string // optional
 }
 
 func (r *GetFundPositions) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
 	vals := url.Values{}
 	for _, s := range r.Symbols {
 		vals.Add("symbols", string(s))
@@ -149,10 +187,13 @@ func (r *GetFundPositions) Values() url.Values {
 }
 
 type GetStockPositions struct {
-	Symbols []string
+	Symbols []string // optional
 }
 
 func (r *GetStockPositions) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
 	vals := url.Values{}
 	for _, s := range r.Symbols {
 		vals.Add("symbols", string(s))
@@ -161,22 +202,24 @@ func (r *GetStockPositions) Values() url.Values {
 }
 
 type GetCashFlow struct {
-	StartAt      time.Time
-	EndAt        time.Time
-	BusinessType *BalanceType
+	StartAt      int64 // start timestamp , required
+	EndAt        int64 // end timestamp, required
+	BusinessType BalanceType
 	Symbol       string
-	Page         *int64
-	Size         *int64
+	Page         int64
+	Size         int64
 }
 
 func (r *GetCashFlow) Values() url.Values {
-	p := &params{}
-	p.Add("symbol", string(r.Symbol))
-	p.AddInt("start_at", r.StartAt.Unix())
-	p.AddInt("end_at", r.EndAt.Unix())
-	p.AddOptInt("page", r.Page)
-	if r.BusinessType != nil {
-		p.AddInt("business_type", int64(*r.BusinessType))
+	if r == nil {
+		return url.Values{}
 	}
+	p := &params{}
+	p.Add("symbol", r.Symbol)
+	p.AddInt("start_at", r.StartAt)
+	p.AddInt("end_at", r.EndAt)
+	p.AddOptInt("page", r.Page)
+	p.AddOptInt("size", r.Size)
+	p.AddInt("business_type", int64(r.BusinessType))
 	return p.Values()
 }

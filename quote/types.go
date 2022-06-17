@@ -11,19 +11,44 @@ type TradeStatus int32
 type TradeSession int32
 type TradeSessionType int32
 type EventType int8
-type SubFlag uint8
+type SubType uint8
+type Period int32
+type AdjustType int32
 
 const (
-	SUBFLAG_QUOTE  SubFlag = 0x1
-	SUBFLAG_DEPTH  SubFlag = 0x2
-	SUBFLAG_BROKER SubFlag = 0x4
-	SUBFLAG_TRADE  SubFlag = 0x8
+	// SubType
+	SubTypeUnknown SubType = SubType(quotev1.SubType_UNKNOWN_TYPE)
+	SubTytpeQuote  SubType = SubType(quotev1.SubType_QUOTE)
+	SubTypeDepth   SubType = SubType(quotev1.SubType_DEPTH)
+	SubTypeBrokers SubType = SubType(quotev1.SubType_BROKERS)
+	SubTypeTrade   SubType = SubType(quotev1.SubType_TRADE)
 
+	// SubEvent
 	EventQuote EventType = iota
 	EventBroker
 	EventTrade
 	EventDepth
+
+	// Period
+	PeriodOneMinute     = Period(quotev1.Period_ONE_MINUTE)
+	PeriodFiveMinute    = Period(quotev1.Period_FIVE_MINUTE)
+	PeriodFifteenMinute = Period(quotev1.Period_FIFTEEN_MINUTE)
+	PeriodThirtyMinute  = Period(quotev1.Period_THIRTY_MINUTE)
+	PeriodSixtyMinute   = Period(quotev1.Period_SIXTY_MINUTE)
+	PeriodDay           = Period(quotev1.Period_DAY)
+	PeriodWeek          = Period(quotev1.Period_WEEK)
+	PeriodMonth         = Period(quotev1.Period_MONTH)
+	PeriodYear          = Period(quotev1.Period_YEAR)
+
+	// AdjustType
+	AdjustTypeNo      = AdjustType(quotev1.AdjustType_NO_ADJUST)
+	AdjustTypeForward = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
 )
+
+type QotSubscription struct {
+	Symbol        string
+	Subscriptions []SubType
+}
 
 type PushEvent struct {
 	Type     EventType
@@ -141,7 +166,7 @@ type Brokers struct {
 }
 
 func toBrokers(origin []*quotev1.Brokers) (brokers []*Brokers) {
-	brokers = make([]*Brokers, len(origin))
+	brokers = make([]*Brokers, 0, len(origin))
 	for _, item := range origin {
 		brokers = append(brokers, &Brokers{
 			Position:  item.GetPosition(),
@@ -152,9 +177,41 @@ func toBrokers(origin []*quotev1.Brokers) (brokers []*Brokers) {
 }
 
 type Trade struct {
-	Price        string
-	Volume       int64
-	Timestamp    int64
+	Price  string
+	Volume int64
+	// Timestamp of trading
+	Timestamp int64
+	// TradeType
+	// HK
+	//
+	// - `*` - Overseas trade
+	// - `D` - Odd-lot trade
+	// - `M` - Non-direct off-exchange trade
+	// - `P` - Late trade (Off-exchange previous day)
+	// - `U` - Auction trade
+	// - `X` - Direct off-exchange trade
+	// - `Y` - Automatch internalized
+	// - `<empty string>` -  Automatch normal
+	//
+	// US
+	//
+	// - `<empty string>` - Regular sale
+	// - `A` - Acquisition
+	// - `B` - Bunched trade
+	// - `D` - Distribution
+	// - `F` - Intermarket sweep
+	// - `G` - Bunched sold trades
+	// - `H` - Price variation trade
+	// - `I` - Odd lot trade
+	// - `K` - Rule 155 trde(NYSE MKT)
+	// - `M` - Market center close price
+	// - `P` - Prior reference price
+	// - `Q` - Market center open price
+	// - `S` - Split trade
+	// - `V` - Contingent trade
+	// - `W` - Average price trade
+	// - `X` - Cross trade
+	// - `1` - Stopped stock(Regular trade)
 	TradeType    string
 	Direction    int32
 	TradeSession TradeSession
@@ -307,7 +364,6 @@ type StrikePriceInfo struct {
 
 func toStrikePriceInfos(origin []*quotev1.StrikePriceInfo) (priceInfos []*StrikePriceInfo) {
 	priceInfos = make([]*StrikePriceInfo, 0, len(origin))
-	// TODO use copier
 	for _, item := range origin {
 		priceInfos = append(priceInfos, &StrikePriceInfo{
 			Price:      item.GetPrice(),
@@ -380,7 +436,6 @@ type WarrantQuote struct {
 
 func toWarrantQuotes(origin []*quotev1.WarrantQuote) (warrantQuotes []*WarrantQuote) {
 	warrantQuotes = make([]*WarrantQuote, 0, len(origin))
-	// TODO use copier
 	for _, item := range origin {
 		warrantQuotes = append(warrantQuotes, &WarrantQuote{
 			Symbol:        item.GetSymbol(),
@@ -462,41 +517,6 @@ type TradeDate struct {
 	TradeDateType int32 // 0 full day, 1 morning only, 2 afternoon only(not happened before)
 }
 
-type SubscriptionType = quotev1.SubType
-
-const (
-	SubscriptionRealtimeQuote = SubscriptionType(quotev1.SubType_QUOTE)
-	SubscriptionOrderBook     = SubscriptionType(quotev1.SubType_DEPTH)
-	SubscriptionBrokerQueue   = SubscriptionType(quotev1.SubType_BROKERS)
-	SubscriptionTicker        = SubscriptionType(quotev1.SubType_TRADE)
-)
-
-type QotSubscription struct {
-	Symbol        string
-	Subscriptions []SubscriptionType
-}
-
-type Period int32
-
-const (
-	Period_ONE_MINUTE     = Period(quotev1.Period_ONE_MINUTE)
-	Period_FIVE_MINUTE    = Period(quotev1.Period_FIVE_MINUTE)
-	Period_FIFTEEN_MINUTE = Period(quotev1.Period_FIFTEEN_MINUTE)
-	Period_THIRTY_MINUTE  = Period(quotev1.Period_THIRTY_MINUTE)
-	Period_SIXTY_MINUTE   = Period(quotev1.Period_SIXTY_MINUTE)
-	Period_DAY            = Period(quotev1.Period_DAY)
-	Period_WEEK           = Period(quotev1.Period_WEEK)
-	Period_MONTH          = Period(quotev1.Period_MONTH)
-	Period_YEAR           = Period(quotev1.Period_YEAR)
-)
-
-type AdjustType int32
-
-const (
-	AdjustType_NO_ADJUST      = AdjustType(quotev1.AdjustType_NO_ADJUST)
-	AdjustType_FORWARD_ADJUST = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
-)
-
 type Candlestick struct {
 	Close     string
 	Open      string
@@ -509,7 +529,6 @@ type Candlestick struct {
 
 func toCandlesticks(origin []*quotev1.Candlestick) (sticks []*Candlestick) {
 	sticks = make([]*Candlestick, 0, len(origin))
-	// TODO use copier
 	for _, item := range origin {
 		sticks = append(sticks, &Candlestick{
 			Close:     item.GetClose(),
@@ -554,7 +573,6 @@ type SecurityQuote struct {
 
 func toSecurityQuotes(origin []*quotev1.SecurityQuote) (quotes []*SecurityQuote) {
 	quotes = make([]*SecurityQuote, 0, len(origin))
-	// TODO use copier
 	for _, item := range origin {
 		quotes = append(quotes, &SecurityQuote{
 			Symbol:      item.GetSymbol(),
@@ -637,7 +655,6 @@ type ParticipantInfo struct {
 
 func toParticipantInfos(origin []*quotev1.ParticipantInfo) (participantInfos []*ParticipantInfo) {
 	participantInfos = make([]*ParticipantInfo, 0, len(origin))
-	// TODO use copier
 	for _, item := range origin {
 		participantInfos = append(participantInfos, &ParticipantInfo{
 			BrokerIds:         item.GetBrokerIds(),
@@ -658,11 +675,12 @@ type IntradayLine struct {
 }
 
 func toIntradayLines(origin []*quotev1.Line) (lines []*IntradayLine) {
-	lines = make([]*IntradayLine, len(origin))
+	lines = make([]*IntradayLine, 0, len(origin))
 	for _, item := range origin {
 		lines = append(lines, &IntradayLine{
 			Price:     item.GetPrice(),
 			Timestamp: item.GetTimestamp(),
+			Turnover:  item.GetTurnover(),
 			Volume:    item.GetVolume(),
 			AvgPrice:  item.GetAvgPrice(),
 		})
@@ -678,7 +696,7 @@ type IssuerInfo struct {
 }
 
 func toIssueInfos(origin []*quotev1.IssuerInfo) (infos []*IssuerInfo) {
-	infos = make([]*IssuerInfo, len(origin))
+	infos = make([]*IssuerInfo, 0, len(origin))
 	for _, item := range origin {
 		infos = append(infos, &IssuerInfo{
 			Id:     item.GetId(),
@@ -696,7 +714,7 @@ type MarketTradingSession struct {
 }
 
 func toMarketTradingSessions(origin []*quotev1.MarketTradePeriod) (sessions []*MarketTradingSession) {
-	sessions = make([]*MarketTradingSession, len(origin))
+	sessions = make([]*MarketTradingSession, 0, len(origin))
 	for _, item := range origin {
 		sessions = append(sessions, &MarketTradingSession{
 			Market:       openapi.Market(item.GetMarket()),
@@ -713,7 +731,7 @@ type TradePeriod struct {
 }
 
 func toTradePeriods(origin []*quotev1.TradePeriod) (periods []*TradePeriod) {
-	periods = make([]*TradePeriod, len(origin))
+	periods = make([]*TradePeriod, 0, len(origin))
 	for _, item := range origin {
 		periods = append(periods, &TradePeriod{
 			BegTime:      item.GetBegTime(),
@@ -729,18 +747,18 @@ type MarketTradingDay struct {
 	HalfTradeDay []time.Time
 }
 
-func toSubTypes(flags []SubFlag) []quotev1.SubType {
-	subTypes := make([]quotev1.SubType, 0, len(flags))
-	for _, flag := range subTypes {
-		subTypes = append(subTypes, quotev1.SubType(flag))
+func toQuoteSubTypes(origin []SubType) []quotev1.SubType {
+	subTypes := make([]quotev1.SubType, 0, len(origin))
+	for _, item := range origin {
+		subTypes = append(subTypes, quotev1.SubType(item))
 	}
 	return subTypes
 }
 
-func toSubFlags(flags []quotev1.SubType) []SubFlag {
-	subTypes := make([]SubFlag, 0, len(flags))
-	for _, flag := range subTypes {
-		subTypes = append(subTypes, SubFlag(flag))
+func toSubTypes(origin []quotev1.SubType) []SubType {
+	subTypes := make([]SubType, 0, len(origin))
+	for _, item := range origin {
+		subTypes = append(subTypes, SubType(item))
 	}
 	return subTypes
 }

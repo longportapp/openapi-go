@@ -1,8 +1,8 @@
 package util
 
 import (
-	"unsafe"
 	"reflect"
+	"unsafe"
 )
 
 // UnsafeStringToBytes convert string to bytes without memory allocation

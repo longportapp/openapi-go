@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/golang/glog"
+	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
@@ -29,6 +30,7 @@ func NewCore(url string, otp string) (*Core, error) {
 	if err != nil {
 		return nil, err
 	}
+	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
 	core := &Core{client: cl, url: url}
 	return core, nil
 }
@@ -36,22 +38,21 @@ func NewCore(url string, otp string) (*Core, error) {
 func (c *Core) SetHandler(f func(*PushEvent)) {
 	c.client.AfterReconnected(func() {
 		if err := c.resubscribe(context.Background()); err != nil {
-			glog.Error(err)
+			log.Error(err)
 		}
 	})
 	c.client.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
 }
 
-func (c *Core) Subscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
+func (c *Core) Subscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.doSubscribe(ctx, symbols)
-	return
+	return c.doSubscribe(ctx, topics)
 }
 
-func (c *Core) doSubscribe(ctx context.Context, symbols []string) (subRes *SubResponse, err error) {
+func (c *Core) doSubscribe(ctx context.Context, topics []string) (subRes *SubResponse, err error) {
 	var res *protocol.Packet
-	req := &tradev1.Sub{Topics: symbols}
+	req := &tradev1.Sub{Topics: topics}
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_SUB), Body: req})
 	if err != nil {
 		return
@@ -71,11 +72,11 @@ func (c *Core) doSubscribe(ctx context.Context, symbols []string) (subRes *SubRe
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, symbols []string) (unsubRes *UnsubResponse, err error) {
+func (c *Core) Unsubscribe(ctx context.Context, topics []string) (unsubRes *UnsubResponse, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	var res *protocol.Packet
-	req := &tradev1.Unsub{Topics: symbols}
+	req := &tradev1.Unsub{Topics: topics}
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(tradev1.Command_CMD_UNSUB), Body: req})
 	if err != nil {
 		return
@@ -98,7 +99,7 @@ func (c *Core) resubscribe(ctx context.Context) error {
 		return errors.Wrap(err, "resubscribe error")
 	}
 	if len(res.Fail) > 0 {
-		glog.Errorf("resubscirbe subscription some failed %v", res.Fail)
+		log.Errorf("resubscirbe subscription some failed %v", res.Fail)
 	}
 	return nil
 }
@@ -111,19 +112,13 @@ func parseNotifyFunc(f func(*PushEvent)) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var notify tradev1.Notification
 		if err := packet.Unmarshal(&notify); err != nil {
-			glog.Error(err)
+			log.Error(err)
 			return
-		}
-		if notify.GetContentType() != 1 {
-			glog.Error("trade context event content type not json")
-			return
-		}
-		var orderChange PushOrderChanged
-		if err := json.Unmarshal(notify.GetData(), orderChange); err != nil {
-			glog.Error(err)
 		}
 		var event PushEvent
-		event.orderChanged = &orderChange
+		if err := json.Unmarshal(notify.GetData(), &event); err != nil {
+			log.Error(err)
+		}
 		f(&event)
 	}
 }

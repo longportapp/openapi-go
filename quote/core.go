@@ -5,8 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/longbridgeapp/openapi-go"
+	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longbridgeapp/openapi-go/log"
 
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
@@ -17,7 +19,7 @@ type Core struct {
 	client        *client.Client
 	url           string
 	mu            sync.Mutex
-	subscriptions map[string][]SubFlag
+	subscriptions map[string][]SubType
 	store         *Store
 }
 
@@ -31,11 +33,12 @@ func NewCore(url string, otp string) (*Core, error) {
 	if err != nil {
 		return nil, err
 	}
+	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
 	core := &Core{
 		client:        cl,
 		url:           url,
-		subscriptions: make(map[string][]SubFlag),
-		store:         &Store{},
+		subscriptions: make(map[string][]SubType),
+		store:         NewStore(),
 	}
 	return core, nil
 }
@@ -50,17 +53,17 @@ func (c *Core) SetHandler(f func(*PushEvent)) {
 	c.client.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, c))
 }
 
-func (c *Core) Subscribe(ctx context.Context, symbols []string, subFlags []SubFlag, isFirstPush bool) (err error) {
+func (c *Core) Subscribe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.doSubscirbe(ctx, symbols, subFlags, isFirstPush)
+	c.doSubscirbe(ctx, symbols, subTypes, isFirstPush)
 	return
 }
 
-func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subFlags []SubFlag, isFirstPush bool) (err error) {
+func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
 	req := &quotev1.SubscribeRequest{
 		IsFirstPush: isFirstPush,
-		SubType:     toSubTypes(subFlags),
+		SubType:     toQuoteSubTypes(subTypes),
 		Symbol:      symbols,
 	}
 	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscribe), Body: req})
@@ -68,24 +71,25 @@ func (c *Core) doSubscirbe(ctx context.Context, symbols []string, subFlags []Sub
 		return
 	}
 	for _, symbol := range symbols {
-		c.subscriptions[symbol] = subFlags
+		c.subscriptions[symbol] = subTypes
 	}
 	return
 }
 
-func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string) (err error) {
+func (c *Core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string, subTypes []SubType) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	req := &quotev1.UnsubscribeRequest{
 		Symbol:   symbols,
 		UnsubAll: unSubAll,
+		SubType:  toQuoteSubTypes(subTypes),
 	}
 	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Unsubscribe), Body: req})
 	if err != nil {
 		return
 	}
 	if unSubAll {
-		c.subscriptions = make(map[string][]SubFlag)
+		c.subscriptions = make(map[string][]SubType)
 	}
 	for _, symbol := range symbols {
 		delete(c.subscriptions, symbol)
@@ -105,7 +109,7 @@ func (c *Core) resubscribe(ctx context.Context) error {
 	return nil
 }
 
-func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubFlag, err error) {
+func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubType, err error) {
 	req := &quotev1.SubscriptionRequest{}
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscription), Body: req})
@@ -117,9 +121,9 @@ func (c *Core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 	if err != nil {
 		return
 	}
-	subscriptions = make(map[string][]SubFlag, len(ret.GetSubList()))
+	subscriptions = make(map[string][]SubType, len(ret.GetSubList()))
 	for _, item := range ret.GetSubList() {
-		subscriptions[item.GetSymbol()] = toSubFlags(item.GetSubType())
+		subscriptions[item.GetSymbol()] = toSubTypes(item.GetSubType())
 	}
 	return
 }
@@ -235,7 +239,7 @@ func (c *Core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 
 func (c *Core) Participants(ctx context.Context) (infos []*ParticipantInfo, err error) {
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryBrokers)})
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryParticipantBrokerIds)})
 	if err != nil {
 		return
 	}
@@ -306,7 +310,7 @@ func (c *Core) Candlesticks(ctx context.Context, symbol string, period Period, c
 	return
 }
 
-func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []*time.Time, err error) {
+func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []time.Time, err error) {
 	req := &quotev1.SecurityRequest{
 		Symbol: symbol,
 	}
@@ -320,34 +324,32 @@ func (c *Core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 	if err != nil {
 		return
 	}
-	times = make([]*time.Time, len(ret.GetExpiryDate()))
-	for _, dateStr := range ret.GetExpiryDate() {
-		var dt time.Time
-		dt, err = time.Parse(DateLayout, dateStr)
-		if err != nil {
-			return nil, err
-		}
-		times = append(times, &dt)
+	times, err = toTimes(ret.GetExpiryDate())
+	if err != nil {
+		return
 	}
 	return
 }
 
-func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (priceInfos []*StrikePriceInfo, err error) {
+func (c *Core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (times []time.Time, err error) {
 	req := &quotev1.OptionChainDateStrikeInfoRequest{
 		Symbol:     symbol,
-		ExpiryDate: expiryDate.Format(DateLayout),
+		ExpiryDate: util.FormatDateSimple(expiryDate),
 	}
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req})
 	if err != nil {
 		return
 	}
-	var ret quotev1.OptionChainDateStrikeInfoResponse
+	var ret quotev1.OptionChainDateListResponse
 	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
-	priceInfos = toStrikePriceInfos(ret.GetStrikePriceInfo())
+	times, err = toTimes(ret.GetExpiryDate())
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -382,10 +384,15 @@ func (c *Core) TradingSession(ctx context.Context) (sessions []*MarketTradingSes
 }
 
 func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *time.Time, end *time.Time) (days *MarketTradingDay, err error) {
+	var (
+		tradingDays   []time.Time
+		halfTradeDays []time.Time
+	)
+
 	req := &quotev1.MarketTradeDayRequest{
 		Market: string(market),
-		BegDay: begin.Format(DateLayout),
-		EndDay: end.Format(DateLayout),
+		BegDay: util.FormatDateSimple(begin),
+		EndDay: util.FormatDateSimple(end),
 	}
 	var res *protocol.Packet
 	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryMarketTradeDay), Body: req})
@@ -397,22 +404,13 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 	if err != nil {
 		return
 	}
-	var day time.Time
-	tradingDays := make([]time.Time, 0, len(ret.GetTradeDay()))
-	halfTradeDays := make([]time.Time, 0, len(ret.GetHalfTradeDay()))
-	for _, dateStr := range ret.GetTradeDay() {
-		day, err = time.Parse(DateLayout, dateStr)
-		if err != nil {
-			return
-		}
-		tradingDays = append(tradingDays, day)
+	tradingDays, err = toTimes(ret.GetTradeDay())
+	if err != nil {
+		return
 	}
-	for _, dateStr := range ret.GetHalfTradeDay() {
-		day, err = time.Parse(DateLayout, dateStr)
-		if err != nil {
-			return
-		}
-		halfTradeDays = append(halfTradeDays, day)
+	halfTradeDays, err = toTimes(ret.GetHalfTradeDay())
+	if err != nil {
+		return
 	}
 	days = &MarketTradingDay{
 		TradeDay:     tradingDays,
@@ -422,7 +420,7 @@ func (c *Core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 }
 
 func (c *Core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Quote, err error) {
-	quotes = make([]*Quote, len(symbols))
+	quotes = make([]*Quote, 0, len(symbols))
 	for _, symbol := range symbols {
 		quotes = append(quotes, c.store.GetQuote(symbol))
 	}
@@ -459,7 +457,7 @@ func parsePushFunc(f func(*PushEvent), core *Core) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		event, err := newPushEvent(packet)
 		if err != nil {
-			glog.Errorf("new push event error:%v", err)
+			log.Errorf("new push event error:%v", err)
 			return
 		}
 		core.store.HandlePushEvent(event)
@@ -473,7 +471,7 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 	case uint32(quotev1.Command_PushBrokersData):
 		event.Type = EventBroker
 		var data quotev1.PushBrokers
-		if err = packet.Unmarshal(data); err != nil {
+		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
 		event.Brokers = toPushBrokers(&data)
@@ -482,7 +480,7 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 	case uint32(quotev1.Command_PushDepthData):
 		event.Type = EventDepth
 		var data quotev1.PushDepth
-		if err = packet.Unmarshal(data); err != nil {
+		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
 		event.Depth = toPushDepth(&data)
@@ -491,7 +489,7 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 	case uint32(quotev1.Command_PushQuoteData):
 		event.Type = EventQuote
 		var data quotev1.PushQuote
-		if err = packet.Unmarshal(data); err != nil {
+		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
 		event.Quote = toPushQuote(&data)
@@ -500,12 +498,24 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 	case uint32(quotev1.Command_PushTradeData):
 		event.Type = EventTrade
 		var data quotev1.PushTrade
-		if err = packet.Unmarshal(data); err != nil {
+		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
 		event.Trade = toPushTrades(&data)
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
+	}
+	return
+}
+
+func toTimes(origin []string) (times []time.Time, err error) {
+	times = make([]time.Time, 0, len(origin))
+	for _, dateStr := range origin {
+		dt, err := util.ParseDateSimple(dateStr)
+		if err != nil {
+			return nil, err
+		}
+		times = append(times, dt)
 	}
 	return
 }

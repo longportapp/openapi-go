@@ -14,38 +14,48 @@ type Market string
 type OrderTag string
 type TriggerStatus string
 type BalanceType int32
-type CfDirection int32
+type OfDirection int32
 type TimeType string
 
 const (
-	BalanceTypeUnknown BalanceType = 0
-	BalanceTypeCash    BalanceType = 1
-	BalanceTypeStock   BalanceType = 2
-	BalanceTypeFund    BalanceType = 3
+	// Balance type
+	BalanceTypeUnknown BalanceType = 0 // unknown type
+	BalanceTypeCash    BalanceType = 1 // cash
+	BalanceTypeStock   BalanceType = 2 // stock
+	BalanceTypeFund    BalanceType = 3 // fund
 
-	CfDirectionUnkown CfDirection = 0
-	CfDirectionOut    CfDirection = 1
-	CfDirectionIn     CfDirection = 2
+	// Outflow direction
+	OfDirectionUnkown OfDirection = 0
+	OfDirectionOut    OfDirection = 1 // outflow
+	OfDirectionIn     OfDirection = 2 // inflow
 
-	TimeTypeDay TimeType = "Day"
-	TimeTypeGTC TimeType = "GTC"
-	TimeTypeGTD TimeType = "GTD"
+	// Time force in type
+	TimeTypeDay TimeType = "Day" // Day Order
+	TimeTypeGTC TimeType = "GTC" // Good Til Canceled Order
+	TimeTypeGTD TimeType = "GTD" // Good Til Date Order
 
-	OrderTypeLO      OrderType = "LO"
-	OrderTypeELO     OrderType = "ELO"
-	OrderTypeMO      OrderType = "MO"
-	OrderTypeAO      OrderType = "AO"
-	OrderTypeALO     OrderType = "ALO"
-	OrderTypeODD     OrderType = "ODD"
-	OrderTypeLIT     OrderType = "LIT"
-	OrderTypeMIT     OrderType = "MIT"
-	OrderTypeTSLPAMT OrderType = "TSLPAMT"
-	OrderTypeTSLPPCT OrderType = "TSLPPCT"
-	OrderTypeTSMAMT  OrderType = "TSMAMT"
-	OrderTypeTSMPCT  OrderType = "TSMPCT"
+	// Order type
+	OrderTypeLO      OrderType = "LO"      // Limit Order
+	OrderTypeELO     OrderType = "ELO"     // Enhanced Limit Order
+	OrderTypeMO      OrderType = "MO"      // Market Order
+	OrderTypeAO      OrderType = "AO"      // At-auction Order
+	OrderTypeALO     OrderType = "ALO"     // At-auction Limit Order
+	OrderTypeODD     OrderType = "ODD"     // Odd Lots Order
+	OrderTypeLIT     OrderType = "LIT"     // Limit If Touched
+	OrderTypeMIT     OrderType = "MIT"     // Market If Touched
+	OrderTypeTSLPAMT OrderType = "TSLPAMT" // Trailing Limit If Touched (Trailing Amount)
+	OrderTypeTSLPPCT OrderType = "TSLPPCT" // Trailing Limit If Touched (Trailing Percent)
+	OrderTypeTSMAMT  OrderType = "TSMAMT"  // Trailing Market If Touched (Trailing Amount)
+	OrderTypeTSMPCT  OrderType = "TSMPCT"  // Trailing Market If Touched (Trailing Percent)
 
+	// Order side
 	OrderSideBuy  OrderSide = "Buy"
 	OrderSideSell OrderSide = "Sell"
+
+	// Outside RTH
+	OutsideRTHOnly    OutsideRTH = "RTH_ONLY"          // Regular trading hour only
+	OutsideRTHAny     OutsideRTH = "ANY_TIME"          // Any time
+	OutsideRTHUnknown OutsideRTH = "UnknownOutsideRth" // Default is UnknownOutsideRth when the order is not a US stock
 )
 
 type Execution struct {
@@ -62,43 +72,44 @@ type Executions struct {
 }
 
 type SubmitOrderResponse struct {
-	OrderId string
+	OrderId string `json:"order_id"`
 }
 
 type Orders struct {
-	Orders []*Order
+	HasMore bool     `json:"has_more"`
+	Orders  []*Order `json:"orders"`
 }
 
 type Order struct {
-	OrderId          string
-	Status           OrderStatus
-	StockName        string
-	Quantity         string
-	ExecutedQuantity string
-	Price            string
-	ExecutedPrice    string
-	SubmittedAt      string
-	Side             OrderSide
-	Symbol           string
-	OrderType        OrderType
-	LastDone         string
-	TriggerPrice     string
-	Msg              string
-	Tag              OrderTag
-	TimeInForce      TimeType
-	ExpireDate       string
-	UpdatedAt        string
-	TriggerAt        string
-	TrailingAmount   string
-	TrailingPercent  string
-	LimitOffset      string
-	TriggerStatus    TriggerStatus
-	Currency         string
-	OutsideRth       OutsideRTH
+	OrderId          string        `json:"order_id"`
+	Status           OrderStatus   `json:"status"`
+	StockName        string        `json:"stock_name"`
+	Quantity         string        `json:"quantity"`
+	ExecutedQuantity string        `json:"executed_quantity"`
+	Price            string        `json:"price"`
+	ExecutedPrice    string        `json:"executed_price"`
+	SubmittedAt      string        `json:"submmited_at"`
+	Side             OrderSide     `json:"side"`
+	Symbol           string        `json:"symbol"`
+	OrderType        OrderType     `json:"order_type"`
+	LastDone         string        `json:"last_done"`
+	TriggerPrice     string        `json:"trigger_price"`
+	Msg              string        `json:"msg"`
+	Tag              OrderTag      `json:"tag"`
+	TimeInForce      TimeType      `json:"time_in_force"`
+	ExpireDate       string        `json:"expire_date"`
+	UpdatedAt        string        `json:"update_at"`
+	TriggerAt        string        `json:"trigger_at"`
+	TrailingAmount   string        `json:"trailing_amount"`
+	TrailingPercent  string        `json:"trailing_percent"`
+	LimitOffset      string        `json:"limit_offset"`
+	TriggerStatus    TriggerStatus `json:"trigger_status"`
+	Currency         string        `json:"currency"`
+	OutsideRth       OutsideRTH    `json:"outside_rth"`
 }
 
 type AccountBalances struct {
-	List []*AccountBalance
+	List []*AccountBalance `json:"list"`
 }
 
 type AccountBalance struct {
@@ -112,7 +123,7 @@ type AccountBalance struct {
 }
 
 type FundPositions struct {
-	List []*FundPositionChannel
+	List []*FundPositionChannel `json:"list"`
 }
 
 type FundPositionChannel struct {
@@ -131,22 +142,31 @@ type FundPosition struct {
 }
 
 type StockPositions struct {
+	List []*StockPositionChannel `json:"list"`
+}
+
+type StockPositionChannel struct {
+	AccountChannel string           `json:"account_channel"`
+	Positions      []*StockPosition `json:"stock_info"`
+}
+
+type StockPosition struct {
 	Symbol            string         `json:"symbol"`
 	SymbolName        string         `json:"symbol_name"`
-	Quantity          int            `json:"quantity"`
-	AvailableQuantity int            `json:"available_quantity"`
+	Quantity          string         `json:"quantity"`
+	AvailableQuantity string         `json:"available_quantity"`
 	Currency          string         `json:"currency"`
 	CostPrice         string         `json:"cost_price"`
 	Market            openapi.Market `json:"market"`
 }
 
 type CashFlows struct {
-	List []*CashFlow
+	List []*CashFlow `json:"list"`
 }
 
 type CashFlow struct {
 	TransactionFlowName string      `json:"transaction_flow_name"`
-	Direction           CfDirection `json:"direction"`
+	Direction           OfDirection `json:"direction"`
 	BusinessType        BalanceType `json:"business_type"`
 	Balance             string      `json:"balance"`
 	Currency            string      `json:"currency"`
@@ -164,7 +184,8 @@ type CashInfo struct {
 }
 
 type PushEvent struct {
-	orderChanged *PushOrderChanged
+	Event string            `json:"event"`
+	Data  *PushOrderChanged `json:"data"`
 }
 
 type PushOrderChanged struct {
@@ -174,7 +195,7 @@ type PushOrderChanged struct {
 	Symbol           string        `json:"symbol"`
 	OrderType        OrderType     `json:"order_type"`
 	Price            string        `json:"price"`
-	ExecutedQuantity int64         `json:"executed_quantity"`
+	ExecutedQuantity string        `json:"executed_quantity"`
 	ExecutedPrice    string        `json:"executed_price"`
 	OrderId          string        `json:"order_id"`
 	Currency         string        `json:"currency"`
