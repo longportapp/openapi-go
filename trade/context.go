@@ -7,6 +7,7 @@ import (
 
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+
 	"github.com/pkg/errors"
 )
 
@@ -191,11 +192,7 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 // A connection will be created with Trade server.
 func New(opt ...Option) (*TradeContext, error) {
 	opts := newOptions(opt...)
-	otp, err := opts.HttpClient.GetOTP(context.Background())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get otp")
-	}
-	core, err := newCore(opts.TradeURL, otp)
+	core, err := newCore(opts.TradeURL, opts.HttpClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}

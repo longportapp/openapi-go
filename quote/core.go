@@ -7,12 +7,14 @@ import (
 
 	"github.com/longbridgeapp/openapi-go"
 	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
 
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
+	"github.com/pkg/errors"
 )
 
 type core struct {
@@ -23,13 +25,20 @@ type core struct {
 	store         *store
 }
 
-func newCore(url string, otp string) (*core, error) {
+func newCore(url string, httpClient *http.Client) (*core, error) {
+	getOTP := func() (string, error) {
+		otp, err := httpClient.GetOTP(context.Background())
+		if err != nil {
+			return "", errors.Wrap(err, "failed to get otp")
+		}
+		return otp, nil
+	}
 	cl := client.New()
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
 		Codec:    protocol.CodecProtobuf,
 		Platform: protocol.PlatformOpenapi,
-	}, client.WithAuthToken(otp))
+	}, client.WithAuthTokenGetter(getOTP))
 	if err != nil {
 		return nil, err
 	}

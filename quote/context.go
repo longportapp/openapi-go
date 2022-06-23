@@ -7,6 +7,7 @@ import (
 	"github.com/longbridgeapp/openapi-go"
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+
 	"github.com/pkg/errors"
 )
 
@@ -155,7 +156,7 @@ func (c *QuoteContext) Close() error {
 	return c.core.Close()
 }
 
-// NewFromEnv return QuoteContext with environment variables.
+// NewFromEnv return QuoteContext
 func NewFormEnv() (*QuoteContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {
@@ -182,11 +183,7 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 // A connection will be created with quote server.
 func New(opt ...Option) (*QuoteContext, error) {
 	opts := newOptions(opt...)
-	otp, err := opts.HttpClient.GetOTP(context.Background())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get otp")
-	}
-	core, err := newCore(opts.QuoteURL, otp)
+	core, err := newCore(opts.QuoteURL, opts.HttpClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}
