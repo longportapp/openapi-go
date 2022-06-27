@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/longbridgeapp/openapi-go/quote"
 )
