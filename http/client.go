@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/go-querystring/query"
 	"github.com/longbridgeapp/openapi-go/log"
-	"github.com/shopspring/decimal"
 )
 
 type apiResponse struct {
@@ -71,7 +70,6 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	)
 
 	if body != nil {
-		decimal.MarshalJSONWithoutQuotes = true
 		bb, err = json.Marshal(body)
 		if err != nil {
 			return err

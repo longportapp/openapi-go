@@ -7,6 +7,9 @@ import (
 
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
+
 	"github.com/pkg/errors"
 )
 
@@ -37,64 +40,74 @@ func (c *TradeContext) Unsubscribe(ctx context.Context, topics []string) (unsubR
 // HistoryExecutions will return history executions.
 // Reference: https://open.longbridgeapp.com/en/docs/trade/execution/history_executions
 func (c *TradeContext) HistoryExecutions(ctx context.Context, params *GetHistoryExecutions) (trades []*Execution, err error) {
-	resp := &Executions{}
+	resp := &jsontypes.Executions{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/history", params.Values(), &resp)
 	if err != nil {
 		return
 	}
-	trades = resp.Trades
+	err = util.Copy(&trades, resp.Trades)
 	return
 }
 
 // TodayExecutions will return today's executions
 // Reference: https://open.longbridgeapp.com/en/docs/trade/execution/today_executions
 func (c *TradeContext) TodayExecutions(ctx context.Context, params *GetTodayExecutions) (trades []*Execution, err error) {
-	resp := &Executions{}
+	resp := &jsontypes.Executions{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/today", params.Values(), resp)
 	if err != nil {
 		return
 	}
-	trades = resp.Trades
+	err = util.Copy(&trades, resp.Trades)
 	return
 }
 
 // HistoryOrders will return history orders
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/history_orders
 func (c *TradeContext) HistoryOrders(ctx context.Context, params *GetHistoryOrders) (orders []*Order, hasMore bool, err error) {
-	resp := &Orders{}
+	resp := &jsontypes.Orders{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/history", params.Values(), resp)
 	if err != nil {
 		return
 	}
-	orders = resp.Orders
 	hasMore = resp.HasMore
+	err = util.Copy(&orders, resp.Orders)
 	return
 }
 
 // TodayOrders will return today orders
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/today_orders
 func (c *TradeContext) TodayOrders(ctx context.Context, params *GetTodayOrders) (orders []*Order, err error) {
-	resp := &Orders{}
+	resp := &jsontypes.Orders{}
 	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/today", params.Values(), resp)
 	if err != nil {
 		return
 	}
-	orders = resp.Orders
+	err = util.Copy(&orders, resp.Orders)
 	return
 }
 
 // ReplaceOrder modify quantity or price
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/replace
 func (c *TradeContext) ReplaceOrder(ctx context.Context, params *ReplaceOrder) (err error) {
-	err = c.opts.HttpClient.Put(ctx, "/v1/trade/order", params, nil)
+	var jsonbody jsontypes.ReplaceOrder
+	err = util.Copy(&jsonbody, params)
+	if err != nil {
+		return
+	}
+	err = c.opts.HttpClient.Put(ctx, "/v1/trade/order", jsonbody, nil)
 	return
 }
 
 // SubmitOrder HK and US stocks, warrant and option
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/submit
 func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (orderId string, err error) {
-	resp := &submitOrderResponse{}
-	err = c.opts.HttpClient.Post(ctx, "/v1/trade/order", params, resp)
+	var jsonbody jsontypes.SubmitOrder
+	err = util.Copy(&jsonbody, params)
+	if err != nil {
+		return
+	}
+	resp := &jsontypes.SubmitOrderResponse{}
+	err = c.opts.HttpClient.Post(ctx, "/v1/trade/order", jsonbody, resp)
 	if err != nil {
 		return
 	}
@@ -113,12 +126,12 @@ func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err e
 // AccountBalance to obtain the available, desirable, frozen, to-be-settled, and in-transit funds (fund purchase and redemption) information for each currency of the user.
 // Reference: https://open.longbridgeapp.com/en/docs/trade/asset/account
 func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountBalance, err error) {
-	var resp AccountBalances
+	var resp jsontypes.AccountBalances
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/account", nil, &resp)
 	if err != nil {
 		return
 	}
-	accounts = resp.List
+	err = util.Copy(&accounts, resp.List)
 	return
 }
 
@@ -130,7 +143,7 @@ func (c *TradeContext) CashFlow(ctx context.Context, params *GetCashFlow) (cashf
 	if err != nil {
 		return
 	}
-	cashflows = resp.List
+	err = util.Copy(&cashflows, resp.List)
 	return
 }
 
@@ -142,7 +155,10 @@ func (c *TradeContext) FundPositions(ctx context.Context, symbols []string) (fun
 	}
 	var resp FundPositions
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/fund", params.Values(), &resp)
-	fundPositionChannels = resp.List
+	if err != nil {
+		return
+	}
+	err = util.Copy(&fundPositionChannels, resp.List)
 	return
 
 }
@@ -155,7 +171,10 @@ func (c *TradeContext) StockPositions(ctx context.Context, symbols []string) (st
 	}
 	var resp StockPositions
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/stock", params.Values(), &resp)
-	stockPositionChannels = resp.List
+	if err != nil {
+		return
+	}
+	err = util.Copy(&stockPositionChannels, resp.List)
 	return
 }
 

@@ -226,6 +226,7 @@ func (c *core) Depth(ctx context.Context, symbol string) (securityDepth *Securit
 	if err != nil {
 		return
 	}
+	securityDepth = &SecurityDepth{}
 	err = util.Copy(&securityDepth, ret)
 	return
 }
@@ -244,7 +245,8 @@ func (c *core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 	if err != nil {
 		return
 	}
-	err = util.Copy(&securityBorkers, ret)
+	securityBorkers = &SecurityBrokers{}
+	err = util.Copy(securityBorkers, ret)
 	return
 }
 
@@ -485,9 +487,11 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		if err = util.Copy(event.Brokers, data); err != nil {
+		var pb PushBrokers
+		if err = util.Copy(&pb, data); err != nil {
 			return
 		}
+		event.Brokers = &pb
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushDepthData):
@@ -496,9 +500,11 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		if err = util.Copy(event.Depth, data); err != nil {
+		var pd PushDepth
+		if err = util.Copy(&pd, data); err != nil {
 			return
 		}
+		event.Depth = &pd
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushQuoteData):
@@ -507,9 +513,11 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		if err = util.Copy(event.Quote, data); err != nil {
+		var pq PushQuote
+		if err = util.Copy(&pq, data); err != nil {
 			return
 		}
+		event.Quote = &pq
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushTradeData):
@@ -518,9 +526,11 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		if err = util.Copy(event.Trade, data); err != nil {
+		var pt PushTrade
+		if err = util.Copy(&pt, data); err != nil {
 			return
 		}
+		event.Trade = &pt
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	}

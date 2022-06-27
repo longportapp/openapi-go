@@ -1,6 +1,8 @@
 package util
 
 import (
+	"time"
+
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
@@ -21,6 +23,18 @@ var opt = copier.Option{
 				}
 
 				return decimal.NewFromString(value)
+			},
+		},
+		{
+			SrcType: time.Time{},
+			DstType: copier.String,
+			Fn: func(src interface{}) (interface{}, error) {
+				value, ok := src.(time.Time)
+
+				if !ok {
+					return nil, errors.New("convert time to string, but src type not matching")
+				}
+				return FormatDate(&value), nil
 			},
 		},
 	},
