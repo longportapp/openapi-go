@@ -26,10 +26,5 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	fmt.Printf("quotes: %v\n", quotes[0])
-
-	quitChannel := make(chan os.Signal, 1)
-	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
-	<-quitChannel
-
+	fmt.Printf("quotes: %v\n", quotes)
 }
