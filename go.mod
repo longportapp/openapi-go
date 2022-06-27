@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/google/go-querystring v1.1.0
+	github.com/jinzhu/copier v0.3.5
 	github.com/longbridgeapp/openapi-protobufs v0.0.0-20220614104051-4fb15e74b9eb
 	github.com/longbridgeapp/openapi-protocol/go v0.0.0-20220617065631-e58f4fac810b
 	github.com/pkg/errors v0.9.1

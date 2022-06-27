@@ -7,6 +7,7 @@ import (
 
 	"github.com/longbridgeapp/openapi-go"
 	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/shopspring/decimal"
 )
 
 type GetHistoryExecutions struct {
@@ -90,27 +91,27 @@ func (r *GetTodayOrders) Values() url.Values {
 }
 
 type ReplaceOrder struct {
-	OrderId         string `json:"order_id"`         // required
-	Quantity        uint64 `json:"quantity,string"`  // required
-	Price           string `json:"price"`            // LO / ELO / ALO / ODD / LIT Order Required
-	TriggerPrice    string `json:"trigger_price"`    // LIT / MIT Order Required
-	LimitOffset     string `json:"limit_offset"`     // TSLPAMT / TSLPPCT Order Required
-	TrailingAmount  string `json:"trailing_ammount"` // TSLPAMT / TSMAMT Order Required
-	TrailingPercent string `json:"trailing_percent"` // TSLPPCT / TSMAPCT Order Required
-	Remark          string `json:"remark"`
+	OrderId         string           `json:"order_id"`         // required
+	Quantity        uint64           `json:"quantity,string"`  // required
+	Price           *decimal.Decimal `json:"price"`            // LO / ELO / ALO / ODD / LIT Order Required
+	TriggerPrice    *decimal.Decimal `json:"trigger_price"`    // LIT / MIT Order Required
+	LimitOffset     *decimal.Decimal `json:"limit_offset"`     // TSLPAMT / TSLPPCT Order Required
+	TrailingAmount  *decimal.Decimal `json:"trailing_ammount"` // TSLPAMT / TSMAMT Order Required
+	TrailingPercent *decimal.Decimal `json:"trailing_percent"` // TSLPPCT / TSMAPCT Order Required
+	Remark          string           `json:"remark"`
 }
 
 type SubmitOrder struct {
-	Symbol            string    // required
-	OrderType         OrderType // required
-	Side              OrderSide // required
-	SubmittedQuantity uint64    // required
-	SubmittedPrice    string    // LO / ELO / ALO / ODD / LIT Order Required
-	TriggerPrice      string    // LIT / MIT Order Required
-	LimitOffset       string    // TSLPAMT / TSLPPCT Order Required
-	TrailingAmount    string    // TSLPAMT / TSMAMT Order Required
-	TrailingPercent   string    // TSLPPCT / TSMAPCT Order Required
-	ExpireDate        time.Time // required when time_in_force is GTD
+	Symbol            string           // required
+	OrderType         OrderType        // required
+	Side              OrderSide        // required
+	SubmittedQuantity uint64           // required
+	SubmittedPrice    *decimal.Decimal // LO / ELO / ALO / ODD / LIT Order Required
+	TriggerPrice      *decimal.Decimal // LIT / MIT Order Required
+	LimitOffset       *decimal.Decimal // TSLPAMT / TSLPPCT Order Required
+	TrailingAmount    *decimal.Decimal // TSLPAMT / TSMAMT Order Required
+	TrailingPercent   *decimal.Decimal // TSLPPCT / TSMAPCT Order Required
+	ExpireDate        time.Time        // required when time_in_force is GTD
 	OutsideRTH        OutsideRTH
 	Remark            string
 	TimeInForce       TimeType // required
@@ -118,19 +119,19 @@ type SubmitOrder struct {
 
 func (r *SubmitOrder) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
-		Symbol            string `json:"symbol"`
-		OrderType         string `json:"order_type"`
-		Side              string `json:"side"`
-		SubmittedQuantity uint64 `json:"submitted_quantity,string"`
-		SubmittedPrice    string `json:"submitted_price,omitempty"`
-		TriggerPrice      string `json:"trigger_price,omitempty"`
-		LimitOffset       string `json:"limit_offset,omitempty"`
-		TrailingAmount    string `json:"trailing_amount,omitempty"`
-		TrailingPercent   string `json:"trailing_percent,omitempty"`
-		ExpireDate        string `json:"expire_date,omitempty"`
-		OutsideRTH        string `json:"outside_rth,omitempty"`
-		Remark            string `json:"remark,omitempty"`
-		TimeInForce       string `json:"time_in_force"`
+		Symbol            string           `json:"symbol"`
+		OrderType         string           `json:"order_type"`
+		Side              string           `json:"side"`
+		SubmittedQuantity uint64           `json:"submitted_quantity,string"`
+		SubmittedPrice    *decimal.Decimal `json:"submitted_price,omitempty"`
+		TriggerPrice      *decimal.Decimal `json:"trigger_price,omitempty"`
+		LimitOffset       *decimal.Decimal `json:"limit_offset,omitempty"`
+		TrailingAmount    *decimal.Decimal `json:"trailing_amount,omitempty"`
+		TrailingPercent   *decimal.Decimal `json:"trailing_percent,omitempty"`
+		ExpireDate        string           `json:"expire_date,omitempty"`
+		OutsideRTH        string           `json:"outside_rth,omitempty"`
+		Remark            string           `json:"remark,omitempty"`
+		TimeInForce       string           `json:"time_in_force"`
 	}{
 		Symbol:            r.Symbol,
 		OrderType:         string(r.OrderType),

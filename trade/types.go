@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
+	"github.com/shopspring/decimal"
 )
 
 type OrderType string
@@ -65,7 +66,7 @@ type Execution struct {
 	Symbol      string
 	TradeDoneAt time.Time
 	Quantity    string
-	Price       string
+	Price       *decimal.Decimal
 }
 
 // Executions has a Execution list
@@ -85,31 +86,31 @@ type Orders struct {
 
 // Order is order details
 type Order struct {
-	OrderId          string        `json:"order_id"`
-	Status           OrderStatus   `json:"status"`
-	StockName        string        `json:"stock_name"`
-	Quantity         string        `json:"quantity"`
-	ExecutedQuantity string        `json:"executed_quantity"`
-	Price            string        `json:"price"`
-	ExecutedPrice    string        `json:"executed_price"`
-	SubmittedAt      string        `json:"submmited_at"`
-	Side             OrderSide     `json:"side"`
-	Symbol           string        `json:"symbol"`
-	OrderType        OrderType     `json:"order_type"`
-	LastDone         string        `json:"last_done"`
-	TriggerPrice     string        `json:"trigger_price"`
-	Msg              string        `json:"msg"`
-	Tag              OrderTag      `json:"tag"`
-	TimeInForce      TimeType      `json:"time_in_force"`
-	ExpireDate       string        `json:"expire_date"`
-	UpdatedAt        string        `json:"update_at"`
-	TriggerAt        string        `json:"trigger_at"`
-	TrailingAmount   string        `json:"trailing_amount"`
-	TrailingPercent  string        `json:"trailing_percent"`
-	LimitOffset      string        `json:"limit_offset"`
-	TriggerStatus    TriggerStatus `json:"trigger_status"`
-	Currency         string        `json:"currency"`
-	OutsideRth       OutsideRTH    `json:"outside_rth"`
+	OrderId          string           `json:"order_id"`
+	Status           OrderStatus      `json:"status"`
+	StockName        string           `json:"stock_name"`
+	Quantity         string           `json:"quantity"`
+	ExecutedQuantity string           `json:"executed_quantity"`
+	Price            *decimal.Decimal `json:"price"`
+	ExecutedPrice    *decimal.Decimal `json:"executed_price"`
+	SubmittedAt      string           `json:"submmited_at"`
+	Side             OrderSide        `json:"side"`
+	Symbol           string           `json:"symbol"`
+	OrderType        OrderType        `json:"order_type"`
+	LastDone         *decimal.Decimal `json:"last_done"`
+	TriggerPrice     *decimal.Decimal `json:"trigger_price"`
+	Msg              string           `json:"msg"`
+	Tag              OrderTag         `json:"tag"`
+	TimeInForce      TimeType         `json:"time_in_force"`
+	ExpireDate       string           `json:"expire_date"`
+	UpdatedAt        string           `json:"update_at"`
+	TriggerAt        string           `json:"trigger_at"`
+	TrailingAmount   *decimal.Decimal `json:"trailing_amount"`
+	TrailingPercent  *decimal.Decimal `json:"trailing_percent"`
+	LimitOffset      *decimal.Decimal `json:"limit_offset"`
+	TriggerStatus    TriggerStatus    `json:"trigger_status"`
+	Currency         string           `json:"currency"`
+	OutsideRth       OutsideRTH       `json:"outside_rth"`
 }
 
 // AccountBalances has a AccountBalance list
@@ -119,13 +120,13 @@ type AccountBalances struct {
 
 // AccountBalance is user account balance
 type AccountBalance struct {
-	TotalCash              string      `json:"total_cash"`
-	MaxFinanceAmount       string      `json:"max_finance_amount"`
-	RemainingFinanceAmount string      `json:"remaining_finance_amount"`
-	RiskLevel              string      `json:"risk_level"`
-	MarginCall             string      `json:"margin_call"`
-	Currency               string      `json:"currency"`
-	CashInfos              []*CashInfo `json:"cash_infos"`
+	TotalCash              *decimal.Decimal `json:"total_cash"`
+	MaxFinanceAmount       *decimal.Decimal `json:"max_finance_amount"`
+	RemainingFinanceAmount *decimal.Decimal `json:"remaining_finance_amount"`
+	RiskLevel              string           `json:"risk_level"`
+	MarginCall             *decimal.Decimal `json:"margin_call"`
+	Currency               string           `json:"currency"`
+	CashInfos              []*CashInfo      `json:"cash_infos"`
 }
 
 // FundPositions has a FundPosition list
@@ -163,13 +164,13 @@ type StockPositionChannel struct {
 
 // StockPosition is user stock position details
 type StockPosition struct {
-	Symbol            string         `json:"symbol"`
-	SymbolName        string         `json:"symbol_name"`
-	Quantity          string         `json:"quantity"`
-	AvailableQuantity string         `json:"available_quantity"`
-	Currency          string         `json:"currency"`
-	CostPrice         string         `json:"cost_price"`
-	Market            openapi.Market `json:"market"`
+	Symbol            string           `json:"symbol"`
+	SymbolName        string           `json:"symbol_name"`
+	Quantity          string           `json:"quantity"`
+	AvailableQuantity string           `json:"available_quantity"`
+	Currency          string           `json:"currency"`
+	CostPrice         *decimal.Decimal `json:"cost_price"`
+	Market            openapi.Market   `json:"market"`
 }
 
 // CashFlows has a CashFlow list
@@ -179,23 +180,23 @@ type CashFlows struct {
 
 // CashFlow is cash flow details
 type CashFlow struct {
-	TransactionFlowName string      `json:"transaction_flow_name"`
-	Direction           OfDirection `json:"direction"`
-	BusinessType        BalanceType `json:"business_type"`
-	Balance             string      `json:"balance"`
-	Currency            string      `json:"currency"`
-	BusinessTime        string      `json:"business_time"`
-	Symbol              string      `json:"symbol"`
-	Description         string      `json:"description"`
+	TransactionFlowName string           `json:"transaction_flow_name"`
+	Direction           OfDirection      `json:"direction"`
+	BusinessType        BalanceType      `json:"business_type"`
+	Balance             *decimal.Decimal `json:"balance"`
+	Currency            string           `json:"currency"`
+	BusinessTime        string           `json:"business_time"`
+	Symbol              string           `json:"symbol"`
+	Description         string           `json:"description"`
 }
 
 // CashInfo
 type CashInfo struct {
-	WithdrawCash  string `json:"withdraw_cash"`
-	AvailableCash string `json:"avaliable_cash"`
-	FrozenCash    string `json:"frozen_cash"`
-	SettlingCash  string `json:"settling_cash"`
-	Currency      string `json:"currency"`
+	WithdrawCash  *decimal.Decimal `json:"withdraw_cash"`
+	AvailableCash *decimal.Decimal `json:"avaliable_cash"`
+	FrozenCash    *decimal.Decimal `json:"frozen_cash"`
+	SettlingCash  *decimal.Decimal `json:"settling_cash"`
+	Currency      string           `json:"currency"`
 }
 
 // PushEvent is quote context callback event
@@ -206,28 +207,28 @@ type PushEvent struct {
 
 // PushOrderChanged is order change event details
 type PushOrderChanged struct {
-	Side             OrderSide     `json:"side"`
-	StockName        string        `json:"stock_name"`
-	Quantity         string        `json:"quantity"`
-	Symbol           string        `json:"symbol"`
-	OrderType        OrderType     `json:"order_type"`
-	Price            string        `json:"price"`
-	ExecutedQuantity string        `json:"executed_quantity"`
-	ExecutedPrice    string        `json:"executed_price"`
-	OrderId          string        `json:"order_id"`
-	Currency         string        `json:"currency"`
-	Status           OrderStatus   `json:"status"`
-	SubmittedAt      string        `json:"submitted_at"`
-	UpdatedAt        string        `json:"update_at"`
-	TriggerPrice     string        `json:"trigger_price"`
-	Msg              string        `json:"msg"`
-	Tag              OrderTag      `json:"tag"`
-	TriggerStatus    TriggerStatus `json:"trigger_status"`
-	TriggerAt        string        `json:"trigger_at"`
-	TrailingAmount   string        `json:"trailing_amount"`
-	TrailingPercent  string        `json:"trailing_percent"`
-	LimitOffset      string        `json:"limit_offset"`
-	AccountNo        string        `json:"account_no"`
+	Side             OrderSide        `json:"side"`
+	StockName        string           `json:"stock_name"`
+	Quantity         string           `json:"quantity"`
+	Symbol           string           `json:"symbol"`
+	OrderType        OrderType        `json:"order_type"`
+	Price            *decimal.Decimal `json:"price"`
+	ExecutedQuantity string           `json:"executed_quantity"`
+	ExecutedPrice    *decimal.Decimal `json:"executed_price"`
+	OrderId          string           `json:"order_id"`
+	Currency         string           `json:"currency"`
+	Status           OrderStatus      `json:"status"`
+	SubmittedAt      string           `json:"submitted_at"`
+	UpdatedAt        string           `json:"update_at"`
+	TriggerPrice     *decimal.Decimal `json:"trigger_price"`
+	Msg              string           `json:"msg"`
+	Tag              OrderTag         `json:"tag"`
+	TriggerStatus    TriggerStatus    `json:"trigger_status"`
+	TriggerAt        string           `json:"trigger_at"`
+	TrailingAmount   *decimal.Decimal `json:"trailing_amount"`
+	TrailingPercent  string           `json:"trailing_percent"`
+	LimitOffset      string           `json:"limit_offset"`
+	AccountNo        string           `json:"account_no"`
 }
 
 // SubResponse is subscribe function response

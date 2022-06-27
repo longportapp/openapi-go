@@ -63,8 +63,11 @@ func (c *core) Subscribe(ctx context.Context, symbols []string, subTypes []SubTy
 func (c *core) doSubscirbe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
 	req := &quotev1.SubscribeRequest{
 		IsFirstPush: isFirstPush,
-		SubType:     toQuoteSubTypes(subTypes),
 		Symbol:      symbols,
+	}
+	err = util.Copy(&req.SubType, subTypes)
+	if err != nil {
+		return
 	}
 	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Subscribe), Body: req})
 	if err != nil {
@@ -82,7 +85,10 @@ func (c *core) Unsubscribe(ctx context.Context, unSubAll bool, symbols []string,
 	req := &quotev1.UnsubscribeRequest{
 		Symbol:   symbols,
 		UnsubAll: unSubAll,
-		SubType:  toQuoteSubTypes(subTypes),
+	}
+	err = util.Copy(&req.SubType, subTypes)
+	if err != nil {
+		return
 	}
 	_, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_Unsubscribe), Body: req})
 	if err != nil {
@@ -123,7 +129,12 @@ func (c *core) Subscriptions(ctx context.Context) (subscriptions map[string][]Su
 	}
 	subscriptions = make(map[string][]SubType, len(ret.GetSubList()))
 	for _, item := range ret.GetSubList() {
-		subscriptions[item.GetSymbol()] = toSubTypes(item.GetSubType())
+		sublist := make([]SubType, 0, len(item.GetSubType()))
+		err = util.Copy(&sublist, item.GetSubType())
+		if err != nil {
+			return
+		}
+		subscriptions[item.GetSymbol()] = sublist
 	}
 	return
 }
@@ -142,7 +153,7 @@ func (c *core) StaticInfo(ctx context.Context, symbols []string) (staticInfos []
 	if err != nil {
 		return
 	}
-	staticInfos = toStaticInfos(ret.GetSecuStaticInfo())
+	err = util.Copy(&staticInfos, ret.GetSecuStaticInfo())
 	return
 }
 
@@ -160,7 +171,7 @@ func (c *core) Quote(ctx context.Context, symbols []string) (quotes []*SecurityQ
 	if err != nil {
 		return
 	}
-	quotes = toSecurityQuotes(ret.GetSecuQuote())
+	err = util.Copy(&quotes, ret.GetSecuQuote())
 	return
 }
 
@@ -178,7 +189,7 @@ func (c *core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 	if err != nil {
 		return
 	}
-	optionQuotes = toOptionQuotes(ret.GetSecuQuote())
+	err = util.Copy(&optionQuotes, ret.GetSecuQuote())
 	return
 
 }
@@ -197,7 +208,7 @@ func (c *core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuote
 	if err != nil {
 		return
 	}
-	warrantQuotes = toWarrantQuotes(ret.GetSecuQuote())
+	err = util.Copy(&warrantQuotes, ret.GetSecuQuote())
 	return
 }
 
@@ -215,7 +226,7 @@ func (c *core) Depth(ctx context.Context, symbol string) (securityDepth *Securit
 	if err != nil {
 		return
 	}
-	securityDepth = toSecurityDepth(&ret)
+	err = util.Copy(&securityDepth, ret)
 	return
 }
 
@@ -233,7 +244,7 @@ func (c *core) Brokers(ctx context.Context, symbol string) (securityBorkers *Sec
 	if err != nil {
 		return
 	}
-	securityBorkers = toSecurityBrokers(&ret)
+	err = util.Copy(&securityBorkers, ret)
 	return
 }
 
@@ -248,7 +259,7 @@ func (c *core) Participants(ctx context.Context) (infos []*ParticipantInfo, err 
 	if err != nil {
 		return
 	}
-	infos = toParticipantInfos(ret.GetParticipantBrokerNumbers())
+	err = util.Copy(&infos, ret.GetParticipantBrokerNumbers())
 	return
 }
 
@@ -267,7 +278,7 @@ func (c *core) Trades(ctx context.Context, symbol string, count int32) (trades [
 	if err != nil {
 		return
 	}
-	trades = toTrades(ret.GetTrades())
+	err = util.Copy(&trades, ret.GetTrades())
 	return
 }
 
@@ -285,7 +296,7 @@ func (c *core) Intraday(ctx context.Context, symbol string) (lines []*IntradayLi
 	if err != nil {
 		return
 	}
-	lines = toIntradayLines(ret.GetLines())
+	err = util.Copy(&lines, ret.GetLines())
 	return
 }
 
@@ -306,7 +317,7 @@ func (c *core) Candlesticks(ctx context.Context, symbol string, period Period, c
 	if err != nil {
 		return
 	}
-	sticks = toCandlesticks(ret.GetCandlesticks())
+	err = util.Copy(&sticks, ret.GetCandlesticks())
 	return
 }
 
@@ -364,7 +375,7 @@ func (c *core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err err
 	if err != nil {
 		return
 	}
-	infos = toIssueInfos(ret.GetIssuerInfo())
+	err = util.Copy(&infos, ret.GetIssuerInfo())
 	return
 }
 
@@ -379,7 +390,7 @@ func (c *core) TradingSession(ctx context.Context) (sessions []*MarketTradingSes
 	if err != nil {
 		return
 	}
-	sessions = toMarketTradingSessions(ret.GetMarketTradeSession())
+	err = util.Copy(&sessions, ret.GetMarketTradeSession())
 	return
 }
 
@@ -474,7 +485,9 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		event.Brokers = toPushBrokers(&data)
+		if err = util.Copy(event.Brokers, data); err != nil {
+			return
+		}
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushDepthData):
@@ -483,7 +496,9 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		event.Depth = toPushDepth(&data)
+		if err = util.Copy(event.Depth, data); err != nil {
+			return
+		}
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushQuoteData):
@@ -492,7 +507,9 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		event.Quote = toPushQuote(&data)
+		if err = util.Copy(event.Quote, data); err != nil {
+			return
+		}
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	case uint32(quotev1.Command_PushTradeData):
@@ -501,7 +518,9 @@ func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
 		if err = packet.Unmarshal(&data); err != nil {
 			return
 		}
-		event.Trade = toPushTrades(&data)
+		if err = util.Copy(event.Trade, data); err != nil {
+			return
+		}
 		event.Symbol = data.GetSymbol()
 		event.Sequence = data.GetSequence()
 	}
