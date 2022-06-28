@@ -8,6 +8,7 @@ import (
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
 
 	"github.com/pkg/errors"
 )
