@@ -121,6 +121,9 @@ type AccountBalance struct {
 	RemainingFinanceAmount *decimal.Decimal
 	RiskLevel              string
 	MarginCall             *decimal.Decimal
+	NetAssets              *decimal.Decimal // net asset
+	InitMargin             *decimal.Decimal // initial margin
+	MaintenanceMargin      *decimal.Decimal // maintenance margin
 	Currency               string
 	CashInfos              []*CashInfo
 }
