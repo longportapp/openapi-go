@@ -21,7 +21,7 @@ func main() {
 	}
 	defer quoteContext.Close()
 	ctx := context.Background()
-	quoteContext.OnQuote(func(pe *quote.PushEvent) {
+	quoteContext.OnQuote(func(pe *quote.PushQuote) {
 		bytes, _ := json.Marshal(pe)
 		fmt.Println(string(bytes))
 	})

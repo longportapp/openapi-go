@@ -49,17 +49,28 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 		subscriptions: make(map[string][]SubType),
 		store:         newStore(),
 	}
+	core.client.AfterReconnected(func() {
+		if err := core.resubscribe(context.Background()); err != nil {
+			log.Error(err)
+		}
+	})
 	return core, nil
 }
 
-func (c *core) SetHandler(f func(*PushEvent)) {
-	c.client.AfterReconnected(func() {
-		c.resubscribe(context.Background())
-	})
-	c.client.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushFunc(f, c))
-	c.client.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushFunc(f, c))
-	c.client.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushFunc(f, c))
-	c.client.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushFunc(f, c))
+func (c *core) SetQuoteHandler(f func(*PushQuote)) {
+	c.client.Subscribe(uint32(quotev1.Command_PushQuoteData), parsePushQuoteFunc(f, c))
+}
+
+func (c *core) SetTradeHandler(f func(*PushTrade)) {
+	c.client.Subscribe(uint32(quotev1.Command_PushTradeData), parsePushTradeFunc(f, c))
+}
+
+func (c *core) SetDepthHandler(f func(*PushDepth)) {
+	c.client.Subscribe(uint32(quotev1.Command_PushDepthData), parsePushDepthFunc(f, c))
+}
+
+func (c *core) SetBrokersHandler(f func(*PushBrokers)) {
+	c.client.Subscribe(uint32(quotev1.Command_PushBrokersData), parsePushBrokersFunc(f, c))
 }
 
 func (c *core) Subscribe(ctx context.Context, symbols []string, subTypes []SubType, isFirstPush bool) (err error) {
@@ -475,75 +486,76 @@ func (c *core) Close() error {
 	return c.client.Close(nil)
 }
 
-func parsePushFunc(f func(*PushEvent), core *core) func(*protocol.Packet) {
+func parsePushQuoteFunc(f func(*PushQuote), core *core) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
-		event, err := newPushEvent(packet)
-		if err != nil {
-			log.Errorf("new push event error:%v", err)
+		var err error
+		var data quotev1.PushQuote
+		if err = packet.Unmarshal(&data); err != nil {
+			log.Errorf("quote push event, unmarshal error:%v", err)
 			return
 		}
-		core.store.HandlePushEvent(event)
-		f(event)
+		var pb PushQuote
+		if err = util.Copy(&pb, data); err != nil {
+			log.Errorf("quote push event, copy data error:%v", err)
+			return
+		}
+		core.store.MergeQuote(&pb)
+		f(&pb)
 	}
 }
 
-func newPushEvent(packet *protocol.Packet) (event *PushEvent, err error) {
-	event = &PushEvent{}
-	switch packet.CMD() {
-	case uint32(quotev1.Command_PushBrokersData):
-		event.Type = EventBroker
-		var data quotev1.PushBrokers
-		if err = packet.Unmarshal(&data); err != nil {
-			return
-		}
-		var pb PushBrokers
-		if err = util.Copy(&pb, data); err != nil {
-			return
-		}
-		event.Brokers = &pb
-		event.Symbol = data.GetSymbol()
-		event.Sequence = data.GetSequence()
-	case uint32(quotev1.Command_PushDepthData):
-		event.Type = EventDepth
+func parsePushDepthFunc(f func(*PushDepth), core *core) func(*protocol.Packet) {
+	return func(packet *protocol.Packet) {
+		var err error
 		var data quotev1.PushDepth
 		if err = packet.Unmarshal(&data); err != nil {
+			log.Errorf("quote depth push event, unmarshal error:%v", err)
 			return
 		}
 		var pd PushDepth
 		if err = util.Copy(&pd, data); err != nil {
+			log.Errorf("quote depth push event, copy data error:%v", err)
 			return
 		}
-		event.Depth = &pd
-		event.Symbol = data.GetSymbol()
-		event.Sequence = data.GetSequence()
-	case uint32(quotev1.Command_PushQuoteData):
-		event.Type = EventQuote
-		var data quotev1.PushQuote
+		core.store.MergeDepth(&pd)
+		f(&pd)
+	}
+}
+
+func parsePushBrokersFunc(f func(*PushBrokers), core *core) func(*protocol.Packet) {
+	return func(packet *protocol.Packet) {
+		var err error
+		var data quotev1.PushDepth
 		if err = packet.Unmarshal(&data); err != nil {
+			log.Errorf("quote brokers push event, unmarshal error:%v", err)
 			return
 		}
-		var pq PushQuote
-		if err = util.Copy(&pq, data); err != nil {
+		var pb PushBrokers
+		if err = util.Copy(&pb, data); err != nil {
+			log.Errorf("quote brokers push event, copy data error:%v", err)
 			return
 		}
-		event.Quote = &pq
-		event.Symbol = data.GetSymbol()
-		event.Sequence = data.GetSequence()
-	case uint32(quotev1.Command_PushTradeData):
-		event.Type = EventTrade
-		var data quotev1.PushTrade
+		core.store.MergeBroker(&pb)
+		f(&pb)
+	}
+}
+
+func parsePushTradeFunc(f func(*PushTrade), core *core) func(*protocol.Packet) {
+	return func(packet *protocol.Packet) {
+		var err error
+		var data quotev1.PushDepth
 		if err = packet.Unmarshal(&data); err != nil {
+			log.Errorf("quote trade push event, unmarshal error:%v", err)
 			return
 		}
 		var pt PushTrade
 		if err = util.Copy(&pt, data); err != nil {
+			log.Errorf("quote trade push event, copy data error:%v", err)
 			return
 		}
-		event.Trade = &pt
-		event.Symbol = data.GetSymbol()
-		event.Sequence = data.GetSequence()
+		core.store.MergeTrade(&pt)
+		f(&pt)
 	}
-	return
 }
 
 func toTimes(origin []string) (times []time.Time, err error) {

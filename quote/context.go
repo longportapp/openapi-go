@@ -18,9 +18,24 @@ type QuoteContext struct {
 	core *core
 }
 
-// OnQuote set callback function which will be called when server push events.
-func (c *QuoteContext) OnQuote(f func(*PushEvent)) {
-	c.core.SetHandler(f)
+// OnQuote set callback function which will be called when server push quote events.
+func (c *QuoteContext) OnQuote(f func(*PushQuote)) {
+	c.core.SetQuoteHandler(f)
+}
+
+// OnTrade set callback function which will be called when server push trade events.
+func (c *QuoteContext) OnTrade(f func(*PushTrade)) {
+	c.core.SetTradeHandler(f)
+}
+
+// OnDepth set callback function which will be called when server push depth events.
+func (c *QuoteContext) OnDepth(f func(*PushDepth)) {
+	c.core.SetDepthHandler(f)
+}
+
+// OnBrokers set callback function which will be called when server push brokers events.
+func (c *QuoteContext) OnBrokers(f func(*PushBrokers)) {
+	c.core.SetBrokersHandler(f)
 }
 
 // Subscribe quote
