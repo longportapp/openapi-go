@@ -66,6 +66,9 @@ type AccountBalance struct {
 	RemainingFinanceAmount string      `json:"remaining_finance_amount"`
 	RiskLevel              string      `json:"risk_level"`
 	MarginCall             string      `json:"margin_call"`
+	NetAssets              string      `json:"net_assets"`
+	InitMargin             string      `json:"init_margin"`
+	MaintenanceMargin      string      `json:"maintenance_margin"`
 	Currency               string      `json:"currency"`
 	CashInfos              []*CashInfo `json:"cash_infos"`
 }
