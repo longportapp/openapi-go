@@ -48,19 +48,6 @@ func newStore() *store {
 	}
 }
 
-func (s *store) HandlePushEvent(event *PushEvent) {
-	switch event.Type {
-	case EventBroker:
-		s.MergeBroker(event.Brokers)
-	case EventDepth:
-		s.MergeDepth(event.Depth)
-	case EventQuote:
-		s.MergeQuote(event.Quote)
-	case EventTrade:
-		s.MergeTrade(event.Trade)
-	}
-}
-
 func (s *store) MergeBroker(brokers *PushBrokers) {
 	s.brokersMut.Lock()
 	defer s.brokersMut.Unlock()
