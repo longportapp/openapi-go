@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/longbridgeapp/openapi-go/trade"
+	"github.com/shopspring/decimal"
 )
 
 func main() {
@@ -24,12 +25,12 @@ func main() {
 		Side:              trade.OrderSideBuy,
 		SubmittedQuantity: 200,
 		TimeInForce:       trade.TimeTypeDay,
-		SubmittedPrice:    "10",
+		SubmittedPrice:    decimal.NewFromFloat(12),
 	}
 	orderId, err := tradeContext.SubmitOrder(ctx, order)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	fmt.Printf("orderId: %v", orderId)
+	fmt.Printf("orderId: %v\n", orderId)
 }
