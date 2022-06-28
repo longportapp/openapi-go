@@ -77,3 +77,18 @@ func (r *GetFundPositions) Values() url.Values {
 	}
 	return vals
 }
+
+func (r *GetTodayOrders) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
+	p := &params{}
+	p.Add("symbol", string(r.Symbol))
+	p.Add("side", string(r.Side))
+	p.Add("market", string(r.Market))
+	vals := p.Values()
+	for _, s := range r.Status {
+		vals.Add("status", string(s))
+	}
+	return vals
+}
