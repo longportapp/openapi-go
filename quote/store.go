@@ -120,19 +120,19 @@ func (s *store) MergeQuote(quote *PushQuote) {
 	data.Sequence = quote.Sequence
 	newQuote := new(PushQuote)
 	*newQuote = *data.Quote
-	if quote.LastDone != "" {
+	if quote.LastDone != nil {
 		newQuote.LastDone = quote.LastDone
 	}
-	if quote.High != "" {
+	if quote.High != nil {
 		newQuote.High = quote.High
 	}
-	if quote.Open != "" {
+	if quote.Open != nil {
 		newQuote.Open = quote.Open
 	}
-	if quote.Low != "" {
+	if quote.Low != nil {
 		newQuote.Low = quote.Low
 	}
-	if quote.Turnover != "" {
+	if quote.Turnover != nil {
 		newQuote.Turnover = quote.Turnover
 	}
 	if quote.Volume != 0 {

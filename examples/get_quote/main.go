@@ -23,5 +23,5 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	fmt.Printf("quotes: %v", quotes)
+	fmt.Printf("quotes: %v\n", quotes)
 }
