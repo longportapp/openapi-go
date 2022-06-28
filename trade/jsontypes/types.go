@@ -137,7 +137,7 @@ type CashFlow struct {
 // CashInfo
 type CashInfo struct {
 	WithdrawCash  string `json:"withdraw_cash"`
-	AvailableCash string `json:"avaliable_cash"`
+	AvailableCash string `json:"available_cash"`
 	FrozenCash    string `json:"frozen_cash"`
 	SettlingCash  string `json:"settling_cash"`
 	Currency      string `json:"currency"`
