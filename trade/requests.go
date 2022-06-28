@@ -1,7 +1,6 @@
 package trade
 
 import (
-	"net/url"
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
