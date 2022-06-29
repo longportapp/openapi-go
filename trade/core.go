@@ -7,7 +7,9 @@ import (
 
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
+	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
 
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
@@ -121,12 +123,18 @@ func parseNotifyFunc(f func(*PushEvent)) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var notify tradev1.Notification
 		if err := packet.Unmarshal(&notify); err != nil {
-			log.Error(err)
+			log.Error("trade context unmarshal notification error:%v", err)
+			return
+		}
+		var data jsontypes.PushEvent
+		if err := json.Unmarshal(notify.GetData(), &data); err != nil {
+			log.Error("trade context json unmarshal push event error:%v", err)
 			return
 		}
 		var event PushEvent
-		if err := json.Unmarshal(notify.GetData(), &event); err != nil {
-			log.Error(err)
+		if err := util.Copy(&event, data); err != nil {
+			log.Errorf("trade context copy push event error:%v", err)
+			return
 		}
 		f(&event)
 	}
