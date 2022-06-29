@@ -46,17 +46,6 @@ const (
 	AdjustTypeForward = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
 )
 
-// PushEvent is quote context callback event
-type PushEvent struct {
-	Type     EventType
-	Symbol   string
-	Sequence int64
-	Quote    *PushQuote
-	Depth    *PushDepth
-	Brokers  *PushBrokers
-	Trade    *PushTrade
-}
-
 // PushQuote is quote info push from server
 type PushQuote struct {
 	Symbol       string
