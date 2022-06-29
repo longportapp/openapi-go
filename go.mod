@@ -6,7 +6,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/longbridgeapp/openapi-protobufs v0.0.0-20220614104051-4fb15e74b9eb
-	github.com/longbridgeapp/openapi-protocol/go v0.0.0-20220629061328-e1b78e9e0767
+	github.com/longbridgeapp/openapi-protocol/go v0.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1
 )
