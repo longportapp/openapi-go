@@ -348,3 +348,19 @@ type MarketTradingDay struct {
 	TradeDay     []time.Time
 	HalfTradeDay []time.Time
 }
+
+// WatchedSecurity the security is watched
+type WatchedSecurity struct {
+	Symbol    string
+	Market    string
+	Name      string
+	Price     *decimal.Decimal
+	WatchedAt int64 // timestamp
+}
+
+// WatchedGroup a group of the security is watched
+type WatchedGroup struct {
+	Id        string // group id
+	Name      string // group name
+	Securites []*WatchedSecurity
+}
