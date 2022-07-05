@@ -7,6 +7,8 @@ import (
 	"github.com/longbridgeapp/openapi-go"
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longbridgeapp/openapi-go/quote/jsontypes"
 
 	"github.com/pkg/errors"
 )
@@ -164,6 +166,18 @@ func (c *QuoteContext) RealtimeTrades(ctx context.Context, symbol string) ([]*Tr
 // RealtimeBrokers to get broker infomations on local store
 func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*SecurityBrokers, error) {
 	return c.core.RealtimeBrokers(ctx, symbol)
+}
+
+// WatchedGroups to get watched groups.
+// Reference: https://open.longbridgeapp.com/en/docs/quote/individual/watchlist_groups
+func (c *QuoteContext) WatchedGroups(ctx context.Context) (groupList []*WatchedGroup, err error) {
+	var resp jsontypes.WatchedGroupList
+	err = c.opts.HttpClient.Get(ctx, "/v1/watchlist/groups", nil, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&groupList, resp.Groups)
+	return
 }
 
 // Close
