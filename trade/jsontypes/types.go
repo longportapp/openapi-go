@@ -125,8 +125,8 @@ type CashFlows struct {
 // CashFlow is cash flow details
 type CashFlow struct {
 	TransactionFlowName string `json:"transaction_flow_name"`
-	Direction           string `json:"direction"`
-	BusinessType        string `json:"business_type"`
+	Direction           int32  `json:"direction"`
+	BusinessType        int32  `json:"business_type"`
 	Balance             string `json:"balance"`
 	Currency            string `json:"currency"`
 	BusinessTime        string `json:"business_time"`

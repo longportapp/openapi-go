@@ -142,12 +142,12 @@ type FundPositionChannel struct {
 // FundPosition is fund position details
 type FundPosition struct {
 	Symbol               string
-	CurrentNetAssetValue string
+	CurrentNetAssetValue *decimal.Decimal
 	NetAssetValueDay     int64
 	SymbolName           string
 	Currency             string
-	CostNetAssetValue    string
-	HoldingUnits         string
+	CostNetAssetValue    *decimal.Decimal
+	HoldingUnits         *decimal.Decimal
 }
 
 // StockPositions has a StockPosition list
