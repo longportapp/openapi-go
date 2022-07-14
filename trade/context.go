@@ -178,6 +178,20 @@ func (c *TradeContext) StockPositions(ctx context.Context, symbols []string) (st
 	return
 }
 
+// MarginRatio is used to obtain the initial margin ratio, maintain the margin ratio and strengthen the margin ratio of stocks.
+// Reference: https://open.longbridgeapp.com/en/docs/trade/asset/margin_ratio
+func (c *TradeContext) MarginRatio(ctx context.Context, symbol string) (marginRatio MarginRatio, err error) {
+	values := url.Values{}
+	values.Add("symbol", symbol)
+	var resp jsontypes.MarginRatio
+	err = c.opts.HttpClient.Get(ctx, "/v1/risk/margin-ratio", values, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&marginRatio, resp)
+	return
+}
+
 // Close
 func (c *TradeContext) Close() error {
 	return c.core.Close()

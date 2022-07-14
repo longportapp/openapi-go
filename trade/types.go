@@ -246,3 +246,10 @@ type SubResponseFail struct {
 type UnsubResponse struct {
 	Current []string
 }
+
+// MarginRatio contains some ratio
+type MarginRatio struct {
+	ImFactor *decimal.Decimal // Initial margin ratio
+	MmFactor *decimal.Decimal // Maintain the initial margin ratio
+	FmFactor *decimal.Decimal // Forced close-out margin ratio
+}

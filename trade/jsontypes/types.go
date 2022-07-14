@@ -201,3 +201,9 @@ type SubmitOrder struct {
 	Remark            string `json:"remark,omitempty"`
 	TimeInForce       string `json:"time_in_force"`
 }
+
+type MarginRatio struct {
+	ImFactor string `json:"im_factor,omitempty"`
+	MmFactor string `json:"mm_factor,omitempty"`
+	FmFactor string `json:"fm_factor,omitempty"`
+}
