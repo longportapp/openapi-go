@@ -138,7 +138,7 @@ func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountB
 // CashFlow to obtain capital inflow/outflow direction, capital type, capital amount, occurrence time, associated stock code and capital flow description information.
 // Reference: https://open.longbridgeapp.com/en/docs/trade/asset/cashflow
 func (c *TradeContext) CashFlow(ctx context.Context, params *GetCashFlow) (cashflows []*CashFlow, err error) {
-	var resp CashFlows
+	var resp jsontypes.CashFlows
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/cashflow", params.Values(), &resp)
 	if err != nil {
 		return
@@ -153,7 +153,7 @@ func (c *TradeContext) FundPositions(ctx context.Context, symbols []string) (fun
 	params := &GetFundPositions{
 		Symbols: symbols,
 	}
-	var resp FundPositions
+	var resp jsontypes.FundPositions
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/fund", params.Values(), &resp)
 	if err != nil {
 		return
@@ -169,7 +169,7 @@ func (c *TradeContext) StockPositions(ctx context.Context, symbols []string) (st
 	params := &GetStockPositions{
 		Symbols: symbols,
 	}
-	var resp StockPositions
+	var resp jsontypes.StockPositions
 	err = c.opts.HttpClient.Get(ctx, "/v1/asset/stock", params.Values(), &resp)
 	if err != nil {
 		return
