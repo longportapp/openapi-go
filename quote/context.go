@@ -148,6 +148,18 @@ func (c *QuoteContext) TradingDays(ctx context.Context, market openapi.Market, b
 	return c.core.TradingDays(ctx, market, begin, end)
 }
 
+// CapitalDistribution is used to obtain the daily capital distribution of security.
+// Reference: https://open.longbridgeapp.com/en/docs/quote/pull/capital-distribution
+func (c *QuoteContext) CapitalDistribution(ctx context.Context, symbol string) (capitalDib CapitalDistribution, err error) {
+	return c.core.CapitalDistribution(ctx, symbol)
+}
+
+// CapitalFlow is used to obtain the daily capital flow intraday of security.
+// Reference: https://open.longbridgeapp.com/en/docs/quote/pull/capital-flow-intraday
+func (c *QuoteContext) CapitalFlow(ctx context.Context, symbol string) (capitalFlowLines []CapitalFlowLine, err error) {
+	return c.core.CapitalFlow(ctx, symbol)
+}
+
 // RealtimeQuote to get quote infomations on local store
 func (c *QuoteContext) RealtimeQuote(ctx context.Context, symbols []string) ([]*Quote, error) {
 	return c.core.RealtimeQuote(ctx, symbols)

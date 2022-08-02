@@ -452,6 +452,42 @@ func (c *core) TradingDays(ctx context.Context, market openapi.Market, begin *ti
 	return
 }
 
+func (c *core) CapitalDistribution(ctx context.Context, symbol string) (capitalDib CapitalDistribution, err error) {
+	req := &quotev1.SecurityRequest{
+		Symbol: symbol,
+	}
+	var res *protocol.Packet
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryCapitalFlowDistribution), Body: req})
+	if err != nil {
+		return
+	}
+	var ret quotev1.CapitalDistributionResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&capitalDib, ret)
+	return
+}
+
+func (c *core) CapitalFlow(ctx context.Context, symbol string) (capitalFlowLines []CapitalFlowLine, err error) {
+	req := &quotev1.CapitalFlowIntradayRequest{
+		Symbol: symbol,
+	}
+	var res *protocol.Packet
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryCapitalFlowIntraday), Body: req})
+	if err != nil {
+		return
+	}
+	var ret quotev1.CapitalFlowIntradayResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&capitalFlowLines, ret.GetCapitalFlowLines())
+	return
+}
+
 func (c *core) RealtimeQuote(ctx context.Context, symbols []string) (quotes []*Quote, err error) {
 	quotes = make([]*Quote, 0, len(symbols))
 	for _, symbol := range symbols {

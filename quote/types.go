@@ -364,3 +364,24 @@ type WatchedGroup struct {
 	Name      string // group name
 	Securites []*WatchedSecurity
 }
+
+// CapitalDistribution information
+type CapitalDistribution struct {
+	Symbol     string
+	Timestamp  int64   // data update timestamp
+	CapitalIn  Capital // inflow capital data
+	CapitalOut Capital // outflow capital data
+}
+
+// Capital infomartion
+type Capital struct {
+	Large  *decimal.Decimal
+	Medium *decimal.Decimal
+	Small  *decimal.Decimal
+}
+
+// CapitalFlowLine
+type CapitalFlowLine struct {
+	Inflow    *decimal.Decimal
+	Timestamp int64
+}
