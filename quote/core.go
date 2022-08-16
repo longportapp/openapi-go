@@ -561,7 +561,7 @@ func parsePushDepthFunc(f func(*PushDepth), core *core) func(*protocol.Packet) {
 func parsePushBrokersFunc(f func(*PushBrokers), core *core) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var err error
-		var data quotev1.PushDepth
+		var data quotev1.PushBrokers
 		if err = packet.Unmarshal(&data); err != nil {
 			log.Errorf("quote brokers push event, unmarshal error:%v", err)
 			return
@@ -579,7 +579,7 @@ func parsePushBrokersFunc(f func(*PushBrokers), core *core) func(*protocol.Packe
 func parsePushTradeFunc(f func(*PushTrade), core *core) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var err error
-		var data quotev1.PushDepth
+		var data quotev1.PushTrade
 		if err = packet.Unmarshal(&data); err != nil {
 			log.Errorf("quote trade push event, unmarshal error:%v", err)
 			return
