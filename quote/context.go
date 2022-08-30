@@ -160,6 +160,12 @@ func (c *QuoteContext) CapitalFlow(ctx context.Context, symbol string) (capitalF
 	return c.core.CapitalFlow(ctx, symbol)
 }
 
+// CalcIndex is used to obtain the calculate indexes of securities.
+// Reference: https://open.longbridgeapp.com/en/docs/quote/pull/calc-index
+func (c *QuoteContext) CalcIndex(ctx context.Context, symbols []string, indexes []CalcIndex) (calcIndexes []*SecurityCalcIndex, err error) {
+	return c.core.CalcIndex(ctx, symbols, indexes)
+}
+
 // RealtimeQuote to get quote infomations on local store
 func (c *QuoteContext) RealtimeQuote(ctx context.Context, symbols []string) ([]*Quote, error) {
 	return c.core.RealtimeQuote(ctx, symbols)

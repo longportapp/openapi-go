@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
+	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	"github.com/shopspring/decimal"
 )
@@ -15,6 +16,7 @@ type EventType int8
 type SubType uint8
 type Period int32
 type AdjustType int32
+type CalcIndex int32
 
 const (
 	// SubType
@@ -44,6 +46,49 @@ const (
 	// AdjustType
 	AdjustTypeNo      = AdjustType(quotev1.AdjustType_NO_ADJUST)
 	AdjustTypeForward = AdjustType(quotev1.AdjustType_FORWARD_ADJUST)
+
+	// CalcIndex
+	CalcIndexUnknown               CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_UNKNOWN)
+	CalcIndexLastDone              CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_LAST_DONE)
+	CalcIndexChangeVal             CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_CHANGE_VAL)
+	CalcIndexChangeRate            CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_CHANGE_RATE)
+	CalcIndexVolume                CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_VOLUME)
+	CalcIndexTurnover              CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_TURNOVER)
+	CalcIndexYtdChangeRate         CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_YTD_CHANGE_RATE)
+	CalcIndexTurnoverRate          CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_TURNOVER_RATE)
+	CalcIndexTotalMarketValue      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_TOTAL_MARKET_VALUE)
+	CalcIndexCapitalFlow           CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_CAPITAL_FLOW)
+	CalcIndexAmplitude             CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_AMPLITUDE)
+	CalcIndexVolumeRatio           CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_VOLUME_RATIO)
+	CalcIndexPeTTMRatio            CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_PE_TTM_RATIO)
+	CalcIndexPbRatio               CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_PB_RATIO)
+	CalcIndexDividendRatioTTM      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_DIVIDEND_RATIO_TTM)
+	CalcIndexFiveDayChangeRate     CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_FIVE_DAY_CHANGE_RATE)
+	CalcIndexTenDayChangeRate      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_TEN_DAY_CHANGE_RATE)
+	CalcIndexHalfYearChangeRate    CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_HALF_YEAR_CHANGE_RATE)
+	CalcIndexFiveMinutesChangeRate CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_FIVE_MINUTES_CHANGE_RATE)
+	CalcIndexExpiryDate            CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_EXPIRY_DATE)
+	CalcIndexStrikePrice           CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_STRIKE_PRICE)
+	CalcIndexUpperStrikePrice      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_UPPER_STRIKE_PRICE)
+	CalcIndexLowerStrikePrice      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_LOWER_STRIKE_PRICE)
+	CalcIndexOutstandingQTY        CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_OUTSTANDING_QTY)
+	CalcIndexOutstandingRatio      CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_OUTSTANDING_RATIO)
+	CalcIndexPremium               CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_PREMIUM)
+	CalcIndexItmOtm                CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_ITM_OTM)
+	CalcIndexImpliedVolatility     CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_IMPLIED_VOLATILITY)
+	CalcIndexWarrantDelta          CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_WARRANT_DELTA)
+	CalcIndexCallPrice             CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_CALL_PRICE)
+	CalcIndexToCallPrice           CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_TO_CALL_PRICE)
+	CalcIndexEffectiveLeverage     CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_EFFECTIVE_LEVERAGE)
+	CalcIndexLeverageRatio         CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_LEVERAGE_RATIO)
+	CalcIndexConversionRatio       CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_CONVERSION_RATIO)
+	CalcIndexBalancePoint          CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_BALANCE_POINT)
+	CalcIndexOpenInterest          CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_OPEN_INTEREST)
+	CalcIndexDELTA                 CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_DELTA)
+	CalcIndexGAMMA                 CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_GAMMA)
+	CalcIndexTHETA                 CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_THETA)
+	CalcIndexVEGA                  CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_VEGA)
+	CalcIndexRHO                   CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_RHO)
 )
 
 // PushQuote is quote info push from server
@@ -384,4 +429,66 @@ type Capital struct {
 type CapitalFlowLine struct {
 	Inflow    *decimal.Decimal
 	Timestamp int64
+}
+
+// SecurityCalcIndex the infomation of calculate indexes's security
+type SecurityCalcIndex struct {
+	Symbol                string
+	LastDone              *decimal.Decimal
+	ChangeVal             *decimal.Decimal
+	ChangeRate            *decimal.Decimal
+	Volume                int64
+	Turnover              *decimal.Decimal
+	YtdChangeRate         *decimal.Decimal
+	TurnoverRate          *decimal.Decimal
+	TotalMarketValue      *decimal.Decimal
+	CapitalFlow           *decimal.Decimal
+	Amplitude             *decimal.Decimal
+	VolumeRatio           *decimal.Decimal
+	PeTtmRatio            *decimal.Decimal
+	PbRatio               *decimal.Decimal
+	DividendRatioTtm      *decimal.Decimal
+	FiveDayChangeRate     *decimal.Decimal
+	TenDayChangeRate      *decimal.Decimal
+	HalfYearChangeRate    *decimal.Decimal
+	FiveMinutesChangeRate *decimal.Decimal
+	ExpiryDate            string
+	StrikePrice           *decimal.Decimal
+	UpperStrikePrice      *decimal.Decimal
+	LowerStrikePrice      *decimal.Decimal
+	OutstandingQty        *decimal.Decimal
+	OutstandingRatio      *decimal.Decimal
+	Premium               *decimal.Decimal
+	ItmOtm                *decimal.Decimal
+	ImpliedVolatility     *decimal.Decimal
+	WarrantDelta          *decimal.Decimal
+	CallPrice             *decimal.Decimal
+	ToCallPrice           *decimal.Decimal
+	EffectiveLeverage     *decimal.Decimal
+	LeverageRatio         *decimal.Decimal
+	ConversionRatio       *decimal.Decimal
+	BalancePoint          *decimal.Decimal
+	OpenInterest          int64
+	Delta                 *decimal.Decimal
+	Gamma                 *decimal.Decimal
+	Theta                 *decimal.Decimal
+	Vega                  *decimal.Decimal
+	Rho                   *decimal.Decimal
+}
+
+// doRatio process some ratio fields
+func doRatio(calcIndex *SecurityCalcIndex) {
+	calcIndex.ChangeRate = util.Percent(calcIndex.ChangeRate)
+	calcIndex.YtdChangeRate = util.Percent(calcIndex.YtdChangeRate)
+	calcIndex.Turnover = util.Percent(calcIndex.TurnoverRate)
+	calcIndex.Amplitude = util.Percent(calcIndex.Amplitude)
+	calcIndex.FiveDayChangeRate = util.Percent(calcIndex.FiveDayChangeRate)
+	calcIndex.TenDayChangeRate = util.Percent(calcIndex.TenDayChangeRate)
+	calcIndex.HalfYearChangeRate = util.Percent(calcIndex.HalfYearChangeRate)
+	calcIndex.FiveMinutesChangeRate = util.Percent(calcIndex.FiveMinutesChangeRate)
+	calcIndex.OutstandingRatio = util.Percent(calcIndex.OutstandingRatio)
+	calcIndex.Premium = util.Percent(calcIndex.Premium)
+	calcIndex.ItmOtm = util.Percent(calcIndex.ItmOtm)
+	calcIndex.ImpliedVolatility = util.Percent(calcIndex.ImpliedVolatility)
+	calcIndex.ToCallPrice = util.Percent(calcIndex.ToCallPrice)
 }
