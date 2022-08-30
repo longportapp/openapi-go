@@ -10,10 +10,10 @@ import (
 	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
-
 	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
+
 	"github.com/pkg/errors"
 )
 
@@ -485,6 +485,30 @@ func (c *core) CapitalFlow(ctx context.Context, symbol string) (capitalFlowLines
 		return
 	}
 	err = util.Copy(&capitalFlowLines, ret.GetCapitalFlowLines())
+	return
+}
+
+func (c *core) CalcIndex(ctx context.Context, symbols []string, indexes []CalcIndex) (calcIndexes []*SecurityCalcIndex, err error) {
+	quoteCalcIndexes := make([]quotev1.CalcIndex, 0, len(indexes))
+	util.Copy(&quoteCalcIndexes, indexes)
+	req := &quotev1.SecurityCalcQuoteRequest{
+		Symbols:   symbols,
+		CalcIndex: quoteCalcIndexes,
+	}
+	var res *protocol.Packet
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityCalcIndex), Body: req})
+	if err != nil {
+		return
+	}
+	var ret quotev1.SecurityCalcQuoteResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&calcIndexes, ret.GetSecurityCalcIndex())
+	for _, calcIndex := range calcIndexes {
+		doRatio(calcIndex)
+	}
 	return
 }
 
