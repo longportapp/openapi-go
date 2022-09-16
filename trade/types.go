@@ -48,6 +48,7 @@ const (
 	OrderTypeTSLPPCT OrderType = "TSLPPCT" // Trailing Limit If Touched (Trailing Percent)
 	OrderTypeTSMAMT  OrderType = "TSMAMT"  // Trailing Market If Touched (Trailing Amount)
 	OrderTypeTSMPCT  OrderType = "TSMPCT"  // Trailing Market If Touched (Trailing Percent)
+	OrderTypeSLO     OrderType = "SLO"     // SLO order
 
 	// Order side
 	OrderSideBuy  OrderSide = "Buy"
