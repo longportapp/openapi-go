@@ -60,6 +60,15 @@ func (c *Client) GetOTP(ctx context.Context) (string, error) {
 	return res.Otp, nil
 }
 
+func (c *Client) GetOTPV2(ctx context.Context) (string, error) {
+	res := &otpResponse{}
+	err := c.Get(ctx, "/v2/socket/token", nil, res)
+	if err != nil {
+		return "", err
+	}
+	return res.Otp, nil
+}
+
 // Call will send request with signature to http server
 func (c *Client) Call(ctx context.Context, method, path string, queryParams interface{}, body interface{}, resp interface{}) (err error) {
 	var (

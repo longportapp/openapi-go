@@ -11,7 +11,7 @@ import (
 	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
 
-	"github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
+	tradev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
 	"github.com/pkg/errors"
@@ -26,7 +26,7 @@ type core struct {
 
 func newCore(url string, httpClient *http.Client) (*core, error) {
 	getOTP := func() (string, error) {
-		otp, err := httpClient.GetOTP(context.Background())
+		otp, err := httpClient.GetOTPV2(context.Background())
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
