@@ -19,7 +19,7 @@ import (
 )
 
 type core struct {
-	client        *client.Client
+	client        client.Client
 	url           string
 	subscriptions []string
 	mu            sync.Mutex
@@ -48,7 +48,10 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 
 		return otp, nil
 	}
-	cl := client.New()
+
+	logger := &protocol.DefaultLogger{}
+
+	cl := client.New(client.WithLogger(logger))
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
 		Codec:    protocol.CodecProtobuf,
@@ -57,7 +60,7 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 	if err != nil {
 		return nil, err
 	}
-	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
+	logger.SetLevel(config.GetLogLevelFromEnv())
 	core := &core{client: cl, url: url}
 	return core, nil
 }

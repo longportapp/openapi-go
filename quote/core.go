@@ -10,7 +10,7 @@ import (
 	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
-	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
+	quotev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
 
@@ -18,7 +18,7 @@ import (
 )
 
 type core struct {
-	client        *client.Client
+	client        client.Client
 	url           string
 	mu            sync.Mutex
 	subscriptions map[string][]SubType
@@ -33,16 +33,21 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 		}
 		return otp, nil
 	}
-	cl := client.New()
+
+	logger := &protocol.DefaultLogger{}
+
+	cl := client.New(client.WithLogger(logger))
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
 		Codec:    protocol.CodecProtobuf,
 		Platform: protocol.PlatformOpenapi,
 	}, client.WithAuthTokenGetter(getOTP))
+
 	if err != nil {
 		return nil, err
 	}
-	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
+
+	logger.SetLevel(config.GetLogLevelFromEnv())
 	core := &core{
 		client:        cl,
 		url:           url,
