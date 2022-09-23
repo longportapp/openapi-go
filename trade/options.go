@@ -2,7 +2,7 @@ package trade
 
 import "github.com/longbridgeapp/openapi-go/http"
 
-const DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com"
+const DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com/v2"
 
 // Options for quote context
 type Options struct {

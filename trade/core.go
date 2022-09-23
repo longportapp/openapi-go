@@ -3,6 +3,7 @@ package trade
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"sync"
 
 	"github.com/longbridgeapp/openapi-go/config"
@@ -11,28 +12,46 @@ import (
 	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
 
-	"github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
+	tradev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
 	protocol "github.com/longbridgeapp/openapi-protocol/go"
 	"github.com/longbridgeapp/openapi-protocol/go/client"
 	"github.com/pkg/errors"
 )
 
 type core struct {
-	client        *client.Client
+	client        client.Client
 	url           string
 	subscriptions []string
 	mu            sync.Mutex
 }
 
+func isV2(url string) bool {
+	return strings.HasSuffix(url, "/v2")
+}
+
 func newCore(url string, httpClient *http.Client) (*core, error) {
 	getOTP := func() (string, error) {
-		otp, err := httpClient.GetOTP(context.Background())
+		var (
+			otp string
+			err error
+		)
+
+		if isV2(url) {
+			otp, err = httpClient.GetOTPV2(context.Background())
+		} else {
+			otp, err = httpClient.GetOTP(context.Background())
+		}
+
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
+
 		return otp, nil
 	}
-	cl := client.New()
+
+	logger := &protocol.DefaultLogger{}
+
+	cl := client.New(client.WithLogger(logger))
 	err := cl.Dial(context.Background(), url, &protocol.Handshake{
 		Version:  1,
 		Codec:    protocol.CodecProtobuf,
@@ -41,7 +60,7 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 	if err != nil {
 		return nil, err
 	}
-	cl.Logger.SetLevel(config.GetLogLevelFromEnv())
+	logger.SetLevel(config.GetLogLevelFromEnv())
 	core := &core{client: cl, url: url}
 	return core, nil
 }
