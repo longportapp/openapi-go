@@ -2,6 +2,7 @@ package quote
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -25,9 +26,17 @@ type core struct {
 	store         *store
 }
 
+func isV2(u string) bool {
+	return strings.HasSuffix(u, "/v2")
+}
+
 func newCore(url string, httpClient *http.Client) (*core, error) {
-	getOTP := func() (string, error) {
-		otp, err := httpClient.GetOTP(context.Background())
+	getOTP := func() (otp string, err error) {
+		if isV2(url) {
+			otp, err = httpClient.GetOTPV2(context.Background())
+		} else {
+			otp, err = httpClient.GetOTP(context.Background())
+		}
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
