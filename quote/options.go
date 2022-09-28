@@ -2,7 +2,7 @@ package quote
 
 import "github.com/longbridgeapp/openapi-go/http"
 
-const DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com"
+const DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com/v2"
 
 // Options for quote context
 type Options struct {
