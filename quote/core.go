@@ -364,25 +364,22 @@ func (c *core) OptionChainExpiryDateList(ctx context.Context, symbol string) (ti
 	return
 }
 
-func (c *core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (times []time.Time, err error) {
+func (c *core) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (strikePriceInfos []*StrikePriceInfo, err error) {
 	req := &quotev1.OptionChainDateStrikeInfoRequest{
 		Symbol:     symbol,
 		ExpiryDate: util.FormatDateSimple(expiryDate),
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDate), Body: req})
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionChainDateStrikeInfo), Body: req})
 	if err != nil {
 		return
 	}
-	var ret quotev1.OptionChainDateListResponse
+	var ret quotev1.OptionChainDateStrikeInfoResponse
 	err = res.Unmarshal(&ret)
 	if err != nil {
 		return
 	}
-	times, err = toTimes(ret.GetExpiryDate())
-	if err != nil {
-		return
-	}
+	err = util.Copy(&strikePriceInfos, ret.GetStrikePriceInfo())
 	return
 }
 
