@@ -126,7 +126,7 @@ func (c *QuoteContext) OptionChainExpiryDateList(ctx context.Context, symbol str
 
 // OptionChainInfoByDate obtain a list of option securities by the option chain expiry date.
 // Reference: https://open.longbridgeapp.com/en/docs/quote/pull/optionchain-date-strike
-func (c *QuoteContext) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (times []time.Time, err error) {
+func (c *QuoteContext) OptionChainInfoByDate(ctx context.Context, symbol string, expiryDate *time.Time) (strikePriceInfos []*StrikePriceInfo, err error) {
 	return c.core.OptionChainInfoByDate(ctx, symbol, expiryDate)
 }
 
