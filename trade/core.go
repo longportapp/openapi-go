@@ -6,8 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
@@ -29,17 +27,17 @@ func isV2(url string) bool {
 	return strings.HasSuffix(url, "/v2")
 }
 
-func newCore(url string, httpClient *http.Client) (*core, error) {
+func newCore(opts *Options) (*core, error) {
 	getOTP := func() (string, error) {
 		var (
 			otp string
 			err error
 		)
 
-		if isV2(url) {
-			otp, err = httpClient.GetOTPV2(context.Background())
+		if isV2(opts.tradeURL) {
+			otp, err = opts.httpClient.GetOTPV2(context.Background())
 		} else {
-			otp, err = httpClient.GetOTP(context.Background())
+			otp, err = opts.httpClient.GetOTP(context.Background())
 		}
 
 		if err != nil {
@@ -52,16 +50,25 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 	logger := &protocol.DefaultLogger{}
 
 	cl := client.New(client.WithLogger(logger))
-	err := cl.Dial(context.Background(), url, &protocol.Handshake{
-		Version:  1,
-		Codec:    protocol.CodecProtobuf,
-		Platform: protocol.PlatformOpenapi,
-	}, client.WithAuthTokenGetter(getOTP))
+	err := cl.Dial(context.Background(), opts.tradeURL,
+		&protocol.Handshake{
+			Version:  1,
+			Codec:    protocol.CodecProtobuf,
+			Platform: protocol.PlatformOpenapi,
+		},
+		client.WithAuthTokenGetter(getOTP),
+		client.AuthTimeout(opts.lbAuthTimeout),
+		client.DialTimeout(opts.lbTimeout),
+		client.MinGzipSize(opts.lbMinGzipSize),
+		client.ReadBufferSize(opts.lbReadBufferSize),
+		client.ReadQueueSize(opts.lbReadQueueSize),
+		client.WriteQueueSize(opts.lbWriteQueueSize),
+	)
 	if err != nil {
 		return nil, err
 	}
-	logger.SetLevel(config.GetLogLevelFromEnv())
-	core := &core{client: cl, url: url}
+	logger.SetLevel(opts.logLevel)
+	core := &core{client: cl, url: opts.tradeURL}
 	return core, nil
 }
 

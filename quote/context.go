@@ -190,7 +190,7 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 // Reference: https://open.longbridgeapp.com/en/docs/quote/individual/watchlist_groups
 func (c *QuoteContext) WatchedGroups(ctx context.Context) (groupList []*WatchedGroup, err error) {
 	var resp jsontypes.WatchedGroupList
-	err = c.opts.HttpClient.Get(ctx, "/v1/watchlist/groups", nil, &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/watchlist/groups", nil, &resp)
 	if err != nil {
 		return
 	}
@@ -223,14 +223,24 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")
 	}
-	return New(WithQuoteURL(cfg.QuoteUrl), WithHttpClient(httpClient))
+	return New(
+		WithQuoteURL(cfg.QuoteUrl),
+		WithHttpClient(httpClient),
+		WithLBAuthTimeout(cfg.QuoteLBAuthTimeout),
+		WithLBTimeout(cfg.QuoteLBTimeout),
+		WithLBReadBufferSize(cfg.QuoteLBReadBufferSize),
+		WithLBReadQueueSize(cfg.QuoteLBReadQueueSize),
+		WithLBWriteQueueSize(cfg.QuoteLBWriteQueueSize),
+		WithLBMinGzipSize(cfg.QuoteLBMinGzipSize),
+		WithLogLevel(cfg.LogLevel),
+	)
 }
 
 // New return QuoteContext with option.
 // A connection will be created with quote server.
 func New(opt ...Option) (*QuoteContext, error) {
 	opts := newOptions(opt...)
-	core, err := newCore(opts.QuoteURL, opts.HttpClient)
+	core, err := newCore(opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}

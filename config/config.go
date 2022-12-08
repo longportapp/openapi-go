@@ -1,77 +1,54 @@
 package config
 
 import (
-	"os"
+	"time"
 
 	"github.com/pkg/errors"
+
+	env "github.com/Netflix/go-env"
 )
 
 // Config store Longbridge config
 type Config struct {
-	HttpURL     string
-	AppKey      string
-	AppSecret   string
-	AccessToken string
-	TradeUrl    string
-	QuoteUrl    string
+	HttpURL     string `env:"LONGBRIDGE_HTTP_URL"`
+	AppKey      string `env:"LONGBRIDGE_APP_KEY"`
+	AppSecret   string `env:"LONGBRIDGE_APP_SECRET"`
+	AccessToken string `env:"LONGBRIDGE_ACCESS_TOKEN"`
+	TradeUrl    string `env:"LONGBRIDGE_TRADE_URL"`
+	QuoteUrl    string `env:"LONGBRIDGE_QUOTE_URL"`
+	LogLevel    string `env:"LONGBRIDGE_LOG_LEVEL"`
+
+	// trade longbridge protocol config
+	TradeLBAuthTimeout    time.Duration `env:"LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT"`
+	TradeLBTimeout        time.Duration `env:"LONGBRIDGE_TRADE_LB_TIMEOUT"`
+	TradeLBWriteQueueSize int           `env:"LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE"`
+	TradeLBReadQueueSize  int           `env:"LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE"`
+	TradeLBReadBufferSize int           `env:"LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE"`
+	TradeLBMinGzipSize    int           `env:"LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE"`
+	// quote longbridge protocol config
+	QuoteLBAuthTimeout    time.Duration `env:"LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT"`
+	QuoteLBTimeout        time.Duration `env:"LONGBRIDGE_TRADE_LB_TIMEOUT"`
+	QuoteLBWriteQueueSize int           `env:"LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE"`
+	QuoteLBReadQueueSize  int           `env:"LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE"`
+	QuoteLBReadBufferSize int           `env:"LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE"`
+	QuoteLBMinGzipSize    int           `env:"LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE"`
 }
 
 // NewFormEnv to create config with enviromente variables
 func NewFormEnv() (*Config, error) {
-	accessToken := GetAccessTokenFromEnv()
-	if accessToken == "" {
+	conf := &Config{}
+	_, err := env.UnmarshalFromEnviron(conf)
+	if err != nil {
+		return nil, errors.Wrap(err, "env load error")
+	}
+	if conf.AccessToken == "" {
 		return nil, errors.New("Don't has accessToken. Please set access token on LONGBRIDGE_ACCESS_TOKEN env")
 	}
-	appKey := GetAppKeyFromEnv()
-	if appKey == "" {
+	if conf.AppKey == "" {
 		return nil, errors.New("Don't has appKey. Please set app key on LONGBRIDGE_APP_KEY env")
 	}
-	appSecret := GetAppSecretFromEnv()
-	if appSecret == "" {
+	if conf.AppSecret == "" {
 		return nil, errors.New("Don't has appSecret. Please set app secret on LONGBRIDGE_APP_Secret env")
 	}
-	conf := &Config{
-		AppKey:      appKey,
-		AppSecret:   appSecret,
-		AccessToken: accessToken,
-		TradeUrl:    GetTradeUrlFromEnv(),
-		QuoteUrl:    GetQuoteUrlFromEnv(),
-		HttpURL:     GetHttpUrlFromEnv(),
-	}
 	return conf, nil
-}
-
-// GetAccessTokenFromEnv
-func GetAccessTokenFromEnv() string {
-	return os.Getenv("LONGBRIDGE_ACCESS_TOKEN")
-}
-
-// GetAppKeyFromEnv
-func GetAppKeyFromEnv() string {
-	return os.Getenv("LONGBRIDGE_APP_KEY")
-}
-
-// GetAppSecretFromEnv
-func GetAppSecretFromEnv() string {
-	return os.Getenv("LONGBRIDGE_APP_SECRET")
-}
-
-// GetTradeUrlFromEnv
-func GetTradeUrlFromEnv() string {
-	return os.Getenv("LONGBRIDGE_TRADE_URL")
-}
-
-// GetQuoteUrlFromEnv
-func GetQuoteUrlFromEnv() string {
-	return os.Getenv("LONGBRIDGE_QUOTE_URL")
-}
-
-// GetHttpUrlFromEnv
-func GetHttpUrlFromEnv() string {
-	return os.Getenv("LONGBRIDGE_HTTP_URL")
-}
-
-// GetLogLevelFromEnv
-func GetLogLevelFromEnv() string {
-	return os.Getenv("LONGBRIDGE_LOG_LEVEL")
 }

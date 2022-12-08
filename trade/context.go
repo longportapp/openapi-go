@@ -1,4 +1,4 @@
-//  Package trade provide TradeContext
+// Package trade provide TradeContext
 package trade
 
 import (
@@ -41,7 +41,7 @@ func (c *TradeContext) Unsubscribe(ctx context.Context, topics []string) (unsubR
 // Reference: https://open.longbridgeapp.com/en/docs/trade/execution/history_executions
 func (c *TradeContext) HistoryExecutions(ctx context.Context, params *GetHistoryExecutions) (trades []*Execution, err error) {
 	resp := &jsontypes.Executions{}
-	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/history", params.Values(), &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/execution/history", params.Values(), &resp)
 	if err != nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (c *TradeContext) HistoryExecutions(ctx context.Context, params *GetHistory
 // Reference: https://open.longbridgeapp.com/en/docs/trade/execution/today_executions
 func (c *TradeContext) TodayExecutions(ctx context.Context, params *GetTodayExecutions) (trades []*Execution, err error) {
 	resp := &jsontypes.Executions{}
-	err = c.opts.HttpClient.Get(ctx, "/v1/trade/execution/today", params.Values(), resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/execution/today", params.Values(), resp)
 	if err != nil {
 		return
 	}
@@ -65,7 +65,7 @@ func (c *TradeContext) TodayExecutions(ctx context.Context, params *GetTodayExec
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/history_orders
 func (c *TradeContext) HistoryOrders(ctx context.Context, params *GetHistoryOrders) (orders []*Order, hasMore bool, err error) {
 	resp := &jsontypes.Orders{}
-	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/history", params.Values(), resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/order/history", params.Values(), resp)
 	if err != nil {
 		return
 	}
@@ -78,7 +78,7 @@ func (c *TradeContext) HistoryOrders(ctx context.Context, params *GetHistoryOrde
 // Reference: https://open.longbridgeapp.com/en/docs/trade/order/today_orders
 func (c *TradeContext) TodayOrders(ctx context.Context, params *GetTodayOrders) (orders []*Order, err error) {
 	resp := &jsontypes.Orders{}
-	err = c.opts.HttpClient.Get(ctx, "/v1/trade/order/today", params.Values(), resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/order/today", params.Values(), resp)
 	if err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func (c *TradeContext) ReplaceOrder(ctx context.Context, params *ReplaceOrder) (
 	if err != nil {
 		return
 	}
-	err = c.opts.HttpClient.Put(ctx, "/v1/trade/order", jsonbody, nil)
+	err = c.opts.httpClient.Put(ctx, "/v1/trade/order", jsonbody, nil)
 	return
 }
 
@@ -107,7 +107,7 @@ func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (or
 		return
 	}
 	resp := &jsontypes.SubmitOrderResponse{}
-	err = c.opts.HttpClient.Post(ctx, "/v1/trade/order", jsonbody, resp)
+	err = c.opts.httpClient.Post(ctx, "/v1/trade/order", jsonbody, resp)
 	if err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (or
 func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err error) {
 	values := url.Values{}
 	values.Add("order_id", orderId)
-	err = c.opts.HttpClient.Delete(ctx, "/v1/trade/order", values, nil)
+	err = c.opts.httpClient.Delete(ctx, "/v1/trade/order", values, nil)
 	return
 }
 
@@ -127,7 +127,7 @@ func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err e
 // Reference: https://open.longbridgeapp.com/en/docs/trade/asset/account
 func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountBalance, err error) {
 	var resp jsontypes.AccountBalances
-	err = c.opts.HttpClient.Get(ctx, "/v1/asset/account", nil, &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/asset/account", nil, &resp)
 	if err != nil {
 		return
 	}
@@ -139,7 +139,7 @@ func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountB
 // Reference: https://open.longbridgeapp.com/en/docs/trade/asset/cashflow
 func (c *TradeContext) CashFlow(ctx context.Context, params *GetCashFlow) (cashflows []*CashFlow, err error) {
 	var resp jsontypes.CashFlows
-	err = c.opts.HttpClient.Get(ctx, "/v1/asset/cashflow", params.Values(), &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/asset/cashflow", params.Values(), &resp)
 	if err != nil {
 		return
 	}
@@ -154,7 +154,7 @@ func (c *TradeContext) FundPositions(ctx context.Context, symbols []string) (fun
 		Symbols: symbols,
 	}
 	var resp jsontypes.FundPositions
-	err = c.opts.HttpClient.Get(ctx, "/v1/asset/fund", params.Values(), &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/asset/fund", params.Values(), &resp)
 	if err != nil {
 		return
 	}
@@ -170,7 +170,7 @@ func (c *TradeContext) StockPositions(ctx context.Context, symbols []string) (st
 		Symbols: symbols,
 	}
 	var resp jsontypes.StockPositions
-	err = c.opts.HttpClient.Get(ctx, "/v1/asset/stock", params.Values(), &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/asset/stock", params.Values(), &resp)
 	if err != nil {
 		return
 	}
@@ -184,7 +184,7 @@ func (c *TradeContext) MarginRatio(ctx context.Context, symbol string) (marginRa
 	values := url.Values{}
 	values.Add("symbol", symbol)
 	var resp jsontypes.MarginRatio
-	err = c.opts.HttpClient.Get(ctx, "/v1/risk/margin-ratio", values, &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/risk/margin-ratio", values, &resp)
 	if err != nil {
 		return
 	}
@@ -217,14 +217,23 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")
 	}
-	return New(WithTradeURL(cfg.TradeUrl), WithHttpClient(httpClient))
+	return New(
+		WithTradeURL(cfg.TradeUrl),
+		WithHttpClient(httpClient),
+		WithLBAuthTimeout(cfg.TradeLBAuthTimeout),
+		WithLBTimeout(cfg.TradeLBTimeout),
+		WithLBReadBufferSize(cfg.TradeLBReadBufferSize),
+		WithLBReadQueueSize(cfg.TradeLBReadQueueSize),
+		WithLBWriteQueueSize(cfg.TradeLBWriteQueueSize),
+		WithLBMinGzipSize(cfg.TradeLBMinGzipSize),
+	)
 }
 
 // New return TradeContext with option.
 // A connection will be created with Trade server.
 func New(opt ...Option) (*TradeContext, error) {
 	opts := newOptions(opt...)
-	core, err := newCore(opts.TradeURL, opts.HttpClient)
+	core, err := newCore(opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create core")
 	}

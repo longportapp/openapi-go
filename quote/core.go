@@ -30,12 +30,12 @@ func isV2(u string) bool {
 	return strings.HasSuffix(u, "/v2")
 }
 
-func newCore(url string, httpClient *http.Client) (*core, error) {
+func newCore(opts *Options) (*core, error) {
 	getOTP := func() (otp string, err error) {
-		if isV2(url) {
-			otp, err = httpClient.GetOTPV2(context.Background())
+		if isV2(opts.quoteURL) {
+			otp, err = opts.httpClient.GetOTPV2(context.Background())
 		} else {
-			otp, err = httpClient.GetOTP(context.Background())
+			otp, err = opts.httpClient.GetOTP(context.Background())
 		}
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
@@ -46,20 +46,29 @@ func newCore(url string, httpClient *http.Client) (*core, error) {
 	logger := &protocol.DefaultLogger{}
 
 	cl := client.New(client.WithLogger(logger))
-	err := cl.Dial(context.Background(), url, &protocol.Handshake{
-		Version:  1,
-		Codec:    protocol.CodecProtobuf,
-		Platform: protocol.PlatformOpenapi,
-	}, client.WithAuthTokenGetter(getOTP))
+	err := cl.Dial(context.Background(), opts.quoteURL,
+		&protocol.Handshake{
+			Version:  1,
+			Codec:    protocol.CodecProtobuf,
+			Platform: protocol.PlatformOpenapi,
+		},
+		client.WithAuthTokenGetter(getOTP),
+		client.AuthTimeout(opts.lbAuthTimeout),
+		client.DialTimeout(opts.lbTimeout),
+		client.MinGzipSize(opts.lbMinGzipSize),
+		client.ReadBufferSize(opts.lbReadBufferSize),
+		client.ReadQueueSize(opts.lbReadQueueSize),
+		client.WriteQueueSize(opts.lbWriteQueueSize),
+	)
 
 	if err != nil {
 		return nil, err
 	}
 
-	logger.SetLevel(config.GetLogLevelFromEnv())
+	logger.SetLevel(opts.logLevel)
 	core := &core{
 		client:        cl,
-		url:           url,
+		url:           opts.quoteURL,
 		subscriptions: make(map[string][]SubType),
 		store:         newStore(),
 	}
