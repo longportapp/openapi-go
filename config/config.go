@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go/log"
-	"github.com/pkg/errors"
 
 	env "github.com/Netflix/go-env"
+	"github.com/pkg/errors"
 )
 
 // Config store Longbridge config
