@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go"
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/log"
 	quotev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/quote"

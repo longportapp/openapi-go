@@ -98,6 +98,31 @@ func main() {
 	fmt.Printf("orderId: %v\n", orderId)
 }
 ```
+
+## Environment Variables
+
+| name                                 | description                                                      | default value                            | example |
+|--------------------------------------|------------------------------------------------------------------|------------------------------------------|---------|
+| LONGBRIDGE_HTTP_URL                  | longbridge rest api url                                          | https://openapi.longbridgeapp.com        |         |
+| LONGBRIDGE_APP_KEY                   | app key                                                          |                                          |         |
+| LONGBRIDGE_APP_SECRET                | app secret                                                       |                                          |         |
+| LONGBRIDGE_ACCESS_TOKEN              | access token                                                     |                                          |         |
+| LONGBRIDGE_TRADE_URL                 | longbridge protocol url for trade context                        | wss://openapi-trade.longbridgeapp.com/v2 |         |
+| LONGBRIDGE_QUOTE_URL                 | longbridge protocol url for quote context                        | wss://openapi-quote.longbridgeapp.com/v2 |         |
+| LONGBRIDGE_LOG_LEVEL                 | log level                                                        | info                                     |         |
+| LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT     | longbridge protocol authorize request time out for trade context | 10 second                                | 10s     |
+| LONGBRIDGE_TRADE_LB_TIMEOUT          | longbridge protocol dial timeout for trade context               | 5 second                                 | 6s      |
+| LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE | longbirdge protocol write queue size for trade context           | 16                                       |         |
+| LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE  | longbirdge protocol read queue size for trade context            | 16                                       |         |
+| LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE | longbirdge protocol read buffer size for trade context           | 4096                                     |         |
+| LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE    | longbirdge protocol minimal gzip size for trade context          | 1024                                     |         |
+| LONGBRIDGE_QUOTE_LB_AUTH_TIMEOUT     | longbridge protocol authorize request time out for quote context | 10 second                                | 10s     |
+| LONGBRIDGE_QUOTE_LB_TIMEOUT          | longbridge protocol dial timeout for quote context               | 5 second                                 | 6s      |
+| LONGBRIDGE_QUOTE_LB_WRITE_QUEUE_SIZE | longbirdge protocol write queue size for quote context           | 16                                       |         |
+| LONGBRIDGE_QUOTE_LB_READ_QUEUE_SIZE  | longbirdge protocol read queue size for quote context            | 16                                       |         |
+| LONGBRIDGE_QUOTE_LB_READ_BUFFER_SIZE | longbirdge protocol read buffer size for quote context           | 4096                                     |         |
+| LONGBRIDGE_QUOTE_LB_MIN_GZIP_SIZE    | longbirdge protocol minimal gzip size for quote context          | 1024                                     |         |
+
 ## License
 
 Licensed under either of

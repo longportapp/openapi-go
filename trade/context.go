@@ -226,6 +226,7 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 		WithLBReadQueueSize(cfg.TradeLBReadQueueSize),
 		WithLBWriteQueueSize(cfg.TradeLBWriteQueueSize),
 		WithLBMinGzipSize(cfg.TradeLBMinGzipSize),
+		WithLogLevel(cfg.LogLevel),
 	)
 }
 

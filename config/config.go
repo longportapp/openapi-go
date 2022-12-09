@@ -3,6 +3,7 @@ package config
 import (
 	"time"
 
+	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/pkg/errors"
 
 	env "github.com/Netflix/go-env"
@@ -26,12 +27,12 @@ type Config struct {
 	TradeLBReadBufferSize int           `env:"LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE"`
 	TradeLBMinGzipSize    int           `env:"LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE"`
 	// quote longbridge protocol config
-	QuoteLBAuthTimeout    time.Duration `env:"LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT"`
-	QuoteLBTimeout        time.Duration `env:"LONGBRIDGE_TRADE_LB_TIMEOUT"`
-	QuoteLBWriteQueueSize int           `env:"LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE"`
-	QuoteLBReadQueueSize  int           `env:"LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE"`
-	QuoteLBReadBufferSize int           `env:"LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE"`
-	QuoteLBMinGzipSize    int           `env:"LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE"`
+	QuoteLBAuthTimeout    time.Duration `env:"LONGBRIDGE_QUOTE_LB_AUTH_TIMEOUT"`
+	QuoteLBTimeout        time.Duration `env:"LONGBRIDGE_QUOTE_LB_TIMEOUT"`
+	QuoteLBWriteQueueSize int           `env:"LONGBRIDGE_QUOTE_LB_WRITE_QUEUE_SIZE"`
+	QuoteLBReadQueueSize  int           `env:"LONGBRIDGE_QUOTE_LB_READ_QUEUE_SIZE"`
+	QuoteLBReadBufferSize int           `env:"LONGBRIDGE_QUOTE_LB_READ_BUFFER_SIZE"`
+	QuoteLBMinGzipSize    int           `env:"LONGBRIDGE_QUOTE_LB_MIN_GZIP_SIZE"`
 }
 
 // NewFormEnv to create config with enviromente variables
@@ -50,5 +51,8 @@ func NewFormEnv() (*Config, error) {
 	if conf.AppSecret == "" {
 		return nil, errors.New("Don't has appSecret. Please set app secret on LONGBRIDGE_APP_Secret env")
 	}
+	dlogger := &log.DefaultLogger{}
+	dlogger.SetLevel(conf.LogLevel)
+	log.SetLogger(dlogger)
 	return conf, nil
 }
