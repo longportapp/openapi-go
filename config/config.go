@@ -7,6 +7,7 @@ import (
 
 	env "github.com/Netflix/go-env"
 	"github.com/pkg/errors"
+  "github.com/joho/godotenv"
 )
 
 // Config store Longbridge config
@@ -37,8 +38,9 @@ type Config struct {
 
 // NewFormEnv to create config with enviromente variables
 func NewFormEnv() (*Config, error) {
+  _ = godotenv.Load()
 	conf := &Config{}
-	_, err := env.UnmarshalFromEnviron(conf)
+  _, err := env.UnmarshalFromEnviron(conf)
 	if err != nil {
 		return nil, errors.Wrap(err, "env load error")
 	}
