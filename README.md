@@ -101,6 +101,8 @@ func main() {
 
 ## Environment Variables
 
+-- support load env from `.env` file
+
 | name                                 | description                                                      | default value                            | example |
 |--------------------------------------|------------------------------------------------------------------|------------------------------------------|---------|
 | LONGBRIDGE_HTTP_URL                  | longbridge rest api url                                          | https://openapi.longbridgeapp.com        |         |
