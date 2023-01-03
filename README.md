@@ -101,7 +101,7 @@ func main() {
 
 ## Environment Variables
 
--- support load env from `.env` file
+ -- support load env from `.env` file
 
 | name                                 | description                                                      | default value                            | example |
 |--------------------------------------|------------------------------------------------------------------|------------------------------------------|---------|
