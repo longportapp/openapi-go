@@ -229,7 +229,7 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 	return New(
 		WithTradeURL(cfg.TradeUrl),
 		WithHttpClient(httpClient),
-    WithLbOptions(lbOpts),
+		WithLbOptions(lbOpts),
 		WithLogLevel(cfg.LogLevel),
 	)
 }

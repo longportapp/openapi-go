@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	DefaultQuoteUrl         = "wss://openapi-quote.longbridgeapp.com/v2"
+	DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com/v2"
 )
 
 // Options for quote context
