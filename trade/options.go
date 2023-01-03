@@ -1,32 +1,20 @@
 package trade
 
 import (
-	"time"
-
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/longbridge"
 )
 
 const (
-	DefaultTradeUrl         = "wss://openapi-trade.longbridgeapp.com/v2"
-	DefaultLBWriteQueueSize = 16
-	DefaultLBReadBufferSize = 4096
-	DefaultLBReadQueueSize  = 16
-	DefaultLBMinGzipSize    = 1024
-	DefaultLBDialTimeout    = time.Second * 5
-	DefaultLBAuthTimeout    = time.Second * 10
+	DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com/v2"
 )
 
 // Options for quote context
 type Options struct {
-	tradeURL         string
-	httpClient       *http.Client
-	lbAuthTimeout    time.Duration
-	lbTimeout        time.Duration
-	lbWriteQueueSize int
-	lbReadQueueSize  int
-	lbReadBufferSize int
-	lbMinGzipSize    int
-	logLevel         string
+	tradeURL   string
+	httpClient *http.Client
+	lbOpts     *longbridge.Options
+	logLevel   string
 }
 
 // Option
@@ -50,50 +38,10 @@ func WithHttpClient(client *http.Client) Option {
 	}
 }
 
-func WithLBAuthTimeout(timeout time.Duration) Option {
+func WithLbOptions(opts *longbridge.Options) Option {
 	return func(o *Options) {
-		if timeout > 0 {
-			o.lbAuthTimeout = timeout
-		}
-	}
-}
-
-func WithLBTimeout(timeout time.Duration) Option {
-	return func(o *Options) {
-		if timeout > 0 {
-			o.lbTimeout = timeout
-		}
-	}
-}
-
-func WithLBWriteQueueSize(size int) Option {
-	return func(o *Options) {
-		if size > 0 {
-			o.lbWriteQueueSize = size
-		}
-	}
-}
-
-func WithLBReadQueueSize(size int) Option {
-	return func(o *Options) {
-		if size > 0 {
-			o.lbReadQueueSize = size
-		}
-	}
-}
-
-func WithLBReadBufferSize(size int) Option {
-	return func(o *Options) {
-		if size > 0 {
-			o.lbReadBufferSize = size
-		}
-	}
-}
-
-func WithLBMinGzipSize(size int) Option {
-	return func(o *Options) {
-		if size > 0 {
-			o.lbMinGzipSize = size
+		if opts != nil {
+			o.lbOpts = opts
 		}
 	}
 }
@@ -108,13 +56,8 @@ func WithLogLevel(level string) Option {
 
 func newOptions(opt ...Option) *Options {
 	opts := Options{
-		tradeURL:         DefaultTradeUrl,
-		lbAuthTimeout:    DefaultLBAuthTimeout,
-		lbTimeout:        DefaultLBDialTimeout,
-		lbWriteQueueSize: DefaultLBWriteQueueSize,
-		lbReadQueueSize:  DefaultLBReadQueueSize,
-		lbReadBufferSize: DefaultLBReadBufferSize,
-		lbMinGzipSize:    DefaultLBMinGzipSize,
+		tradeURL: DefaultTradeUrl,
+		lbOpts:   longbridge.NewOptions(),
 	}
 	for _, o := range opt {
 		o(&opts)

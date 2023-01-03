@@ -57,12 +57,12 @@ func newCore(opts *Options) (*core, error) {
 			Platform: protocol.PlatformOpenapi,
 		},
 		client.WithAuthTokenGetter(getOTP),
-		client.AuthTimeout(opts.lbAuthTimeout),
-		client.DialTimeout(opts.lbTimeout),
-		client.MinGzipSize(opts.lbMinGzipSize),
-		client.ReadBufferSize(opts.lbReadBufferSize),
-		client.ReadQueueSize(opts.lbReadQueueSize),
-		client.WriteQueueSize(opts.lbWriteQueueSize),
+		client.AuthTimeout(opts.lbOpts.AuthTimeout),
+		client.DialTimeout(opts.lbOpts.Timeout),
+		client.MinGzipSize(opts.lbOpts.MinGzipSize),
+		client.ReadBufferSize(opts.lbOpts.ReadBufferSize),
+		client.ReadQueueSize(opts.lbOpts.ReadQueueSize),
+		client.WriteQueueSize(opts.lbOpts.WriteQueueSize),
 	)
 	if err != nil {
 		return nil, err

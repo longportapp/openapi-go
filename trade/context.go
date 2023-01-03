@@ -8,6 +8,7 @@ import (
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
 	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longbridgeapp/openapi-go/longbridge"
 	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
 
 	"github.com/pkg/errors"
@@ -217,15 +218,18 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")
 	}
+	lbOpts := longbridge.NewOptions(
+		longbridge.WithAuthTimeout(cfg.TradeLBAuthTimeout),
+		longbridge.WithTimeout(cfg.TradeLBTimeout),
+		longbridge.WithReadBufferSize(cfg.TradeLBReadBufferSize),
+		longbridge.WithReadQueueSize(cfg.TradeLBReadQueueSize),
+		longbridge.WithWriteQueueSize(cfg.TradeLBWriteQueueSize),
+		longbridge.WithMinGzipSize(cfg.TradeLBMinGzipSize),
+	)
 	return New(
 		WithTradeURL(cfg.TradeUrl),
 		WithHttpClient(httpClient),
-		WithLBAuthTimeout(cfg.TradeLBAuthTimeout),
-		WithLBTimeout(cfg.TradeLBTimeout),
-		WithLBReadBufferSize(cfg.TradeLBReadBufferSize),
-		WithLBReadQueueSize(cfg.TradeLBReadQueueSize),
-		WithLBWriteQueueSize(cfg.TradeLBWriteQueueSize),
-		WithLBMinGzipSize(cfg.TradeLBMinGzipSize),
+    WithLbOptions(lbOpts),
 		WithLogLevel(cfg.LogLevel),
 	)
 }

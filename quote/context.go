@@ -7,6 +7,7 @@ import (
 	"github.com/longbridgeapp/openapi-go"
 	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/longbridge"
 	"github.com/longbridgeapp/openapi-go/internal/util"
 	"github.com/longbridgeapp/openapi-go/quote/jsontypes"
 
@@ -223,16 +224,19 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")
 	}
+  lbOpts := longbridge.NewOptions(
+		longbridge.WithAuthTimeout(cfg.QuoteLBAuthTimeout),
+		longbridge.WithTimeout(cfg.QuoteLBTimeout),
+		longbridge.WithReadBufferSize(cfg.QuoteLBReadBufferSize),
+		longbridge.WithReadQueueSize(cfg.QuoteLBReadQueueSize),
+		longbridge.WithWriteQueueSize(cfg.QuoteLBWriteQueueSize),
+		longbridge.WithMinGzipSize(cfg.QuoteLBMinGzipSize),
+  )
 	return New(
 		WithQuoteURL(cfg.QuoteUrl),
 		WithHttpClient(httpClient),
-		WithLBAuthTimeout(cfg.QuoteLBAuthTimeout),
-		WithLBTimeout(cfg.QuoteLBTimeout),
-		WithLBReadBufferSize(cfg.QuoteLBReadBufferSize),
-		WithLBReadQueueSize(cfg.QuoteLBReadQueueSize),
-		WithLBWriteQueueSize(cfg.QuoteLBWriteQueueSize),
-		WithLBMinGzipSize(cfg.QuoteLBMinGzipSize),
 		WithLogLevel(cfg.LogLevel),
+    WithLbOptions(lbOpts),
 	)
 }
 
