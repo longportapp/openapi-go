@@ -3,8 +3,6 @@ package log
 import (
 	"log"
 	"strings"
-
-	"github.com/longbridgeapp/openapi-go/config"
 )
 
 type LogLevel int
@@ -20,7 +18,6 @@ var logger Logger
 
 func init() {
 	dlogger := &DefaultLogger{}
-	dlogger.SetLevel(config.GetLogLevelFromEnv())
 	logger = dlogger
 }
 

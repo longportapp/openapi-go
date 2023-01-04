@@ -1,13 +1,20 @@
 package quote
 
-import "github.com/longbridgeapp/openapi-go/http"
+import (
+	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/longbridge"
+)
 
-const DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com/v2"
+const (
+	DefaultQuoteUrl = "wss://openapi-quote.longbridgeapp.com/v2"
+)
 
 // Options for quote context
 type Options struct {
-	QuoteURL   string
-	HttpClient *http.Client
+	quoteURL   string
+	httpClient *http.Client
+	lbOpts     *longbridge.Options
+	logLevel   string
 }
 
 // Option
@@ -17,7 +24,7 @@ type Option func(*Options)
 func WithQuoteURL(url string) Option {
 	return func(o *Options) {
 		if url != "" {
-			o.QuoteURL = url
+			o.quoteURL = url
 		}
 	}
 }
@@ -26,14 +33,31 @@ func WithQuoteURL(url string) Option {
 func WithHttpClient(client *http.Client) Option {
 	return func(o *Options) {
 		if client != nil {
-			o.HttpClient = client
+			o.httpClient = client
+		}
+	}
+}
+
+func WithLbOptions(opts *longbridge.Options) Option {
+	return func(o *Options) {
+		if opts != nil {
+			o.lbOpts = opts
+		}
+	}
+}
+
+func WithLogLevel(level string) Option {
+	return func(o *Options) {
+		if level != "" {
+			o.logLevel = level
 		}
 	}
 }
 
 func newOptions(opt ...Option) *Options {
 	opts := Options{
-		QuoteURL: DefaultQuoteUrl,
+		quoteURL: DefaultQuoteUrl,
+		lbOpts:   longbridge.NewOptions(),
 	}
 	for _, o := range opt {
 		o(&opts)
