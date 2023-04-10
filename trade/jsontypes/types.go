@@ -52,6 +52,7 @@ type Order struct {
 	TriggerStatus    string `json:"trigger_status"`
 	Currency         string `json:"currency"`
 	OutsideRth       string `json:"outside_rth"`
+	Remark           string `json:"remark"`
 }
 
 // AccountBalances has a AccountBalance list
