@@ -108,6 +108,7 @@ type Order struct {
 	TriggerStatus    TriggerStatus
 	Currency         string
 	OutsideRth       OutsideRTH
+	Remark           string
 }
 
 // AccountBalances has a AccountBalance list
