@@ -193,6 +193,20 @@ func (c *TradeContext) MarginRatio(ctx context.Context, symbol string) (marginRa
 	return
 }
 
+// OrderDetail is used for order detail query
+// Reference: https://open.longportapp.com/en/docs/trade/order/order_detail
+func (c *TradeContext) OrderDetail(ctx context.Context, orderId string) (orderDetail OrderDetail, err error) {
+	values := url.Values{}
+	values.Add("order_id", orderId)
+	var resp jsontypes.OrderDetail
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/order", values, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&orderDetail, resp)
+	return
+}
+
 // Close
 func (c *TradeContext) Close() error {
 	return c.core.Close()

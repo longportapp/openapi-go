@@ -17,6 +17,9 @@ type TriggerStatus string
 type BalanceType int32
 type OfDirection int32
 type TimeType string
+type CommissionFreeStatus string
+type DeductionStatus string
+type ChargeCategoryCode string
 
 const (
 	// Balance type
@@ -58,6 +61,23 @@ const (
 	OutsideRTHOnly    OutsideRTH = "RTH_ONLY"          // Regular trading hour only
 	OutsideRTHAny     OutsideRTH = "ANY_TIME"          // Any time
 	OutsideRTHUnknown OutsideRTH = "UnknownOutsideRth" // Default is UnknownOutsideRth when the order is not a US stock
+
+	// Commission-free Status
+	CommissionFreeStatusNone      CommissionFreeStatus = "None"
+	CommissionFreeStatusCaculated CommissionFreeStatus = "Calculated" // Commission-free amount to be calculated
+	CommissionFreeStatusPending   CommissionFreeStatus = "Pending"    // Pending commission-free
+	CommissionFreeStatusReady     CommissionFreeStatus = "Ready"      // Commission-free applied
+
+	// Deduction status/Cashback Status
+	DeductionStatusNone    DeductionStatus = "NONE"
+	DeductionStatusNoData  DeductionStatus = "NO_DATA"
+	DeductionStatusPending DeductionStatus = "PENDING"
+	DeductionStatusDone    DeductionStatus = "DONE"
+
+	// Charge category code
+	ChargeCategoryCodeUnknown    ChargeCategoryCode = "UNKNOWN"
+	ChargeCategoryCodeBrokerFees ChargeCategoryCode = "BROKER_FEES"
+	ChargeCategoryCodeThirdFees  ChargeCategoryCode = "THIRD_FEES"
 )
 
 // Execution is execution details
@@ -109,6 +129,76 @@ type Order struct {
 	Currency         string
 	OutsideRth       OutsideRTH
 	Remark           string
+}
+
+type OrderChargeItem struct {
+	Code ChargeCategoryCode
+	Name string
+	Fees []OrderChargeFee
+}
+
+type OrderChargeDetail struct {
+	TotalAmount decimal.Decimal
+	Currency    string
+	Items       []OrderChargeItem
+}
+
+type OrderChargeFee struct {
+	Code ChargeCategoryCode
+	Name string
+	Fees []OrderChargeFee
+}
+
+type OrderHistoryDetail struct {
+	// Executed price for executed orders, submitted price for expired,
+	// canceled, rejected orders, etc.
+	Price decimal.Decimal
+	// Executed quantity for executed orders, remaining quantity for expired,
+	// canceled, rejected orders, etc.
+	Quantity int64
+	Status   OrderStatus
+	Msg      string // Execution or error message
+	Time     string // Occurrence time
+}
+
+type OrderDetail struct {
+	OrderId                  string
+	Status                   OrderStatus
+	StockName                string
+	Quantity                 int64 // Submitted quantity
+	ExecutedQuantity         int64
+	Price                    *decimal.Decimal // Submitted price
+	ExecutedPrice            *decimal.Decimal
+	SubmittedAt              string    // Submitted time
+	Side                     OrderSide /// Order side
+	Symbol                   string
+	OrderType                OrderType
+	LastDone                 *decimal.Decimal
+	TriggerPrice             *decimal.Decimal
+	Msg                      string // Rejected Message or remark
+	Tag                      OrderTag
+	TimeInForce              TimeType
+	ExpireDate               string
+	UpdatedAt                string
+	TriggerAt                string // Conditional order trigger time
+	TrailingAmount           *decimal.Decimal
+	TrailingPercent          *decimal.Decimal
+	LimitOffset              *decimal.Decimal
+	TriggerStatus            TriggerStatus
+	Currency                 string
+	OutsideRth               OutsideRTH /// Enable or disable outside regular trading hours
+	Remark                   string
+	FreeStatus               CommissionFreeStatus
+	FreeAmount               *decimal.Decimal
+	FreeCurrency             string
+	DeductionsStatus         DeductionStatus
+	DeductionsAmount         *decimal.Decimal
+	DeductionsCurrency       string
+	PlatformDeductedStatus   DeductionStatus
+	PlatformDeductedAmount   *decimal.Decimal
+	PlatformDeductedCurrency string
+	History                  OrderHistoryDetail
+	ChargeDetail             OrderChargeDetail
 }
 
 // AccountBalances has a AccountBalance list
