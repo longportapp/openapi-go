@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/shopspring/decimal"
 )
 
 type params map[string]string
@@ -51,6 +52,12 @@ func (p params) AddOptInt32(key string, val *int32) {
 func (p params) AddOptUint(key string, val *uint64) {
 	if val != nil {
 		p[key] = strconv.FormatUint(*val, 10)
+	}
+}
+
+func (p params) AddDecimal(key string, val *decimal.Decimal) {
+	if val != nil {
+		p[key] = val.String()
 	}
 }
 

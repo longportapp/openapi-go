@@ -345,3 +345,9 @@ type MarginRatio struct {
 	MmFactor *decimal.Decimal // Maintain the initial margin ratio
 	FmFactor *decimal.Decimal // Forced close-out margin ratio
 }
+
+// EstimateMaxPurchaseQuantity is response for estimate maximum purchase quantity
+type EstimateMaxPurchaseQuantityResponse struct {
+	CashMaxQty   int64 // Cash available quantity
+	MarginMaxQty int64 // Margin available quantity
+}

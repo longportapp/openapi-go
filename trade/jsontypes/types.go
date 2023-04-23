@@ -240,6 +240,7 @@ type OrderHistoryDetail struct {
 	Time     string `json:"time"` // Occurrence time
 }
 
+// OrderDetail is for get order detail response
 type OrderDetail struct {
 	OrderId                  string             `json:"order_id"`
 	Status                   string             `json:"status"`
@@ -278,4 +279,10 @@ type OrderDetail struct {
 	PlatformDeductedCurrency string             `json:"platform_deducted_currency"`
 	History                  OrderHistoryDetail `json:"history"`
 	ChargeDetail             OrderChargeDetail  `json:"charge_detail"`
+}
+
+// EstimateMaxPurchaseQuantity is response for estimate maximum purchase quantity
+type EstimateMaxPurchaseQuantityResponse struct {
+	CashMaxQty   int64 `json:"cash_max_qty"`   // Cash available quantity
+	MarginMaxQty int64 `json:"margin_max_qty"` // Margin available quantity
 }
