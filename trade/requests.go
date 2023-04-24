@@ -81,7 +81,8 @@ type SubmitOrder struct {
 type GetEstimateMaxPurchaseQuantity struct {
 	Symbol    string
 	OrderType OrderType
-	Price     *decimal.Decimal
+	Price     decimal.Decimal
 	Currency  string
 	OrderId   string
+	Side      OrderSide
 }

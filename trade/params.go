@@ -32,7 +32,7 @@ func (p params) AddDate(key string, val time.Time) {
 }
 
 func (p params) AddOptInt(key string, val int64) {
-	if val == 0 {
+	if val != 0 {
 		p.AddInt(key, val)
 	}
 }
@@ -55,8 +55,8 @@ func (p params) AddOptUint(key string, val *uint64) {
 	}
 }
 
-func (p params) AddDecimal(key string, val *decimal.Decimal) {
-	if val != nil {
+func (p params) AddOptDecimal(key string, val decimal.Decimal) {
+	if !val.IsZero() {
 		p[key] = val.String()
 	}
 }

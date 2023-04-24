@@ -283,6 +283,6 @@ type OrderDetail struct {
 
 // EstimateMaxPurchaseQuantity is response for estimate maximum purchase quantity
 type EstimateMaxPurchaseQuantityResponse struct {
-	CashMaxQty   int64 `json:"cash_max_qty"`   // Cash available quantity
-	MarginMaxQty int64 `json:"margin_max_qty"` // Margin available quantity
+	CashMaxQty   string `json:"cash_max_qty"`   // Cash available quantity
+	MarginMaxQty string `json:"margin_max_qty"` // Margin available quantity
 }

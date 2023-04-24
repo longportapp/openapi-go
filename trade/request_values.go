@@ -100,8 +100,9 @@ func (r *GetEstimateMaxPurchaseQuantity) Values() url.Values {
 	p := &params{}
 	p.Add("symbol", r.Symbol)
 	p.Add("order_type", string(r.OrderType))
-	p.AddDecimal("price", r.Price)
+	p.AddOptDecimal("price", r.Price)
 	p.Add("currency", r.Currency)
 	p.Add("order_id", r.OrderId)
+	p.Add("side", string(r.Side))
 	return p.Values()
 }
