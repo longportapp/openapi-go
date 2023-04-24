@@ -242,43 +242,43 @@ type OrderHistoryDetail struct {
 
 // OrderDetail is for get order detail response
 type OrderDetail struct {
-	OrderId                  string             `json:"order_id"`
-	Status                   string             `json:"status"`
-	StockName                string             `json:"stock_name"`
-	Quantity                 string             `json:"quantity"` // Submitted quantity
-	ExecutedQuantity         string             `json:"executed_quantity"`
-	Price                    string             `json:"price"` // Submitted price
-	ExecutedPrice            string             `json:"executed_price"`
-	SubmittedAt              string             `json:"submitted_at"`
-	Side                     string             `json:"side"` // Order side
-	Symbol                   string             `json:"symbol"`
-	OrderType                string             `json:"order_type"`
-	LastDone                 string             `json:"last_done"`
-	TriggerPrice             string             `json:"trigger_price"`
-	Msg                      string             `json:"msg"` // Rejected Message or remark
-	Tag                      string             `json:"tag"`
-	TimeInForce              string             `json:"time_in_force"`
-	ExpireDate               string             `json:"expire_date"`
-	UpdatedAt                string             `json:"update_at"`
-	TriggerAt                string             `json:"trigger_at"` // Conditional order trigger time
-	TrailingAmount           string             `json:"trailing_amount"`
-	TrailingPercent          string             `json:"trailing_precent"`
-	LimitOffset              string             `json:"limit_offset"`
-	TriggerStatus            string             `json:"trigger_status"`
-	Currency                 string             `json:"currency"`
-	OutsideRth               string             `json:"outside"` // Enable or disable outside regular trading hours
-	Remark                   string             `json:"remark"`
-	FreeStatus               string             `json:"free_status"`
-	FreeAmount               string             `json:"free_amount"`
-	FreeCurrency             string             `json:"free_currency"`
-	DeductionsStatus         string             `json:"deduction_status"`
-	DeductionsAmount         string             `json:"deductions_amount"`
-	DeductionsCurrency       string             `json:"deductions_currency"`
-	PlatformDeductedStatus   string             `json:"platform_deducted_status"`
-	PlatformDeductedAmount   string             `json:"platform_deducted_amount"`
-	PlatformDeductedCurrency string             `json:"platform_deducted_currency"`
-	History                  OrderHistoryDetail `json:"history"`
-	ChargeDetail             OrderChargeDetail  `json:"charge_detail"`
+	OrderId                  string               `json:"order_id"`
+	Status                   string               `json:"status"`
+	StockName                string               `json:"stock_name"`
+	Quantity                 string               `json:"quantity"` // Submitted quantity
+	ExecutedQuantity         string               `json:"executed_quantity"`
+	Price                    string               `json:"price"` // Submitted price
+	ExecutedPrice            string               `json:"executed_price"`
+	SubmittedAt              string               `json:"submitted_at"`
+	Side                     string               `json:"side"` // Order side
+	Symbol                   string               `json:"symbol"`
+	OrderType                string               `json:"order_type"`
+	LastDone                 string               `json:"last_done"`
+	TriggerPrice             string               `json:"trigger_price"`
+	Msg                      string               `json:"msg"` // Rejected Message or remark
+	Tag                      string               `json:"tag"`
+	TimeInForce              string               `json:"time_in_force"`
+	ExpireDate               string               `json:"expire_date"`
+	UpdatedAt                string               `json:"update_at"`
+	TriggerAt                string               `json:"trigger_at"` // Conditional order trigger time
+	TrailingAmount           string               `json:"trailing_amount"`
+	TrailingPercent          string               `json:"trailing_precent"`
+	LimitOffset              string               `json:"limit_offset"`
+	TriggerStatus            string               `json:"trigger_status"`
+	Currency                 string               `json:"currency"`
+	OutsideRth               string               `json:"outside_rth"` // Enable or disable outside regular trading hours
+	Remark                   string               `json:"remark"`
+	FreeStatus               string               `json:"free_status"`
+	FreeAmount               string               `json:"free_amount"`
+	FreeCurrency             string               `json:"free_currency"`
+	DeductionsStatus         string               `json:"deductions_status"`
+	DeductionsAmount         string               `json:"deductions_amount"`
+	DeductionsCurrency       string               `json:"deductions_currency"`
+	PlatformDeductedStatus   string               `json:"platform_deducted_status"`
+	PlatformDeductedAmount   string               `json:"platform_deducted_amount"`
+	PlatformDeductedCurrency string               `json:"platform_deducted_currency"`
+	History                  []OrderHistoryDetail `json:"history"`
+	ChargeDetail             OrderChargeDetail    `json:"charge_detail"`
 }
 
 // EstimateMaxPurchaseQuantity is response for estimate maximum purchase quantity
