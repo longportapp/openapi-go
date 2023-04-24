@@ -193,6 +193,33 @@ func (c *TradeContext) MarginRatio(ctx context.Context, symbol string) (marginRa
 	return
 }
 
+// OrderDetail is used for order detail query
+// Reference: https://open.longportapp.com/en/docs/trade/order/order_detail
+func (c *TradeContext) OrderDetail(ctx context.Context, orderId string) (orderDetail OrderDetail, err error) {
+	values := url.Values{}
+	values.Add("order_id", orderId)
+	var resp jsontypes.OrderDetail
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/order", values, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&orderDetail, resp)
+	return
+}
+
+// EstimateMaxPurchaseQuantity is used for estimating the maximum purchase quantity for Hong Kong and US stocks, warrants, and options.
+// Reference: https://open.longportapp.com/en/docs/trade/order/estimate_available_buy_limit
+func (c *TradeContext) EstimateMaxPurchaseQuantity(ctx context.Context, params *GetEstimateMaxPurchaseQuantity) (empqr EstimateMaxPurchaseQuantityResponse, err error) {
+	values := params.Values()
+	var resp jsontypes.EstimateMaxPurchaseQuantityResponse
+	err = c.opts.httpClient.Get(ctx, "/v1/trade/estimate/buy_limit", values, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&empqr, resp)
+	return
+}
+
 // Close
 func (c *TradeContext) Close() error {
 	return c.core.Close()

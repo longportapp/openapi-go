@@ -92,3 +92,17 @@ func (r *GetTodayOrders) Values() url.Values {
 	}
 	return vals
 }
+
+func (r *GetEstimateMaxPurchaseQuantity) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
+	p := &params{}
+	p.Add("symbol", r.Symbol)
+	p.Add("order_type", string(r.OrderType))
+	p.AddOptDecimal("price", r.Price)
+	p.Add("currency", r.Currency)
+	p.Add("order_id", r.OrderId)
+	p.Add("side", string(r.Side))
+	return p.Values()
+}

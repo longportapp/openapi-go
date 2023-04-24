@@ -77,3 +77,12 @@ type SubmitOrder struct {
 	Remark            string
 	TimeInForce       TimeType // required
 }
+
+type GetEstimateMaxPurchaseQuantity struct {
+	Symbol    string
+	OrderType OrderType
+	Price     decimal.Decimal
+	Currency  string
+	OrderId   string
+	Side      OrderSide
+}
