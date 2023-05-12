@@ -58,7 +58,7 @@ func main() {
 
 ```
 
-All envs is listed in the last of [README](#Environment Variables)
+All envs is listed in the last of [README](#environment-variables)
 
 ### Init Config manually
 
