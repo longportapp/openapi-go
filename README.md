@@ -135,7 +135,7 @@ the default http client is initialized simply as follow:
 cli := &http.Client{Timeout: opts.Timeout}
 ```
 
-we only set timeout here, your use you own *(net/http).Client.
+we only set timeout here, you can use you own *(net/http).Client.
 
 ```golang
 c, err := config.NewFromEnv()
