@@ -246,17 +246,18 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 		return nil, errors.Wrap(err, "create http client error")
 	}
 	lbOpts := longbridge.NewOptions(
-		longbridge.WithAuthTimeout(cfg.TradeLBAuthTimeout),
-		longbridge.WithTimeout(cfg.TradeLBTimeout),
-		longbridge.WithReadBufferSize(cfg.TradeLBReadBufferSize),
-		longbridge.WithReadQueueSize(cfg.TradeLBReadQueueSize),
-		longbridge.WithWriteQueueSize(cfg.TradeLBWriteQueueSize),
-		longbridge.WithMinGzipSize(cfg.TradeLBMinGzipSize),
+		longbridge.WithAuthTimeout(cfg.AuthTimeout),
+		longbridge.WithTimeout(cfg.Timeout),
+		longbridge.WithReadBufferSize(cfg.ReadBufferSize),
+		longbridge.WithReadQueueSize(cfg.ReadQueueSize),
+		longbridge.WithWriteQueueSize(cfg.WriteQueueSize),
+		longbridge.WithMinGzipSize(cfg.MinGzipSize),
 	)
 	return New(
 		WithTradeURL(cfg.TradeUrl),
 		WithHttpClient(httpClient),
 		WithLbOptions(lbOpts),
+		WithLogger(cfg.Logger()),
 		WithLogLevel(cfg.LogLevel),
 	)
 }

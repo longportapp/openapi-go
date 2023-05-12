@@ -26,6 +26,127 @@ setx LONGBRIDGE_APP_SECRET "App Secret get from user center"
 setx LONGBRIDGE_ACCESS_TOKEN "Access Token get from user center"
 ```
 
+## Config
+
+### Load from env
+
+Support init config from env, and support load env from `.env` file
+
+```golang
+import (
+    "github.com/longbridgeapp/openapi-go/config"
+    "github.com/longbridgeapp/openapi-go/trade"
+    "github.com/longbridgeapp/openapi-go/http"
+)
+
+func main() {
+    c, err := config.NewFromEnv()
+
+    if err != nil {
+        // panic
+    }
+
+    // init http client from config
+    c, err := http.NewFromCfg(c)
+
+    // init trade context from config
+    tc, err := trade.NewFromCfg(c)
+
+    // init quote context from config
+    qc, err := quote.NewFromCfg(c)
+}
+
+```
+
+All envs is listed in the last of [README](#environment-variables)
+
+### Init Config manually
+
+Config structure as follow:
+
+```golang
+type Config struct {
+	HttpURL     string `env:"LONGBRIDGE_HTTP_URL"`
+	AppKey      string `env:"LONGBRIDGE_APP_KEY"`
+	AppSecret   string `env:"LONGBRIDGE_APP_SECRET"`
+	AccessToken string `env:"LONGBRIDGE_ACCESS_TOKEN"`
+	TradeUrl    string `env:"LONGBRIDGE_TRADE_URL"`
+	QuoteUrl    string `env:"LONGBRIDGE_QUOTE_URL"`
+
+	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL"`
+
+	// longbridge protocol config
+	AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT"`
+	Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT"`
+	WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE"`
+	ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE"`
+	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE"`
+	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE"`
+}
+
+```
+
+set config field manually
+
+```golang
+c, err := config.NewFromEnv()
+c.AppKey = "xxx"
+c.AppSecret = "xxx"
+c.AccessToken = "xxx"
+
+```
+
+### set custom logger
+
+Our logger interface as follow:
+
+```golang
+type Logger interface {
+	SetLevel(string)
+	Info(msg string)
+	Error(msg string)
+	Warn(msg string)
+	Debug(msg string)
+	Infof(msg string, args ...interface{})
+	Errorf(msg string, args ...interface{})
+	Warnf(msg string, args ...interface{})
+	Debugf(msg string, args ...interface{})
+}
+
+```
+
+Your can use you own logger by imply the interface
+
+
+```golang
+c, err := config.NewFromEnv()
+
+l := newOwnLogger()
+
+c.SetLogger(l)
+
+```
+
+### use custom *(net/http).Client
+
+the default http client is initialized simply as follow:
+
+```golang
+cli := &http.Client{Timeout: opts.Timeout}
+```
+
+we only set timeout here, your use you own *(net/http).Client.
+
+```golang
+c, err := config.NewFromEnv()
+
+c.Client = &http.Client{
+    Transport: ...
+}
+
+```
+
+
 ## Quote API (Get basic information of securities)
 
 ```golang
@@ -103,27 +224,21 @@ func main() {
 
 Support load env from `.env` file.
 
-| name                                 | description                                                      | default value                            | example |
-|--------------------------------------|------------------------------------------------------------------|------------------------------------------|---------|
-| LONGBRIDGE_HTTP_URL                  | longbridge rest api url                                          | https://openapi.longbridgeapp.com        |         |
-| LONGBRIDGE_APP_KEY                   | app key                                                          |                                          |         |
-| LONGBRIDGE_APP_SECRET                | app secret                                                       |                                          |         |
-| LONGBRIDGE_ACCESS_TOKEN              | access token                                                     |                                          |         |
-| LONGBRIDGE_TRADE_URL                 | longbridge protocol url for trade context                        | wss://openapi-trade.longbridgeapp.com/v2 |         |
-| LONGBRIDGE_QUOTE_URL                 | longbridge protocol url for quote context                        | wss://openapi-quote.longbridgeapp.com/v2 |         |
-| LONGBRIDGE_LOG_LEVEL                 | log level                                                        | info                                     |         |
-| LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT     | longbridge protocol authorize request time out for trade context | 10 second                                | 10s     |
-| LONGBRIDGE_TRADE_LB_TIMEOUT          | longbridge protocol dial timeout for trade context               | 5 second                                 | 6s      |
-| LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE | longbirdge protocol write queue size for trade context           | 16                                       |         |
-| LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE  | longbirdge protocol read queue size for trade context            | 16                                       |         |
-| LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE | longbirdge protocol read buffer size for trade context           | 4096                                     |         |
-| LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE    | longbirdge protocol minimal gzip size for trade context          | 1024                                     |         |
-| LONGBRIDGE_QUOTE_LB_AUTH_TIMEOUT     | longbridge protocol authorize request time out for quote context | 10 second                                | 10s     |
-| LONGBRIDGE_QUOTE_LB_TIMEOUT          | longbridge protocol dial timeout for quote context               | 5 second                                 | 6s      |
-| LONGBRIDGE_QUOTE_LB_WRITE_QUEUE_SIZE | longbirdge protocol write queue size for quote context           | 16                                       |         |
-| LONGBRIDGE_QUOTE_LB_READ_QUEUE_SIZE  | longbirdge protocol read queue size for quote context            | 16                                       |         |
-| LONGBRIDGE_QUOTE_LB_READ_BUFFER_SIZE | longbirdge protocol read buffer size for quote context           | 4096                                     |         |
-| LONGBRIDGE_QUOTE_LB_MIN_GZIP_SIZE    | longbirdge protocol minimal gzip size for quote context          | 1024                                     |         |
+| name                        | description                                    | default value                         | example |
+|-----------------------------|------------------------------------------------|---------------------------------------|---------|
+| LONGBRIDGE_HTTP_URL         | longbridge rest api url                        | https://openapi.longbridgeapp.com     |         |
+| LONGBRIDGE_APP_KEY          | app key                                        |                                       |         |
+| LONGBRIDGE_APP_SECRET       | app secret                                     |                                       |         |
+| LONGBRIDGE_ACCESS_TOKEN     | access token                                   |                                       |         |
+| LONGBRIDGE_TRADE_URL        | longbridge protocol url for trade context      | wss://openapi-trade.longbridgeapp.com |         |
+| LONGBRIDGE_QUOTE_URL        | longbridge protocol url for quote context      | wss://openapi-quote.longbridgeapp.com |         |
+| LONGBRIDGE_LOG_LEVEL        | log level                                      | info                                  |         |
+| LONGBRIDGE_AUTH_TIMEOUT     | longbridge protocol authorize request time out | 10 second                             | 10s     |
+| LONGBRIDGE_TIMEOUT          | longbridge protocol dial timeout               | 5 second                              | 6s      |
+| LONGBRIDGE_WRITE_QUEUE_SIZE | longbirdge protocol write queue size           | 16                                    |         |
+| LONGBRIDGE_READ_QUEUE_SIZE  | longbirdge protocol read queue size            | 16                                    |         |
+| LONGBRIDGE_READ_BUFFER_SIZE | longbirdge protocol read buffer size           | 4096                                  |         |
+| LONGBRIDGE_MIN_GZIP_SIZE    | longbirdge protocol minimal gzip size          | 1024                                  |         |
 
 ## License
 

@@ -1,41 +1,55 @@
 package log
 
-// Info is info level
-func Info(args ...interface{}) {
-	logger.Info(args...)
+import protocol "github.com/longbridgeapp/openapi-protocol/go"
+
+type Logger = protocol.Logger
+
+var defaultLogger Logger
+
+func init() {
+	defaultLogger = &protocol.DefaultLogger{}
 }
 
-// Warn is warning level
-func Warn(args ...interface{}) {
-	logger.Warn(args...)
+// SetLogger use to set defaultLogger
+func SetLogger(l Logger) {
+	if l != nil {
+		defaultLogger = l
+	}
 }
 
-// Error is error level
-func Error(args ...interface{}) {
-	logger.Error(args...)
+// SetLevel use to modify log level of default logger
+func SetLevel(lvl string) {
+	defaultLogger.SetLevel(lvl)
 }
 
-// Debug is debug level
-func Debug(args ...interface{}) {
-	logger.Debug(args...)
+func Debug(msg string) {
+	defaultLogger.Debug(msg)
 }
 
-// Infof is format info level
-func Infof(fmt string, args ...interface{}) {
-	logger.Infof(fmt, args...)
+func Debugf(f string, args ...interface{}) {
+	defaultLogger.Debugf(f, args...)
 }
 
-// Warnf is format warning level
-func Warnf(fmt string, args ...interface{}) {
-	logger.Warnf(fmt, args...)
+func Info(msg string) {
+	defaultLogger.Info(msg)
 }
 
-// Errorf is format error level
-func Errorf(fmt string, args ...interface{}) {
-	logger.Errorf(fmt, args...)
+func Infof(msg string, args ...interface{}) {
+	defaultLogger.Infof(msg, args...)
 }
 
-// Debugf is format debug level
-func Debugf(fmt string, args ...interface{}) {
-	logger.Debugf(fmt, args...)
+func Warn(msg string) {
+	defaultLogger.Warn(msg)
+}
+
+func Warnf(f string, args ...interface{}) {
+	defaultLogger.Warnf(f, args...)
+}
+
+func Error(msg string) {
+	defaultLogger.Error(msg)
+}
+
+func Errorf(f string, args ...interface{}) {
+	defaultLogger.Errorf(f, args...)
 }

@@ -1,9 +1,15 @@
 package http
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
+// DefaultHttpUrl
 const DefaultHttpUrl = "https://openapi.longbridgeapp.com"
-const DefaultTimeout = 5 * time.Second
+
+// DefaultTimeout
+const DefaultTimeout = 15 * time.Second
 
 // Options for http client
 type Options struct {
@@ -12,10 +18,20 @@ type Options struct {
 	AppSecret   string
 	AccessToken string
 	Timeout     time.Duration
+	Client      *http.Client
 }
 
 // Option for http client
 type Option func(*Options)
+
+// WithClient use custom *http.Client
+func WithClient(cli *http.Client) Option {
+	return func(opts *Options) {
+		if cli != nil {
+			opts.Client = cli
+		}
+	}
+}
 
 // WithURL to set url
 func WithURL(url string) Option {
@@ -53,7 +69,7 @@ func WithAccessToken(accessToken string) Option {
 	}
 }
 
-// WithTimeout to set timeout
+// WithTimeout to set http client timeout. Worked when Options.Client is not set
 func WithTimeout(timeout time.Duration) Option {
 	return func(opts *Options) {
 		if timeout > 0 {

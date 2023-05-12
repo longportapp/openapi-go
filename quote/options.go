@@ -2,7 +2,9 @@ package quote
 
 import (
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-go/longbridge"
+	protocol "github.com/longbridgeapp/openapi-protocol/go"
 )
 
 const (
@@ -15,6 +17,7 @@ type Options struct {
 	httpClient *http.Client
 	lbOpts     *longbridge.Options
 	logLevel   string
+	logger     log.Logger
 }
 
 // Option
@@ -54,10 +57,19 @@ func WithLogLevel(level string) Option {
 	}
 }
 
+func WithLogger(l log.Logger) Option {
+	return func(o *Options) {
+		if l != nil {
+			o.logger = l
+		}
+	}
+}
+
 func newOptions(opt ...Option) *Options {
 	opts := Options{
 		quoteURL: DefaultQuoteUrl,
 		lbOpts:   longbridge.NewOptions(),
+		logger:   &protocol.DefaultLogger{},
 	}
 	for _, o := range opt {
 		o(&opts)

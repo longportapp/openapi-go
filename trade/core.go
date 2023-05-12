@@ -3,7 +3,6 @@ package trade
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"sync"
 
 	"github.com/longbridgeapp/openapi-go/internal/util"
@@ -23,22 +22,9 @@ type core struct {
 	mu            sync.Mutex
 }
 
-func isV2(url string) bool {
-	return strings.HasSuffix(url, "/v2")
-}
-
 func newCore(opts *Options) (*core, error) {
 	getOTP := func() (string, error) {
-		var (
-			otp string
-			err error
-		)
-
-		if isV2(opts.tradeURL) {
-			otp, err = opts.httpClient.GetOTPV2(context.Background())
-		} else {
-			otp, err = opts.httpClient.GetOTP(context.Background())
-		}
+		otp, err := opts.httpClient.GetOTP(context.Background())
 
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
@@ -47,7 +33,8 @@ func newCore(opts *Options) (*core, error) {
 		return otp, nil
 	}
 
-	logger := &protocol.DefaultLogger{}
+	logger := opts.logger
+	logger.SetLevel(opts.logLevel)
 
 	cl := client.New(client.WithLogger(logger))
 	err := cl.Dial(context.Background(), opts.tradeURL,
@@ -67,7 +54,6 @@ func newCore(opts *Options) (*core, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.SetLevel(opts.logLevel)
 	core := &core{client: cl, url: opts.tradeURL}
 	return core, nil
 }
@@ -75,7 +61,7 @@ func newCore(opts *Options) (*core, error) {
 func (c *core) SetHandler(f func(*PushEvent)) {
 	c.client.AfterReconnected(func() {
 		if err := c.resubscribe(context.Background()); err != nil {
-			log.Error(err)
+			log.Errorf("failed to do sub, err: %v", err)
 		}
 	})
 	c.client.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
@@ -149,12 +135,12 @@ func parseNotifyFunc(f func(*PushEvent)) func(*protocol.Packet) {
 	return func(packet *protocol.Packet) {
 		var notify tradev1.Notification
 		if err := packet.Unmarshal(&notify); err != nil {
-			log.Error("trade context unmarshal notification error:%v", err)
+			log.Errorf("trade context unmarshal notification error:%v", err)
 			return
 		}
 		var data jsontypes.PushEvent
 		if err := json.Unmarshal(notify.GetData(), &data); err != nil {
-			log.Error("trade context json unmarshal push event error:%v", err)
+			log.Errorf("trade context json unmarshal push event error:%v", err)
 			return
 		}
 		var event PushEvent

@@ -225,17 +225,18 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 		return nil, errors.Wrap(err, "create http client error")
 	}
 	lbOpts := longbridge.NewOptions(
-		longbridge.WithAuthTimeout(cfg.QuoteLBAuthTimeout),
-		longbridge.WithTimeout(cfg.QuoteLBTimeout),
-		longbridge.WithReadBufferSize(cfg.QuoteLBReadBufferSize),
-		longbridge.WithReadQueueSize(cfg.QuoteLBReadQueueSize),
-		longbridge.WithWriteQueueSize(cfg.QuoteLBWriteQueueSize),
-		longbridge.WithMinGzipSize(cfg.QuoteLBMinGzipSize),
+		longbridge.WithAuthTimeout(cfg.AuthTimeout),
+		longbridge.WithTimeout(cfg.Timeout),
+		longbridge.WithReadBufferSize(cfg.ReadBufferSize),
+		longbridge.WithReadQueueSize(cfg.ReadQueueSize),
+		longbridge.WithWriteQueueSize(cfg.WriteQueueSize),
+		longbridge.WithMinGzipSize(cfg.MinGzipSize),
 	)
 	return New(
 		WithQuoteURL(cfg.QuoteUrl),
 		WithHttpClient(httpClient),
 		WithLogLevel(cfg.LogLevel),
+		WithLogger(cfg.Logger()),
 		WithLbOptions(lbOpts),
 	)
 }

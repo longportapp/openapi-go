@@ -2,7 +2,6 @@ package quote
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -24,24 +23,18 @@ type core struct {
 	store         *store
 }
 
-func isV2(u string) bool {
-	return strings.HasSuffix(u, "/v2")
-}
-
 func newCore(opts *Options) (*core, error) {
 	getOTP := func() (otp string, err error) {
-		if isV2(opts.quoteURL) {
-			otp, err = opts.httpClient.GetOTPV2(context.Background())
-		} else {
-			otp, err = opts.httpClient.GetOTP(context.Background())
-		}
+		otp, err = opts.httpClient.GetOTP(context.Background())
+
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
 		return otp, nil
 	}
 
-	logger := &protocol.DefaultLogger{}
+	logger := opts.logger
+	logger.SetLevel(opts.logLevel)
 
 	cl := client.New(client.WithLogger(logger))
 	err := cl.Dial(context.Background(), opts.quoteURL,
@@ -62,7 +55,6 @@ func newCore(opts *Options) (*core, error) {
 		return nil, err
 	}
 
-	logger.SetLevel(opts.logLevel)
 	core := &core{
 		client:        cl,
 		url:           opts.quoteURL,
@@ -71,7 +63,7 @@ func newCore(opts *Options) (*core, error) {
 	}
 	core.client.AfterReconnected(func() {
 		if err := core.resubscribe(context.Background()); err != nil {
-			log.Error(err)
+			log.Errorf("faield to do sub, err: %v", err)
 		}
 	})
 	return core, nil

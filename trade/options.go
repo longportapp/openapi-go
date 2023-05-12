@@ -2,7 +2,9 @@ package trade
 
 import (
 	"github.com/longbridgeapp/openapi-go/http"
+	"github.com/longbridgeapp/openapi-go/log"
 	"github.com/longbridgeapp/openapi-go/longbridge"
+	protocol "github.com/longbridgeapp/openapi-protocol/go"
 )
 
 const (
@@ -15,6 +17,7 @@ type Options struct {
 	httpClient *http.Client
 	lbOpts     *longbridge.Options
 	logLevel   string
+	logger     log.Logger
 }
 
 // Option
@@ -46,6 +49,7 @@ func WithLbOptions(opts *longbridge.Options) Option {
 	}
 }
 
+// WithLogLevel use to set log level
 func WithLogLevel(level string) Option {
 	return func(o *Options) {
 		if level != "" {
@@ -54,10 +58,20 @@ func WithLogLevel(level string) Option {
 	}
 }
 
+// WithLogger use custom protocol.Logger implementation
+func WithLogger(logger log.Logger) Option {
+	return func(o *Options) {
+		if logger != nil {
+			o.logger = logger
+		}
+	}
+}
+
 func newOptions(opt ...Option) *Options {
 	opts := Options{
 		tradeURL: DefaultTradeUrl,
 		lbOpts:   longbridge.NewOptions(),
+		logger:   &protocol.DefaultLogger{},
 	}
 	for _, o := range opt {
 		o(&opts)
