@@ -8,8 +8,10 @@ import (
 	"io"
 	nhttp "net/http"
 	"net/url"
+	"strings"
 
 	"github.com/google/go-querystring/query"
+	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/log"
 )
 
@@ -101,7 +103,9 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	}
 	req.Header.Add("x-api-key", c.opts.AppKey)
 	req.Header.Add("authorization", c.opts.AccessToken)
-	req.Header.Add("content-type", "application/json; charset=utf-8")
+	if len(bb) != 0 {
+		req.Header.Add("content-type", "application/json; charset=utf-8")
+	}
 	signature(req, c.opts.AppSecret, bb)
 
 	log.Debugf("http call method:%v url:%v body:%v", req.Method, req.URL, string(bb))
@@ -119,8 +123,13 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	}
 	log.Debugf("http call response body:%v", string(rb))
 	apiResp := &apiResponse{}
-	if err = json.Unmarshal(rb, apiResp); err != nil {
-		return err
+
+	if isJSON(httpResp.Header.Get("content-type")) {
+		if err = json.Unmarshal(rb, apiResp); err != nil {
+			return err
+		}
+	} else {
+		apiResp.Message = string(rb)
 	}
 
 	if httpResp.StatusCode != nhttp.StatusOK || apiResp.Code != 0 {
@@ -130,10 +139,15 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	if resp == nil {
 		return
 	}
+
 	if err = json.Unmarshal(apiResp.Data, resp); err != nil {
 		return err
 	}
 	return nil
+}
+
+func isJSON(ct string) bool {
+	return strings.Contains(ct, "application/json")
 }
 
 // New create http client to call Longbridge REST OpenAPI
@@ -142,9 +156,28 @@ func New(opt ...Option) (*Client, error) {
 	if opts.URL == "" {
 		return nil, errors.New("http url is empty")
 	}
+
+	cli := &nhttp.Client{Timeout: opts.Timeout}
+
+	if opts.Client != nil {
+		cli = opts.Client
+	}
+
 	client := &Client{
 		opts:       opts,
-		httpClient: &nhttp.Client{Timeout: opts.Timeout},
+		httpClient: cli,
 	}
 	return client, nil
+}
+
+// NewFromCfg init longbridge http client from *config.Config
+func NewFromCfg(c *config.Config) (*Client, error) {
+	return New(
+		WithAccessToken(c.AccessToken),
+		WithAppKey(c.AppKey),
+		WithAppSecret(c.AppSecret),
+		WithTimeout(c.HTTPTimeout),
+		WithClient(c.Client),
+		WithURL(c.HttpURL),
+	)
 }
