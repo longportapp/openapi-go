@@ -74,22 +74,14 @@ type Config struct {
 	QuoteUrl    string `env:"LONGBRIDGE_QUOTE_URL"`
 
 	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL"`
-	logger   log.Logger
 
-	// trade longbridge protocol config
-	TradeLBAuthTimeout    time.Duration `env:"LONGBRIDGE_TRADE_LB_AUTH_TIMEOUT"`
-	TradeLBTimeout        time.Duration `env:"LONGBRIDGE_TRADE_LB_TIMEOUT"`
-	TradeLBWriteQueueSize int           `env:"LONGBRIDGE_TRADE_LB_WRITE_QUEUE_SIZE"`
-	TradeLBReadQueueSize  int           `env:"LONGBRIDGE_TRADE_LB_READ_QUEUE_SIZE"`
-	TradeLBReadBufferSize int           `env:"LONGBRIDGE_TRADE_LB_READ_BUFFER_SIZE"`
-	TradeLBMinGzipSize    int           `env:"LONGBRIDGE_TRADE_LB_MIN_GZIP_SIZE"`
-	// quote longbridge protocol config
-	QuoteLBAuthTimeout    time.Duration `env:"LONGBRIDGE_QUOTE_LB_AUTH_TIMEOUT"`
-	QuoteLBTimeout        time.Duration `env:"LONGBRIDGE_QUOTE_LB_TIMEOUT"`
-	QuoteLBWriteQueueSize int           `env:"LONGBRIDGE_QUOTE_LB_WRITE_QUEUE_SIZE"`
-	QuoteLBReadQueueSize  int           `env:"LONGBRIDGE_QUOTE_LB_READ_QUEUE_SIZE"`
-	QuoteLBReadBufferSize int           `env:"LONGBRIDGE_QUOTE_LB_READ_BUFFER_SIZE"`
-	QuoteLBMinGzipSize    int           `env:"LONGBRIDGE_QUOTE_LB_MIN_GZIP_SIZE"`
+	// longbridge protocol config
+	AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT"`
+	Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT"`
+	WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE"`
+	ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE"`
+	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE"`
+	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE"`
 }
 
 ```
