@@ -8,7 +8,7 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/longbridgeapp/openapi-protobufs/gen/go v0.1.1
-	github.com/longbridgeapp/openapi-protocol/go v0.2.4
+	github.com/longbridgeapp/openapi-protocol/go v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1
 )

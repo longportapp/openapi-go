@@ -27,8 +27,8 @@ github.com/longbridgeapp/assert v0.1.0/go.mod h1:ew3umReliXtk1bBG4weVURxdvR0tsN+
 github.com/longbridgeapp/openapi-protobufs/gen/go v0.1.0/go.mod h1:G2qnmuH14s0RXrACedFqShRFQFVMDGrOlo0rPEjtoDQ=
 github.com/longbridgeapp/openapi-protobufs/gen/go v0.1.1 h1:DQV+BCJ26PbNmKVP6ASyQwdxVKcfOPS+6YFzB7eQ2QY=
 github.com/longbridgeapp/openapi-protobufs/gen/go v0.1.1/go.mod h1:ZWgi3QpqTCgjAIgNudco+pyaxMFdW4nr7ePXBPc27uQ=
-github.com/longbridgeapp/openapi-protocol/go v0.2.4 h1:RG8/SRIs54ZDbLTX+UoxArKbZpKoGEtKadblvFqiKSk=
-github.com/longbridgeapp/openapi-protocol/go v0.2.4/go.mod h1:hx5GDh1L0gAVqGhvRL0pRrTEXsVY/ASgBVwzicrpX3E=
+github.com/longbridgeapp/openapi-protocol/go v0.2.5 h1:3tK7BvC61W3fSyGRhN3MXKLShfg29688w+aTj4Ji02c=
+github.com/longbridgeapp/openapi-protocol/go v0.2.5/go.mod h1:hx5GDh1L0gAVqGhvRL0pRrTEXsVY/ASgBVwzicrpX3E=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
