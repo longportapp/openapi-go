@@ -298,28 +298,30 @@ type PushEvent struct {
 
 // PushOrderChanged is order change event details
 type PushOrderChanged struct {
-	Side             OrderSide
-	StockName        string
-	Quantity         string
-	Symbol           string
-	OrderType        OrderType
-	Price            *decimal.Decimal
-	ExecutedQuantity string
-	ExecutedPrice    *decimal.Decimal
-	OrderId          string
+	AccountNo        string
 	Currency         string
-	Status           OrderStatus
-	SubmittedAt      string
-	UpdatedAt        string
-	TriggerPrice     *decimal.Decimal
+	ExecutedPrice    *decimal.Decimal
+	ExecutedQuantity *decimal.Decimal
+	LastPrice        *decimal.Decimal
+	LastShare        *decimal.Decimal
+	LimitOffset      string
 	Msg              string
+	OrderId          string
+	OrderType        OrderType
+	Side             OrderSide
+	Status           OrderStatus
+	StockName        string
+	SubmittedAt      string
+	Price            *decimal.Decimal
+	Quantity         *decimal.Decimal
+	Symbol           string
 	Tag              OrderTag
-	TriggerStatus    TriggerStatus
-	TriggerAt        string
 	TrailingAmount   *decimal.Decimal
 	TrailingPercent  string
-	LimitOffset      string
-	AccountNo        string
+	TriggerAt        string
+	TriggerPrice     *decimal.Decimal
+	TriggerStatus    TriggerStatus
+	UpdatedAt        string
 }
 
 // SubResponse is subscribe function response

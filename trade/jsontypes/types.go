@@ -44,7 +44,7 @@ type Order struct {
 	Tag              string `json:"tag"`
 	TimeInForce      string `json:"time_in_force"`
 	ExpireDate       string `json:"expire_date"`
-	UpdatedAt        string `json:"update_at"`
+	UpdatedAt        string `json:"updated_at"`
 	TriggerAt        string `json:"trigger_at"`
 	TrailingAmount   string `json:"trailing_amount"`
 	TrailingPercent  string `json:"trailing_percent"`
@@ -152,28 +152,30 @@ type PushEvent struct {
 
 // PushOrderChanged is order change event details
 type PushOrderChanged struct {
-	Side             string `json:"side"`
-	StockName        string `json:"stock_name"`
-	Quantity         string `json:"quantity"`
-	Symbol           string `json:"symbol"`
-	OrderType        string `json:"order_type"`
-	Price            string `json:"price"`
-	ExecutedQuantity string `json:"executed_quantity"`
-	ExecutedPrice    string `json:"executed_price"`
-	OrderId          string `json:"order_id"`
+	AccountNo        string `json:"account_no"`
 	Currency         string `json:"currency"`
-	Status           string `json:"status"`
-	SubmittedAt      string `json:"submitted_at"`
-	UpdatedAt        string `json:"update_at"`
-	TriggerPrice     string `json:"trigger_price"`
+	ExecutedPrice    string `json:"executed_price"`
+	ExecutedQuantity string `json:"executed_quantity"`
+	LastPrice        string `json:"last_price"`
+	LastShare        string `json:"last_share"`
+	LimitOffset      string `json:"limit_offset"`
 	Msg              string `json:"msg"`
+	OrderId          string `json:"order_id"`
+	OrderType        string `json:"order_type"`
+	Side             string `json:"side"`
+	Status           string `json:"status"`
+	StockName        string `json:"stock_name"`
+	SubmittedAt      string `json:"submitted_at"`
+	Price            string `json:"submitted_price"`
+	Quantity         string `json:"submitted_quantity"`
+	Symbol           string `json:"symbol"`
 	Tag              string `json:"tag"`
-	TriggerStatus    string `json:"trigger_status"`
-	TriggerAt        string `json:"trigger_at"`
 	TrailingAmount   string `json:"trailing_amount"`
 	TrailingPercent  string `json:"trailing_percent"`
-	LimitOffset      string `json:"limit_offset"`
-	AccountNo        string `json:"account_no"`
+	TriggerAt        string `json:"trigger_at"`
+	TriggerPrice     string `json:"trigger_price"`
+	TriggerStatus    string `json:"trigger_status"`
+	UpdatedAt        string `json:"updated_at"`
 }
 
 type ReplaceOrder struct {
@@ -259,7 +261,7 @@ type OrderDetail struct {
 	Tag                      string               `json:"tag"`
 	TimeInForce              string               `json:"time_in_force"`
 	ExpireDate               string               `json:"expire_date"`
-	UpdatedAt                string               `json:"update_at"`
+	UpdatedAt                string               `json:"updated_at"`
 	TriggerAt                string               `json:"trigger_at"` // Conditional order trigger time
 	TrailingAmount           string               `json:"trailing_amount"`
 	TrailingPercent          string               `json:"trailing_precent"`
