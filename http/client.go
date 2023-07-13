@@ -31,40 +31,56 @@ type Client struct {
 	httpClient *nhttp.Client
 }
 
+// RequestOptions use to set additional information for the request
+type RequestOptions struct {
+	// Request Header
+	Header nhttp.Header
+}
+
+// RequestOption use to set addition info to request
+type RequestOption func(*RequestOptions)
+
+// WithHeader set request header
+func WithHeader(h nhttp.Header) RequestOption {
+	return func(o *RequestOptions) {
+		o.Header = h
+	}
+}
+
 // Get sends Get request with queryParams
-func (c *Client) Get(ctx context.Context, path string, queryParams url.Values, resp interface{}) error {
-	return c.Call(ctx, "GET", path, queryParams, nil, resp)
+func (c *Client) Get(ctx context.Context, path string, queryParams url.Values, resp interface{}, ropts ...RequestOption) error {
+	return c.Call(ctx, "GET", path, queryParams, nil, resp, ropts...)
 }
 
 // Post sends Post request with json body
-func (c *Client) Post(ctx context.Context, path string, body interface{}, resp interface{}) error {
-	return c.Call(ctx, "POST", path, nil, body, resp)
+func (c *Client) Post(ctx context.Context, path string, body interface{}, resp interface{}, ropts ...RequestOption) error {
+	return c.Call(ctx, "POST", path, nil, body, resp, ropts...)
 }
 
 // Put sends Put request with json body
-func (c *Client) Put(ctx context.Context, path string, body interface{}, resp interface{}) error {
-	return c.Call(ctx, "PUT", path, nil, body, resp)
+func (c *Client) Put(ctx context.Context, path string, body interface{}, resp interface{}, ropts ...RequestOption) error {
+	return c.Call(ctx, "PUT", path, nil, body, resp, ropts...)
 }
 
 // Delete sends Delete request with queryParams
-func (c *Client) Delete(ctx context.Context, path string, queryParams interface{}, resp interface{}) error {
-	return c.Call(ctx, "DELETE", path, queryParams, nil, resp)
+func (c *Client) Delete(ctx context.Context, path string, queryParams interface{}, resp interface{}, ropts ...RequestOption) error {
+	return c.Call(ctx, "DELETE", path, queryParams, nil, resp, ropts...)
 }
 
 // GetOTP to get one time password
 // Reference: https://open.longbridgeapp.com/en/docs/socket-token-api
-func (c *Client) GetOTP(ctx context.Context) (string, error) {
+func (c *Client) GetOTP(ctx context.Context, ropts ...RequestOption) (string, error) {
 	res := &otpResponse{}
-	err := c.Get(ctx, "/v1/socket/token", nil, res)
+	err := c.Get(ctx, "/v1/socket/token", nil, res, ropts...)
 	if err != nil {
 		return "", err
 	}
 	return res.Otp, nil
 }
 
-func (c *Client) GetOTPV2(ctx context.Context) (string, error) {
+func (c *Client) GetOTPV2(ctx context.Context, ropts ...RequestOption) (string, error) {
 	res := &otpResponse{}
-	err := c.Get(ctx, "/v2/socket/token", nil, res)
+	err := c.Get(ctx, "/v2/socket/token", nil, res, ropts...)
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +88,7 @@ func (c *Client) GetOTPV2(ctx context.Context) (string, error) {
 }
 
 // Call will send request with signature to http server
-func (c *Client) Call(ctx context.Context, method, path string, queryParams interface{}, body interface{}, resp interface{}) (err error) {
+func (c *Client) Call(ctx context.Context, method, path string, queryParams interface{}, body interface{}, resp interface{}, ropts ...RequestOption) (err error) {
 	var (
 		br       io.Reader
 		bb       []byte
@@ -87,9 +103,23 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		}
 		br = bytes.NewBuffer(bb)
 	}
+
 	req, err := nhttp.NewRequestWithContext(ctx, method, c.opts.URL+path, br)
 	if err != nil {
 		return err
+	}
+
+	if len(ropts) != 0 {
+		ro := &RequestOptions{}
+		for _, opt := range ropts {
+			opt(ro)
+		}
+
+		if ro.Header != nil {
+			for k, v := range ro.Header {
+				req.Header[k] = v
+			}
+		}
 	}
 
 	if queryParams != nil {
