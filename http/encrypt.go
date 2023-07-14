@@ -18,6 +18,13 @@ func md5Hex(s string) []byte {
 }
 
 // EncryptPassword use to encrypt password
+// Use aes with cbc mode to encrypt password
+// 1. use md5(timestamp) as secret key for md5 have fixed length
+// 2. use key[:16] is cbc iv
+// 3. md5(raw_password) as plain content
+// 4. padding plain content
+// 5. encrypt
+
 func EncryptPassword(raw, timestamp string) (encrypted string, err error) {
 	if raw == "" {
 		err = errors.New("empty password")
