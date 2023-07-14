@@ -24,7 +24,6 @@ func md5Hex(s string) []byte {
 // 3. md5(raw_password) as plain content
 // 4. padding plain content
 // 5. encrypt
-
 func EncryptPassword(raw, timestamp string) (encrypted string, err error) {
 	if raw == "" {
 		err = errors.New("empty password")
