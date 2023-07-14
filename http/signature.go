@@ -18,7 +18,7 @@ var sign = &signer.Signer{}
 
 func signature(req *nhttp.Request, secret string, body []byte) error {
 	if v := req.Header.Get(headerTimestamp); v == "" {
-		req.Header.Add("x-timestamp", strconv.FormatInt(time.Now().UnixMilli(), 10))
+		req.Header.Add(headerTimestamp, strconv.FormatInt(time.Now().UnixMilli(), 10))
 	}
 
 	req.Header.Add("x-api-signature", "HMAC-SHA256 SignedHeaders=authorization;x-api-key;x-timestamp")
