@@ -65,10 +65,6 @@ func cbcEncryptWithIV(key, iv, plain []byte) (encrypted []byte, err error) {
 	return
 }
 
-func isValidKey(key []byte) bool {
-	return len(key) == 16 || len(key) == 24 || len(key) == 32
-}
-
 func pkcs7Padding(b []byte, blocksize int) []byte {
 	n := blocksize - (len(b) % blocksize)
 	pb := make([]byte, len(b)+n)
