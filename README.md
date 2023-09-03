@@ -162,7 +162,7 @@ import (
 
 func main() {
 	// create quote context from environment variables
-	quoteContext, err := quote.NewFormEnv()
+	quoteContext, err := quote.NewFromEnv()
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -195,7 +195,7 @@ import (
 
 func main() {
 	// create trade context from environment variables
-	tradeContext, err := trade.NewFormEnv()
+	tradeContext, err := trade.NewFromEnv()
 	if err != nil {
 		log.Fatal(err)
 		return
