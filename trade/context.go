@@ -225,7 +225,7 @@ func (c *TradeContext) Close() error {
 	return c.core.Close()
 }
 
-// NewFormEnv return TradeContext with environment variables.
+// Deprecated: NewFormEnv return TradeContext with environment variables, use NewFromCfg plz
 func NewFormEnv() (*TradeContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {

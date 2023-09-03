@@ -5,12 +5,17 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/trade"
 )
 
 func main() {
 	// create trade context from environment variables
-	tradeContext, err := trade.NewFormEnv()
+	conf, err := config.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	tradeContext, err := trade.NewFromCfg(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
