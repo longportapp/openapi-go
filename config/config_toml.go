@@ -10,7 +10,7 @@ type TOMLConfig struct {
 
 func (c *TOMLConfig) GetConfig(opts *Options) (data *Config, err error) {
 	data = &Config{}
-	_, err = toml.Decode(opts.filePath, data)
+	_, err = toml.DecodeFile(opts.filePath, data)
 	if err != nil {
 		err = errors.Wrapf(err, "TOML GetConfig err")
 		return
