@@ -70,6 +70,12 @@ func NewConfig(opts ...Option) (configData *Config, err error) {
 		err = errors.Wrapf(err, "GetConfig err")
 		return
 	}
+	err = configData.check()
+	if err != nil {
+		err = errors.Wrapf(err, "NewConfig config check err")
+		return
+	}
+	log.SetLevel(configData.LogLevel)
 	return
 }
 
