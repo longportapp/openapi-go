@@ -1,9 +1,9 @@
 package config
 
-type ConfigType int32
+type ConfigType string
 
 const (
-	ConfigTypeEnv ConfigType = iota
-	ConfigTypeYAML
-	ConfigTypeTOML
+	ConfigTypeEnv  ConfigType = "env"
+	ConfigTypeYAML ConfigType = "yaml"
+	ConfigTypeTOML ConfigType = "toml"
 )

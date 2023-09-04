@@ -40,7 +40,7 @@ import (
 )
 
 func main() {
-    c, err := config.NewConfig()
+    c, err := config.New()
 
     if err != nil {
         // panic
@@ -63,13 +63,13 @@ All envs is listed in the last of [README](#environment-variables)
 ### Load from file[yaml,toml]
 yaml
 ```golang
-	conf, err := config.NewConfig(
+	conf, err := config.New(
 config.WithConfigType(config.ConfigTypeYAML),
 config.WithFilePath("./test.yaml"))
 ```
 toml
 ```golang
-conf, err := config.NewConfig(
+conf, err := config.New(
 config.WithConfigType(config.ConfigTypeTOML),
 config.WithFilePath("./test.toml"))
 ```
@@ -103,7 +103,7 @@ type Config struct {
 set config field manually
 
 ```golang
-c, err := config.NewConfig()
+c, err := config.New()
 c.AppKey = "xxx"
 c.AppSecret = "xxx"
 c.AccessToken = "xxx"
@@ -133,7 +133,7 @@ Your can use you own logger by imply the interface
 
 
 ```golang
-c, err := config.NewConfig()
+c, err := config.New()
 
 l := newOwnLogger()
 
@@ -152,7 +152,7 @@ cli := &http.Client{Timeout: opts.Timeout}
 we only set timeout here, you can use you own *(net/http).Client.
 
 ```golang
-c, err := config.NewConfig()
+c, err := config.New()
 
 c.Client = &http.Client{
     Transport: ...
@@ -176,7 +176,7 @@ import (
 )
 
 func main() {
-	conf, err := config.NewConfig()
+	conf, err := config.New()
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -215,7 +215,7 @@ import (
 )
 
 func main() {
-	conf, err := config.NewConfig()
+	conf, err := config.New()
 	if err != nil {
 		log.Fatal(err)
 		return

@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// create quote context from environment variables
-	conf, err := config.NewConfig()
+	conf, err := config.New()
 	if err != nil {
 		log.Fatal(err)
 	}

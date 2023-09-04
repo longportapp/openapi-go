@@ -1,5 +1,9 @@
 package config
 
+import (
+	"path"
+)
+
 type Options struct {
 	tp       ConfigType
 	filePath string
@@ -8,18 +12,15 @@ type Options struct {
 type Option func(*Options)
 
 // WithFilePath config path
-func WithFilePath(path string) Option {
+func WithFilePath(filePath string) Option {
 	return func(o *Options) {
-		if path != "" {
-			o.filePath = path
+		if filePath != "" {
+			o.filePath = filePath
+			fileSuffix := path.Ext(filePath)
+			if o.tp != ConfigTypeEnv {
+				o.tp = ConfigType(fileSuffix)
+			}
 		}
-	}
-}
-
-// WithConfigType config init type
-func WithConfigType(tp ConfigType) Option {
-	return func(o *Options) {
-		o.tp = tp
 	}
 }
 

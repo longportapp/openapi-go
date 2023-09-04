@@ -6,7 +6,6 @@ import (
 
 	"github.com/longbridgeapp/openapi-go/log"
 
-	env "github.com/Netflix/go-env"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
 )
@@ -58,11 +57,11 @@ func (c *Config) Logger() log.Logger {
 	return c.logger
 }
 
-func NewConfig(opts ...Option) (configData *Config, err error) {
+func New(opts ...Option) (configData *Config, err error) {
 	options := newOptions(opts...)
 	conf, exist := configTypeMap[options.tp]
 	if !exist {
-		err = errors.New("config type not found")
+		err = errors.Errorf("config type:%+v not support", options.tp)
 		return
 	}
 	configData, err = conf.GetConfig(options)
@@ -72,7 +71,7 @@ func NewConfig(opts ...Option) (configData *Config, err error) {
 	}
 	err = configData.check()
 	if err != nil {
-		err = errors.Wrapf(err, "NewConfig config check err")
+		err = errors.Wrapf(err, "New config check err")
 		return
 	}
 	log.SetLevel(configData.LogLevel)
@@ -95,19 +94,7 @@ func (c *Config) check() (err error) {
 	return
 }
 
-// NewFormEnv to create config with enviromente variables
+// Deprecated: NewFormEnv to create config with enviromente variables
 func NewFormEnv() (*Config, error) {
-	conf := &Config{}
-	_, err := env.UnmarshalFromEnviron(conf)
-	if err != nil {
-		return nil, errors.Wrap(err, "env load error")
-	}
-	err = conf.check()
-	if err != nil {
-		err = errors.Wrapf(err, "NewFormEnv config check err")
-		return nil, err
-	}
-	log.SetLevel(conf.LogLevel)
-
-	return conf, nil
+	return New()
 }
