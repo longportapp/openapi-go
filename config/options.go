@@ -17,7 +17,7 @@ func WithFilePath(filePath string) Option {
 		if filePath != "" {
 			o.filePath = filePath
 			fileSuffix := path.Ext(filePath)
-			if o.tp != ConfigTypeEnv {
+			if fileSuffix != "" {
 				o.tp = ConfigType(fileSuffix)
 			}
 		}
