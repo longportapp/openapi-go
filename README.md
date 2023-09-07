@@ -63,7 +63,7 @@ All envs is listed in the last of [README](#environment-variables)
 ### Load from file[yaml,toml]
 yaml
 ```golang
-	conf, err := config.New(config.WithFilePath("./test.yaml"))
+conf, err := config.New(config.WithFilePath("./test.yaml"))
 ```
 toml
 ```golang
