@@ -40,7 +40,7 @@ import (
 )
 
 func main() {
-    c, err := config.NewFromEnv()
+    c, err := config.New()
 
     if err != nil {
         // panic
@@ -60,28 +60,38 @@ func main() {
 
 All envs is listed in the last of [README](#environment-variables)
 
+### Load from file[yaml,toml]
+yaml
+```golang
+conf, err := config.New(config.WithFilePath("./test.yaml"))
+```
+toml
+```golang
+conf, err := config.New(config.WithFilePath("./test.toml"))
+```
+
 ### Init Config manually
 
 Config structure as follow:
 
 ```golang
 type Config struct {
-	HttpURL     string `env:"LONGBRIDGE_HTTP_URL"`
-	AppKey      string `env:"LONGBRIDGE_APP_KEY"`
-	AppSecret   string `env:"LONGBRIDGE_APP_SECRET"`
-	AccessToken string `env:"LONGBRIDGE_ACCESS_TOKEN"`
-	TradeUrl    string `env:"LONGBRIDGE_TRADE_URL"`
-	QuoteUrl    string `env:"LONGBRIDGE_QUOTE_URL"`
-
-	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL"`
-
-	// longbridge protocol config
-	AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT"`
-	Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT"`
-	WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE"`
-	ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE"`
-	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE"`
-	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE"`
+    HttpURL     string        `env:"LONGBRIDGE_HTTP_URL" yaml:"LONGBRIDGE_HTTP_URL" toml:"LONGBRIDGE_HTTP_URL"`
+    HTTPTimeout time.Duration `env:"LONGBRIDGE_HTTP_TIMEOUT" yaml:"LONGBRIDGE_HTTP_TIMEOUT" toml:"LONGBRIDGE_HTTP_TIMEOUT"`
+    AppKey      string        `env:"LONGBRIDGE_APP_KEY" yaml:"LONGBRIDGE_APP_KEY" toml:"LONGBRIDGE_APP_KEY"`
+    AppSecret   string        `env:"LONGBRIDGE_APP_SECRET" yaml:"LONGBRIDGE_APP_SECRET" toml:"LONGBRIDGE_APP_SECRET"`
+    AccessToken string        `env:"LONGBRIDGE_ACCESS_TOKEN" yaml:"LONGBRIDGE_ACCESS_TOKEN" toml:"LONGBRIDGE_ACCESS_TOKEN"`
+    TradeUrl    string        `env:"LONGBRIDGE_TRADE_URL" yaml:"LONGBRIDGE_TRADE_URL" toml:"LONGBRIDGE_TRADE_URL"`
+    QuoteUrl    string        `env:"LONGBRIDGE_QUOTE_URL" yaml:"LONGBRIDGE_QUOTE_URL" toml:"LONGBRIDGE_QUOTE_URL"`
+    
+    LogLevel string `env:"LONGBRIDGE_LOG_LEVEL" yaml:"LONGBRIDGE_LOG_LEVEL" toml:"LONGBRIDGE_LOG_LEVEL"`
+    // longbridge protocol config
+    AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT" yaml:"LONGBRIDGE_AUTH_TIMEOUT"toml:"LONGBRIDGE_AUTH_TIMEOUT"`
+    Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT" yaml:"LONGBRIDGE_TIMEOUT" toml:"LONGBRIDGE_TIMEOUT"`
+    WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE" yaml:"LONGBRIDGE_WRITE_QUEUE_SIZE" toml:"LONGBRIDGE_WRITE_QUEUE_SIZE"`
+    ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE" yaml:"LONGBRIDGE_READ_QUEUE_SIZE" toml:"LONGBRIDGE_READ_QUEUE_SIZE"`
+    ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE" yaml:"LONGBRIDGE_READ_BUFFER_SIZE" toml:"LONGBRIDGE_READ_BUFFER_SIZE"`
+    MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE" yaml:"LONGBRIDGE_MIN_GZIP_SIZE" toml:"LONGBRIDGE_MIN_GZIP_SIZE"`
 }
 
 ```
@@ -89,7 +99,7 @@ type Config struct {
 set config field manually
 
 ```golang
-c, err := config.NewFromEnv()
+c, err := config.New()
 c.AppKey = "xxx"
 c.AppSecret = "xxx"
 c.AccessToken = "xxx"
@@ -119,7 +129,7 @@ Your can use you own logger by imply the interface
 
 
 ```golang
-c, err := config.NewFromEnv()
+c, err := config.New()
 
 l := newOwnLogger()
 
@@ -138,7 +148,7 @@ cli := &http.Client{Timeout: opts.Timeout}
 we only set timeout here, you can use you own *(net/http).Client.
 
 ```golang
-c, err := config.NewFromEnv()
+c, err := config.New()
 
 c.Client = &http.Client{
     Transport: ...
@@ -158,11 +168,17 @@ import (
 	"log"
 
 	"github.com/longbridgeapp/openapi-go/quote"
+	"github.com/longbridgeapp/openapi-go/config"
 )
 
 func main() {
+	conf, err := config.New()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	// create quote context from environment variables
-	quoteContext, err := quote.NewFormEnv()
+	quoteContext, err := quote.NewFromCfg(conf)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -190,12 +206,18 @@ import (
 	"log"
 
 	"github.com/longbridgeapp/openapi-go/trade"
+	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/shopspring/decimal"
 )
 
 func main() {
+	conf, err := config.New()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	// create trade context from environment variables
-	tradeContext, err := trade.NewFormEnv()
+	tradeContext, err := trade.NewFromCfg(conf)
 	if err != nil {
 		log.Fatal(err)
 		return

@@ -204,7 +204,7 @@ func (c *QuoteContext) Close() error {
 	return c.core.Close()
 }
 
-// NewFromEnv return QuoteContext
+// Deprecated: NewFromEnv return QuoteContext, use NewFromCfg plz
 func NewFormEnv() (*QuoteContext, error) {
 	cfg, err := config.NewFormEnv()
 	if err != nil {

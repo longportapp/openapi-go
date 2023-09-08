@@ -9,12 +9,17 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/longbridgeapp/openapi-go/config"
 	"github.com/longbridgeapp/openapi-go/quote"
 )
 
 func main() {
 	// create quote context from environment variables
-	quoteContext, err := quote.NewFormEnv()
+	conf, err := config.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	quoteContext, err := quote.NewFromCfg(conf)
 	if err != nil {
 		log.Fatal(err)
 		return
