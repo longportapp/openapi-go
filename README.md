@@ -1,13 +1,13 @@
 # Longbridge OpenAPI SDK for Go
 
-`longbridge` provides an easy-to-use interface for invokes [`Longbridge OpenAPI`](https://open.longbridgeapp.com/en/).
+`longbridge` provides an easy-to-use interface for invokes [`Longbridge OpenAPI`](https://open.longportapp.com/en/).
 
 ## Quickstart
 
 _With Go module support , simply add the following import_
 
 ```golang
-import "github.com/longbridgeapp/openapi-go"
+import "github.com/longportapp/openapi-go"
 ```
 
 _Setting environment variables(MacOS/Linux)_
@@ -34,9 +34,9 @@ Support init config from env, and support load env from `.env` file
 
 ```golang
 import (
-    "github.com/longbridgeapp/openapi-go/config"
-    "github.com/longbridgeapp/openapi-go/trade"
-    "github.com/longbridgeapp/openapi-go/http"
+    "github.com/longportapp/openapi-go/config"
+    "github.com/longportapp/openapi-go/trade"
+    "github.com/longportapp/openapi-go/http"
 )
 
 func main() {
@@ -167,8 +167,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/longbridgeapp/openapi-go/quote"
-	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/quote"
+	"github.com/longportapp/openapi-go/config"
 )
 
 func main() {
@@ -205,8 +205,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/longbridgeapp/openapi-go/trade"
-	"github.com/longbridgeapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/trade"
+	"github.com/longportapp/openapi-go/config"
 	"github.com/shopspring/decimal"
 )
 
@@ -248,12 +248,12 @@ Support load env from `.env` file.
 
 | name                        | description                                    | default value                         | example |
 |-----------------------------|------------------------------------------------|---------------------------------------|---------|
-| LONGBRIDGE_HTTP_URL         | longbridge rest api url                        | https://openapi.longbridgeapp.com     |         |
+| LONGBRIDGE_HTTP_URL         | longbridge rest api url                        | https://openapi.longportapp.com     |         |
 | LONGBRIDGE_APP_KEY          | app key                                        |                                       |         |
 | LONGBRIDGE_APP_SECRET       | app secret                                     |                                       |         |
 | LONGBRIDGE_ACCESS_TOKEN     | access token                                   |                                       |         |
-| LONGBRIDGE_TRADE_URL        | longbridge protocol url for trade context      | wss://openapi-trade.longbridgeapp.com |         |
-| LONGBRIDGE_QUOTE_URL        | longbridge protocol url for quote context      | wss://openapi-quote.longbridgeapp.com |         |
+| LONGBRIDGE_TRADE_URL        | longbridge protocol url for trade context      | wss://openapi-trade.longportapp.com |         |
+| LONGBRIDGE_QUOTE_URL        | longbridge protocol url for quote context      | wss://openapi-quote.longportapp.com |         |
 | LONGBRIDGE_LOG_LEVEL        | log level                                      | info                                  |         |
 | LONGBRIDGE_AUTH_TIMEOUT     | longbridge protocol authorize request time out | 10 second                             | 10s     |
 | LONGBRIDGE_TIMEOUT          | longbridge protocol dial timeout               | 5 second                              | 6s      |

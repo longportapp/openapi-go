@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/internal/util"
 
 	"github.com/pkg/errors"
 )

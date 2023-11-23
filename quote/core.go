@@ -5,12 +5,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/longbridgeapp/openapi-go"
-	"github.com/longbridgeapp/openapi-go/internal/util"
-	"github.com/longbridgeapp/openapi-go/log"
-	quotev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
-	protocol "github.com/longbridgeapp/openapi-protocol/go"
-	"github.com/longbridgeapp/openapi-protocol/go/client"
+	"github.com/longportapp/openapi-go"
+	"github.com/longportapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/log"
+	quotev1 "github.com/longportapp/openapi-protobufs/gen/go/quote"
+	protocol "github.com/longportapp/openapi-protocol/go"
+	"github.com/longportapp/openapi-protocol/go/client"
 
 	"github.com/pkg/errors"
 )

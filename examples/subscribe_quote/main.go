@@ -9,8 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/quote"
+	"github.com/longportapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/quote"
 )
 
 func main() {

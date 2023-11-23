@@ -3,9 +3,9 @@ package quote
 import (
 	"time"
 
-	"github.com/longbridgeapp/openapi-go"
-	"github.com/longbridgeapp/openapi-go/internal/util"
-	"github.com/longbridgeapp/openapi-protobufs/gen/go/quote"
+	"github.com/longportapp/openapi-go"
+	"github.com/longportapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-protobufs/gen/go/quote"
 	"github.com/shopspring/decimal"
 )
 
