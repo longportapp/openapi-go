@@ -1,14 +1,14 @@
 package trade
 
 import (
-	"github.com/longbridgeapp/openapi-go/http"
-	"github.com/longbridgeapp/openapi-go/log"
-	"github.com/longbridgeapp/openapi-go/longbridge"
-	protocol "github.com/longbridgeapp/openapi-protocol/go"
+	"github.com/longportapp/openapi-go/http"
+	"github.com/longportapp/openapi-go/log"
+	"github.com/longportapp/openapi-go/longbridge"
+	protocol "github.com/longportapp/openapi-protocol/go"
 )
 
 const (
-	DefaultTradeUrl = "wss://openapi-trade.longbridgeapp.com/v2"
+	DefaultTradeUrl = "wss://openapi-trade.longportapp.com/v2"
 )
 
 // Options for quote context

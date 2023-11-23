@@ -1,6 +1,6 @@
 package log
 
-import protocol "github.com/longbridgeapp/openapi-protocol/go"
+import protocol "github.com/longportapp/openapi-protocol/go"
 
 type Logger = protocol.Logger
 

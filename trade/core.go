@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/longbridgeapp/openapi-go/internal/util"
-	"github.com/longbridgeapp/openapi-go/log"
-	"github.com/longbridgeapp/openapi-go/trade/jsontypes"
+	"github.com/longportapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/log"
+	"github.com/longportapp/openapi-go/trade/jsontypes"
 
-	tradev1 "github.com/longbridgeapp/openapi-protobufs/gen/go/trade"
-	protocol "github.com/longbridgeapp/openapi-protocol/go"
-	"github.com/longbridgeapp/openapi-protocol/go/client"
+	tradev1 "github.com/longportapp/openapi-protobufs/gen/go/trade"
+	protocol "github.com/longportapp/openapi-protocol/go"
+	"github.com/longportapp/openapi-protocol/go/client"
 	"github.com/pkg/errors"
 )
 

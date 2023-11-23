@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/trade"
+	"github.com/longportapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/trade"
 )
 
 func main() {

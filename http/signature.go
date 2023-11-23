@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/longbridgeapp/openapi-go/internal/signer"
-	"github.com/longbridgeapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/internal/signer"
+	"github.com/longportapp/openapi-go/internal/util"
 )
 
 const (

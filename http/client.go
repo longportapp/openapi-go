@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/google/go-querystring/query"
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/log"
+	"github.com/longportapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/log"
 )
 
 type apiResponse struct {
@@ -68,7 +68,7 @@ func (c *Client) Delete(ctx context.Context, path string, queryParams interface{
 }
 
 // GetOTP to get one time password
-// Reference: https://open.longbridgeapp.com/en/docs/socket-token-api
+// Reference: https://open.longportapp.com/en/docs/socket-token-api
 func (c *Client) GetOTP(ctx context.Context, ropts ...RequestOption) (string, error) {
 	res := &otpResponse{}
 	err := c.Get(ctx, "/v1/socket/token", nil, res, ropts...)

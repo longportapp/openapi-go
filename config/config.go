@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/longbridgeapp/openapi-go/log"
+	"github.com/longportapp/openapi-go/log"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"

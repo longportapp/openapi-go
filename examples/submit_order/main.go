@@ -7,8 +7,8 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/longbridgeapp/openapi-go/config"
-	"github.com/longbridgeapp/openapi-go/trade"
+	"github.com/longportapp/openapi-go/config"
+	"github.com/longportapp/openapi-go/trade"
 )
 
 func main() {
