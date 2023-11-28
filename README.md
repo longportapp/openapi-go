@@ -117,15 +117,15 @@ Our logger interface as follow:
 
 ```golang
 type Logger interface {
- SetLevel(string)
- Info(msg string)
- Error(msg string)
- Warn(msg string)
- Debug(msg string)
- Infof(msg string, args ...interface{})
- Errorf(msg string, args ...interface{})
- Warnf(msg string, args ...interface{})
- Debugf(msg string, args ...interface{})
+    SetLevel(string)
+    Info(msg string)
+    Error(msg string)
+    Warn(msg string)
+    Debug(msg string)
+    Infof(msg string, args ...interface{})
+    Errorf(msg string, args ...interface{})
+    Warnf(msg string, args ...interface{})
+    Debugf(msg string, args ...interface{})
 }
 
 ```
@@ -166,35 +166,35 @@ c.Client = &http.Client{
 package main
 
 import (
- "context"
- "fmt"
- "log"
+    "context"
+    "fmt"
+    "log"
 
- "github.com/longportapp/openapi-go/quote"
- "github.com/longportapp/openapi-go/config"
+    "github.com/longportapp/openapi-go/quote"
+    "github.com/longportapp/openapi-go/config"
 )
 
 func main() {
- conf, err := config.New()
- if err != nil {
-  log.Fatal(err)
-  return
- }
- // create quote context from environment variables
- quoteContext, err := quote.NewFromCfg(conf)
- if err != nil {
-  log.Fatal(err)
-  return
- }
- defer quoteContext.Close()
- ctx := context.Background()
- // Get basic information of securities
- quotes, err := quoteContext.Quote(ctx, []string{"700.HK", "AAPL.US", "TSLA.US", "NFLX.US"})
- if err != nil {
-  log.Fatal(err)
-  return
- }
- fmt.Printf("quotes: %v", quotes)
+    conf, err := config.New()
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    // create quote context from environment variables
+    quoteContext, err := quote.NewFromCfg(conf)
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    defer quoteContext.Close()
+    ctx := context.Background()
+    // Get basic information of securities
+    quotes, err := quoteContext.Quote(ctx, []string{"700.HK", "AAPL.US", "TSLA.US", "NFLX.US"})
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    fmt.Printf("quotes: %v", quotes)
 }
 ```
 
@@ -204,44 +204,44 @@ func main() {
 package main
 
 import (
- "context"
- "fmt"
- "log"
+    "context"
+    "fmt"
+    "log"
 
- "github.com/longportapp/openapi-go/trade"
- "github.com/longportapp/openapi-go/config"
- "github.com/shopspring/decimal"
+    "github.com/longportapp/openapi-go/trade"
+    "github.com/longportapp/openapi-go/config"
+    "github.com/shopspring/decimal"
 )
 
 func main() {
- conf, err := config.New()
- if err != nil {
-  log.Fatal(err)
-  return
- }
- // create trade context from environment variables
- tradeContext, err := trade.NewFromCfg(conf)
- if err != nil {
-  log.Fatal(err)
-  return
- }
- defer tradeContext.Close()
- ctx := context.Background()
- // submit order
- order := &trade.SubmitOrder{
-  Symbol:            "700.HK",
-  OrderType:         trade.OrderTypeLO,
-  Side:              trade.OrderSideBuy,
-  SubmittedQuantity: 200,
-  TimeInForce:       trade.TimeTypeDay,
-  SubmittedPrice:    decimal.NewFromFloat(12),
- }
- orderId, err := tradeContext.SubmitOrder(ctx, order)
- if err != nil {
-  log.Fatal(err)
-  return
- }
- fmt.Printf("orderId: %v\n", orderId)
+    conf, err := config.New()
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    // create trade context from environment variables
+    tradeContext, err := trade.NewFromCfg(conf)
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    defer tradeContext.Close()
+    ctx := context.Background()
+    // submit order
+    order := &trade.SubmitOrder{
+        Symbol:            "700.HK",
+        OrderType:         trade.OrderTypeLO,
+        Side:              trade.OrderSideBuy,
+        SubmittedQuantity: 200,
+        TimeInForce:       trade.TimeTypeDay,
+        SubmittedPrice:    decimal.NewFromFloat(12),
+    }
+    orderId, err := tradeContext.SubmitOrder(ctx, order)
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    fmt.Printf("orderId: %v\n", orderId)
 }
 ```
 
@@ -251,7 +251,7 @@ Support load env from `.env` file.
 
 | name                        | description                                    | default value                         | example |
 |-----------------------------|------------------------------------------------|---------------------------------------|---------|
-| LONGPORT_REGION | Set access region, if region equals `cn`, sdk will set httpUrl, quoteUrl, tradeUrl to china endpoints | - | cn |
+| LONGPORT_REGION | Set access region, if region equals `cn`, sdk will set httpUrl, quoteUrl, tradeUrl to China endpoints | - | cn |
 | LONGPORT_HTTP_URL         | LONGPORT rest api url                        | <https://openapi.longportapp.com>     |         |
 | LONGPORT_APP_KEY          | app key                                        |                                       |         |
 | LONGPORT_APP_SECRET       | app secret                                     |                                       |         |
