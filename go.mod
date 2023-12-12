@@ -10,6 +10,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
+	github.com/longbridgeapp/assert v0.1.0
 	github.com/longportapp/openapi-protobufs/gen/go v0.2.1
 	github.com/longportapp/openapi-protocol/go v0.3.0
 	github.com/pkg/errors v0.9.1
@@ -19,7 +20,10 @@ require (
 
 require (
 	github.com/Allenxuxu/ringbuffer v0.0.11 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )

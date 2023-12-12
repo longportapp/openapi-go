@@ -7,6 +7,10 @@ import (
 type Options struct {
 	tp       ConfigType
 	filePath string
+
+	appKey      *string
+	appSecret   *string
+	accessToken *string
 }
 
 type Option func(*Options)
@@ -21,6 +25,15 @@ func WithFilePath(filePath string) Option {
 				o.tp = ConfigType(fileSuffix)
 			}
 		}
+	}
+}
+
+// WithConfigKey config appKey, appSecret, accessToken
+func WithConfigKey(appKey string, appSecret string, accessToken string) Option {
+	return func(o *Options) {
+		o.appKey = &appKey
+		o.appSecret = &appSecret
+		o.accessToken = &accessToken
 	}
 }
 

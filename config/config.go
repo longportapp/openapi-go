@@ -81,6 +81,16 @@ func New(opts ...Option) (configData *Config, err error) {
 		return
 	}
 
+	if options.appKey != nil {
+		configData.AppKey = *options.appKey
+	}
+	if options.appSecret != nil {
+		configData.AppSecret = *options.appSecret
+	}
+	if options.accessToken != nil {
+		configData.AccessToken = *options.accessToken
+	}
+
 	if configData.Region == RegionCN {
 		configData.HttpURL = cnHttpUrl
 		configData.QuoteUrl = cnQuoteUrl
