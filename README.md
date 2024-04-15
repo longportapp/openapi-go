@@ -1,6 +1,6 @@
-# LONGPORT OpenAPI SDK for Go
+# Longport OpenAPI SDK for Go
 
-`LONGPORT` provides an easy-to-use interface for invokes [`LONGPORT OpenAPI`](https://open.longportapp.com/en/).
+`Longport` provides an easy-to-use interface for invokes [`Longport OpenAPI`](https://open.longportapp.com/en/).
 
 ## Quickstart
 
@@ -87,7 +87,7 @@ type Config struct {
     AccessToken string        `env:"LONGPORT_ACCESS_TOKEN" yaml:"LONGPORT_ACCESS_TOKEN" toml:"LONGPORT_ACCESS_TOKEN"`
     TradeUrl    string        `env:"LONGPORT_TRADE_URL" yaml:"LONGPORT_TRADE_URL" toml:"LONGPORT_TRADE_URL"`
     QuoteUrl    string        `env:"LONGPORT_QUOTE_URL" yaml:"LONGPORT_QUOTE_URL" toml:"LONGPORT_QUOTE_URL"`
-    
+
     LogLevel string `env:"LONGPORT_LOG_LEVEL" yaml:"LONGPORT_LOG_LEVEL" toml:"LONGPORT_LOG_LEVEL"`
     // LONGPORT protocol config
     AuthTimeout    time.Duration `env:"LONGPORT_AUTH_TIMEOUT" yaml:"LONGPORT_AUTH_TIMEOUT"toml:"LONGPORT_AUTH_TIMEOUT"`
@@ -141,7 +141,7 @@ c.SetLogger(l)
 
 ```
 
-### use custom *(net/http).Client
+### use custom \*(net/http).Client
 
 the default http client is initialized simply as follow:
 
@@ -149,7 +149,7 @@ the default http client is initialized simply as follow:
 cli := &http.Client{Timeout: opts.Timeout}
 ```
 
-we only set timeout here, you can use you own *(net/http).Client.
+we only set timeout here, you can use you own \*(net/http).Client.
 
 ```golang
 c, err := config.New()
@@ -249,26 +249,26 @@ func main() {
 
 Support load env from `.env` file.
 
-| name                        | description                                    | default value                         | example |
-|-----------------------------|------------------------------------------------|---------------------------------------|---------|
-| LONGPORT_REGION | Set access region, if region equals `cn`, sdk will set httpUrl, quoteUrl, tradeUrl to China endpoints | - | cn |
-| LONGPORT_HTTP_URL         | LONGPORT rest api url                        | <https://openapi.longportapp.com>     |         |
-| LONGPORT_APP_KEY          | app key                                        |                                       |         |
-| LONGPORT_APP_SECRET       | app secret                                     |                                       |         |
-| LONGPORT_ACCESS_TOKEN     | access token                                   |                                       |         |
-| LONGPORT_TRADE_URL        | LONGPORT protocol url for trade context      | wss://openapi-trade.longportapp.com |         |
-| LONGPORT_QUOTE_URL        | LONGPORT protocol url for quote context      | wss://openapi-quote.longportapp.com |         |
-| LONGPORT_LOG_LEVEL        | log level                                      | info                                  |         |
-| LONGPORT_AUTH_TIMEOUT     | LONGPORT protocol authorize request time out | 10 second                             | 10s     |
-| LONGPORT_TIMEOUT          | LONGPORT protocol dial timeout               | 5 second                              | 6s      |
-| LONGPORT_WRITE_QUEUE_SIZE | longport protocol write queue size           | 16                                    |         |
-| LONGPORT_READ_QUEUE_SIZE  | longport protocol read queue size            | 16                                    |         |
-| LONGPORT_READ_BUFFER_SIZE | longport protocol read buffer size           | 4096                                  |         |
-| LONGPORT_MIN_GZIP_SIZE    | longport protocol minimal gzip size          | 1024                                  |         |
+| name                      | description                                                                                           | default value                       | example |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- | ------- |
+| LONGPORT_REGION           | Set access region, if region equals `cn`, sdk will set httpUrl, quoteUrl, tradeUrl to China endpoints | -                                   | cn      |
+| LONGPORT_HTTP_URL         | LONGPORT rest api url                                                                                 | <https://openapi.longportapp.com>   |         |
+| LONGPORT_APP_KEY          | app key                                                                                               |                                     |         |
+| LONGPORT_APP_SECRET       | app secret                                                                                            |                                     |         |
+| LONGPORT_ACCESS_TOKEN     | access token                                                                                          |                                     |         |
+| LONGPORT_TRADE_URL        | LONGPORT protocol url for trade context                                                               | wss://openapi-trade.longportapp.com |         |
+| LONGPORT_QUOTE_URL        | LONGPORT protocol url for quote context                                                               | wss://openapi-quote.longportapp.com |         |
+| LONGPORT_LOG_LEVEL        | log level                                                                                             | info                                |         |
+| LONGPORT_AUTH_TIMEOUT     | LONGPORT protocol authorize request time out                                                          | 10 second                           | 10s     |
+| LONGPORT_TIMEOUT          | LONGPORT protocol dial timeout                                                                        | 5 second                            | 6s      |
+| LONGPORT_WRITE_QUEUE_SIZE | longport protocol write queue size                                                                    | 16                                  |         |
+| LONGPORT_READ_QUEUE_SIZE  | longport protocol read queue size                                                                     | 16                                  |         |
+| LONGPORT_READ_BUFFER_SIZE | longport protocol read buffer size                                                                    | 4096                                |         |
+| LONGPORT_MIN_GZIP_SIZE    | longport protocol minimal gzip size                                                                   | 1024                                |         |
 
 ## License
 
 Licensed under either of
 
-* Apache License, Version 2.0,([LICENSE-APACHE](./LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
-* MIT license ([LICENSE-MIT](./LICENSE-MIT) or <http://opensource.org/licenses/MIT>) at your option.
+- Apache License, Version 2.0,([LICENSE-APACHE](./LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT](./LICENSE-MIT) or <http://opensource.org/licenses/MIT>) at your option.
