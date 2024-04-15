@@ -3,20 +3,30 @@ package quote
 import (
 	"time"
 
+	quotev1 "github.com/longportapp/openapi-protobufs/gen/go/quote"
+	"github.com/shopspring/decimal"
+
 	"github.com/longportapp/openapi-go"
 	"github.com/longportapp/openapi-go/internal/util"
-	"github.com/longportapp/openapi-protobufs/gen/go/quote"
-	"github.com/shopspring/decimal"
 )
 
-type TradeStatus int32
-type TradeSession int32
-type TradeSessionType int32
-type EventType int8
-type SubType uint8
-type Period int32
-type AdjustType int32
-type CalcIndex int32
+type (
+	TradeStatus            int32
+	TradeSession           int32
+	TradeSessionType       int32
+	EventType              int8
+	SubType                uint8
+	Period                 int32
+	AdjustType             int32
+	CalcIndex              int32
+	WarrantStatus          int32
+	WarrantSortBy          int32
+	WarrantSortOrder       int32
+	WarrantType            int32
+	WarrantExpiryDateType  int32
+	WarrantInOutBoundsType int32
+	WarrantLanguage        int32
+)
 
 const (
 	// SubType
@@ -89,6 +99,69 @@ const (
 	CalcIndexTHETA                 CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_THETA)
 	CalcIndexVEGA                  CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_VEGA)
 	CalcIndexRHO                   CalcIndex = CalcIndex(quotev1.CalcIndex_CALCINDEX_RHO)
+)
+
+// Warrant status
+const (
+	WarrantSuspend    WarrantStatus = iota + 2 // can't trade
+	WarrantPapareList                          // wait to be listed
+	WarrantNormal                              // Tradable
+)
+
+const (
+	WarrantLastDone WarrantSortBy = iota
+	WarrantChangeRate
+	WarrantChangeVal
+	WarrantVolume
+	WarrantTurnover
+	WarrantExpiryDate
+	WarrantStrikePrice
+	WarrantUpperStrikePrice
+	WarrantLowerStrikePrice
+	WarrantOutstandingQty
+	WarrantOutstandingRatio
+	WarrantPremiun
+	WarrantItmOtm
+	WarrantImpliedVolatility
+	WarrantDelta
+	WarrantCallPrice
+	WarrantToCallPrice
+	WarrantEffectiveLeverage
+	WarrantLeverageRatio
+	WarrantConversionRatio
+	WarrantBalancePoint
+	WarrantSortStatus
+)
+
+const (
+	WarrantAsc WarrantSortOrder = iota
+	WarrantDesc
+)
+
+const (
+	WarrantCall WarrantType = iota
+	WarrantPut
+	WarrantBull
+	WarrantBear
+	WarrantInline
+)
+
+const (
+	WarrantLT3    WarrantExpiryDateType = iota + 1 // Less than three months
+	WarrantBT3_6                                   // between three and six months
+	WarrantBT6_12                                  // between six and twelve months
+	WarrantGT12                                    // greate than twelve months
+)
+
+const (
+	WarrantInBounds WarrantInOutBoundsType = iota + 1
+	WarrantOutBounds
+)
+
+const (
+	WarrantZH_CN WarrantLanguage = iota
+	WarrantEN
+	WarrantHK_CN
 )
 
 // PushQuote is quote info push from server
@@ -276,6 +349,47 @@ type WarrantQuote struct {
 	Turnover      *decimal.Decimal
 	TradeStatus   TradeStatus
 	WarrantExtend *WarrantExtend
+}
+
+type WarrantFilter struct {
+	SortBy     WarrantSortBy
+	SortOrder  WarrantSortOrder
+	SortOffset int32
+	SortCount  int32
+	Type       []WarrantType
+	Issuer     []int32
+	ExpiryDate []WarrantExpiryDateType
+	PriceType  []WarrantInOutBoundsType
+	Status     []WarrantStatus
+	Language   WarrantLanguage
+}
+
+// WarrantInfo is info of warrant asset
+type WarrantInfo struct {
+	Symbol            string
+	Name              string
+	LastDone          *decimal.Decimal
+	ChangeRate        *decimal.Decimal
+	ChangeVal         *decimal.Decimal
+	Volume            int64
+	Turnover          *decimal.Decimal
+	ExpiryDate        string
+	StrikePrice       *decimal.Decimal
+	UpperStrikePrice  *decimal.Decimal
+	LowerStrikePrice  *decimal.Decimal
+	OutstandingQty    *decimal.Decimal
+	OutstandingRatio  *decimal.Decimal
+	Premium           *decimal.Decimal
+	ItmOtm            *decimal.Decimal
+	ImpliedVolatility *decimal.Decimal
+	Delta             *decimal.Decimal
+	CallPrice         *decimal.Decimal
+	ToCallPrice       *decimal.Decimal
+	EffectiveLeverage *decimal.Decimal
+	LeverageRatio     *decimal.Decimal
+	ConversionRatio   *decimal.Decimal
+	BalancePoint      *decimal.Decimal
+	Status            WarrantStatus
 }
 
 // TradeDate

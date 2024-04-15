@@ -29,4 +29,17 @@ func main() {
 		return
 	}
 	fmt.Printf("quotes: %v\n", quotes)
+
+	warrants, err := quoteContext.WarrantList(ctx, "700.HK", quote.WarrantFilter{
+		SortBy:     quote.WarrantVolume,
+		SortOrder:  quote.WarrantAsc,
+		SortOffset: 0,
+		SortCount:  10,
+	}, quote.WarrantEN)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	fmt.Printf("warrants: %v\n", warrants)
 }
