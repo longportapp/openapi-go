@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/shopspring/decimal"
-
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/trade"
+	"github.com/shopspring/decimal"
 )
 
 func main() {
@@ -24,6 +23,12 @@ func main() {
 	}
 	defer tradeContext.Close()
 	ctx := context.Background()
+
+	// subscribe order status
+	tradeContext.OnTrade(func(ev *trade.PushEvent) {
+		// handle order changing event
+	})
+
 	// submit order
 	order := &trade.SubmitOrder{
 		Symbol:            "700.HK",
