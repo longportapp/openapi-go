@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/longportapp/openapi-go"
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/http"
 	"github.com/longportapp/openapi-go/internal/util"
 	"github.com/longportapp/openapi-go/longbridge"
 	"github.com/longportapp/openapi-go/quote/jsontypes"
-
-	"github.com/pkg/errors"
 )
 
 // QuoteContext is a client for interacting with Longbridge Quote OpenAPI
@@ -135,6 +135,12 @@ func (c *QuoteContext) OptionChainInfoByDate(ctx context.Context, symbol string,
 // Reference: https://open.longportapp.com/en/docs/quote/pull/issuer
 func (c *QuoteContext) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err error) {
 	return c.core.WarrantIssuers(ctx)
+}
+
+// WarrantIssuers obtain the quotes of HK warrants, and supports sorting and filtering.
+// Reference: https://open.longportapp.com/en/docs/quote/pull/warrant-filter
+func (c *QuoteContext) WarrantList(ctx context.Context, symbol string, config WarrantFilter, lang WarrantLanguage) (infos []*WarrantInfo, err error) {
+	return c.core.WarrantList(ctx, symbol, config, lang)
 }
 
 // TradingSession obtain the daily trading hours of each market.

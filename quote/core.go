@@ -5,14 +5,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/longportapp/openapi-go"
-	"github.com/longportapp/openapi-go/internal/util"
-	"github.com/longportapp/openapi-go/log"
 	quotev1 "github.com/longportapp/openapi-protobufs/gen/go/quote"
 	protocol "github.com/longportapp/openapi-protocol/go"
 	"github.com/longportapp/openapi-protocol/go/client"
-
 	"github.com/pkg/errors"
+
+	"github.com/longportapp/openapi-go"
+	"github.com/longportapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/log"
 )
 
 type core struct {
@@ -223,7 +223,6 @@ func (c *core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 	}
 	err = util.Copy(&optionQuotes, ret.GetSecuQuote())
 	return
-
 }
 
 func (c *core) WarrantQuote(ctx context.Context, symbols []string) (warrantQuotes []*WarrantQuote, err error) {
@@ -407,6 +406,34 @@ func (c *core) WarrantIssuers(ctx context.Context) (infos []*IssuerInfo, err err
 		return
 	}
 	err = util.Copy(&infos, ret.GetIssuerInfo())
+	return
+}
+
+func (c *core) WarrantList(ctx context.Context, symbol string, config WarrantFilter, lang WarrantLanguage) (infos []*WarrantInfo, err error) {
+	var res *protocol.Packet
+
+	filter := &quotev1.FilterConfig{}
+	util.Copy(filter, &config)
+
+	req := &quotev1.WarrantFilterListRequest{
+		Symbol:       symbol,
+		FilterConfig: filter,
+		Language:     int32(lang),
+	}
+
+	res, err = c.client.Do(ctx, &client.Request{
+		Cmd:  uint32(quotev1.Command_QueryWarrantFilterList),
+		Body: req,
+	})
+	if err != nil {
+		return
+	}
+	var ret quotev1.WarrantFilterListResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&infos, ret.GetWarrantList())
 	return
 }
 
