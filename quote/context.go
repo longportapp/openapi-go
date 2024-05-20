@@ -2,6 +2,7 @@ package quote
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -202,6 +203,21 @@ func (c *QuoteContext) WatchedGroups(ctx context.Context) (groupList []*WatchedG
 		return
 	}
 	err = util.Copy(&groupList, resp.Groups)
+	return
+}
+
+// SecurityList used to list securities. Doc: https://open.longportapp.com/en/docs/quote/security/security_list
+func (c *QuoteContext) SecurityList(ctx context.Context, market openapi.Market, category SecurityListCategory) (list []*Security, err error) {
+	var resp jsontypes.SecurityList
+	values := url.Values{}
+	values.Add("market", string(market))
+	values.Add("category", string(category))
+
+	err = c.opts.httpClient.Get(ctx, "/v1/quote/get_security_list", values, &resp)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&list, resp.List)
 	return
 }
 
