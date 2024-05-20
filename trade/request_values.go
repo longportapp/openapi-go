@@ -48,7 +48,7 @@ func (r *GetStockPositions) Values() url.Values {
 	}
 	vals := url.Values{}
 	for _, s := range r.Symbols {
-		vals.Add("symbols", string(s))
+		vals.Add("symbol", string(s))
 	}
 	return vals
 }
@@ -73,7 +73,7 @@ func (r *GetFundPositions) Values() url.Values {
 	}
 	vals := url.Values{}
 	for _, s := range r.Symbols {
-		vals.Add("symbols", string(s))
+		vals.Add("symbol", string(s))
 	}
 	return vals
 }
