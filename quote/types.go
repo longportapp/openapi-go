@@ -8,6 +8,7 @@ import (
 
 	"github.com/longportapp/openapi-go"
 	"github.com/longportapp/openapi-go/internal/util"
+	"github.com/longportapp/openapi-go/quote/jsontypes"
 )
 
 type (
@@ -26,6 +27,7 @@ type (
 	WarrantExpiryDateType  int32
 	WarrantInOutBoundsType int32
 	WarrantLanguage        int32
+	SecurityListCategory   string
 )
 
 const (
@@ -162,6 +164,10 @@ const (
 	WarrantZH_CN WarrantLanguage = iota
 	WarrantEN
 	WarrantHK_CN
+)
+
+const (
+	Overnight SecurityListCategory = "Overnight"
 )
 
 // PushQuote is quote info push from server
@@ -589,6 +595,9 @@ type SecurityCalcIndex struct {
 	Vega                  *decimal.Decimal
 	Rho                   *decimal.Decimal
 }
+
+// Security is base info contains symbol and name
+type Security = jsontypes.Security
 
 // doRatio process some ratio fields
 func doRatio(calcIndex *SecurityCalcIndex) {

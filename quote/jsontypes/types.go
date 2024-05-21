@@ -17,3 +17,14 @@ type WatchedGroup struct {
 type WatchedGroupList struct {
 	Groups []*WatchedGroup `json:"groups"`
 }
+
+type Security struct {
+	Symbol string `json:"symbol"`
+	NameCN string `json:"name_cn"`
+	NameEN string `json:"name_en"`
+	NameHK string `json:"name_hk"`
+}
+
+type SecurityList struct {
+	List []*Security
+}
