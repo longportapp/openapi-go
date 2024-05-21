@@ -194,14 +194,83 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 	return c.core.RealtimeBrokers(ctx, symbol)
 }
 
-// WatchedGroups to get watched groups.
+// CreateWatchlistGroup use to create watchlist group. Doc: https://open.longportapp.com/en/docs/quote/individual/watchlist_create_group
+//
+// Example:
+//
+//  qctx, err := quote.NewFromCfg(conf)
+//  // ignore handle error
+//  err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
+
+func (c *QuoteContext) CreateWatchlistGroup(ctx context.Context, name string, symbols []string) (gid int64, err error) {
+	var resp struct {
+		ID int64 `json:"id,string"`
+	}
+	err = c.opts.httpClient.Post(ctx, "/v1/watchlist/groups", map[string]interface{}{
+		"name":       name,
+		"securities": symbols,
+	}, &resp)
+
+	gid = resp.ID
+	return
+}
+
+// DeleteWatchlistGroup use to delete watchlist group.
+// If `purge` set to true, the securities in the group will be unfollowed even in the *other* groups.
+// If `purge` set to false, the securities in the group will remain in the *other* groups.
+// Doc: https://open.longportapp.com/en/docs/quote/individual/watchlist_delete_group
+//
+// Example:
+//
+//  qctx, err := quote.NewFromCfg(conf)
+//  // ignore handle error
+//  err = qctx.DeleteWatchlistGroup(context.Background(), 1, false)
+
+func (c *QuoteContext) DeleteWatchlistGroup(ctx context.Context, id int64, purge bool) (err error) {
+	var resp struct{}
+	err = c.opts.httpClient.Delete(ctx, "/v1/watchlist/groups", nil, &resp, http.WithBody(map[string]interface{}{
+		"id":    id,
+		"purge": purge,
+	}))
+	return
+}
+
+// UpdateWatchlistGroup use to update watchlist group.
+// Doc: https://open.longportapp.com/en/docs/quote/individual/watchlist_update_group
+//
+// Example:
+//
+//  qctx, err := quote.NewFromCfg(conf)
+//  // ignore handle error
+//  err = qctx.UpdateWatchlistGroup(context.Background(), 1, "test", []string{"AAPL.US"}, quote.AddWatchlist)
+
+func (c *QuoteContext) UpdateWatchlistGroup(ctx context.Context, id int64, name string, symbols []string, mode WatchlistUpdateMode) (err error) {
+	var resp struct{}
+	err = c.opts.httpClient.Put(ctx, "/v1/watchlist/groups", map[string]interface{}{
+		"id":         id,
+		"name":       name,
+		"securities": symbols,
+		"mode":       mode,
+	}, &resp)
+	return
+}
+
+// WatchedGroups to get all watchlist groups.
 // Reference: https://open.longportapp.com/en/docs/quote/individual/watchlist_groups
+//
+// Example:
+//
+//  qctx, err := quote.NewFromCfg(conf)
+//  // ignore handle error
+//  err = qctx.WatchedGroups(context.Background())
+
 func (c *QuoteContext) WatchedGroups(ctx context.Context) (groupList []*WatchedGroup, err error) {
 	var resp jsontypes.WatchedGroupList
 	err = c.opts.httpClient.Get(ctx, "/v1/watchlist/groups", nil, &resp)
 	if err != nil {
 		return
 	}
+
 	err = util.Copy(&groupList, resp.Groups)
 	return
 }

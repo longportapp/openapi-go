@@ -9,7 +9,7 @@ type WatchedSecurity struct {
 }
 
 type WatchedGroup struct {
-	Id        string             `json:"id"`
+	Id        int64              `json:"id,string"`
 	Name      string             `json:"name"`
 	Securites []*WatchedSecurity `json:"securities"`
 }

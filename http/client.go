@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/go-querystring/query"
+
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/log"
 )
@@ -19,6 +20,7 @@ type apiResponse struct {
 	Code    int
 	Message string
 	Data    json.RawMessage
+	TraceID string
 }
 
 type otpResponse struct {
@@ -35,6 +37,7 @@ type Client struct {
 type RequestOptions struct {
 	// Request Header
 	Header nhttp.Header
+	body   interface{}
 }
 
 // RequestOption use to set addition info to request
@@ -44,6 +47,15 @@ type RequestOption func(*RequestOptions)
 func WithHeader(h nhttp.Header) RequestOption {
 	return func(o *RequestOptions) {
 		o.Header = h
+	}
+}
+
+// WithBody to set playload
+func WithBody(v interface{}) RequestOption {
+	return func(o *RequestOptions) {
+		if v != nil {
+			o.body = v
+		}
 	}
 }
 
@@ -96,6 +108,15 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		rb       []byte
 	)
 
+	ro := &RequestOptions{}
+	for _, opt := range ropts {
+		opt(ro)
+	}
+
+	if body == nil && ro.body != nil {
+		body = ro.body
+	}
+
 	if body != nil {
 		bb, err = json.Marshal(body)
 		if err != nil {
@@ -109,16 +130,9 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return err
 	}
 
-	if len(ropts) != 0 {
-		ro := &RequestOptions{}
-		for _, opt := range ropts {
-			opt(ro)
-		}
-
-		if ro.Header != nil {
-			for k, v := range ro.Header {
-				req.Header[k] = v
-			}
+	if ro.Header != nil {
+		for k, v := range ro.Header {
+			req.Header[k] = v
 		}
 	}
 
@@ -147,19 +161,22 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	log.Debugf("http call response headers:%v", httpResp.Header)
 
 	defer httpResp.Body.Close()
-	rb, err = io.ReadAll(httpResp.Body)
-	if err != nil {
-		return err
-	}
-	log.Debugf("http call response body:%v", string(rb))
 	apiResp := &apiResponse{}
 
+	if v := httpResp.Header.Get("x-trace-id"); v != "" {
+		apiResp.TraceID = v
+	}
+
 	if isJSON(httpResp.Header.Get("content-type")) {
-		if err = json.Unmarshal(rb, apiResp); err != nil {
+		if err = jsonUnmarshal(httpResp.Body, apiResp); err != nil {
 			return err
 		}
 	} else {
+		if rb, err = io.ReadAll(httpResp.Body); err != nil {
+			return err
+		}
 		apiResp.Message = string(rb)
+		log.Debugf("http call response body:%v", string(rb))
 	}
 
 	if httpResp.StatusCode != nhttp.StatusOK || apiResp.Code != 0 {
@@ -170,7 +187,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return
 	}
 
-	if err = json.Unmarshal(apiResp.Data, resp); err != nil {
+	if err = jsonUnmarshal(bytes.NewReader(apiResp.Data), resp); err != nil {
 		return err
 	}
 	return nil
@@ -178,6 +195,12 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 
 func isJSON(ct string) bool {
 	return strings.Contains(ct, "application/json")
+}
+
+func jsonUnmarshal(r io.Reader, v interface{}) error {
+	d := json.NewDecoder(r)
+	d.UseNumber()
+	return d.Decode(v)
 }
 
 // New create http client to call Longbridge REST OpenAPI
