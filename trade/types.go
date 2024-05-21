@@ -3,23 +3,26 @@ package trade
 import (
 	"time"
 
-	"github.com/longportapp/openapi-go"
 	"github.com/shopspring/decimal"
+
+	"github.com/longportapp/openapi-go"
 )
 
-type OrderType string
-type OrderSide string
-type OutsideRTH string // Outside regular trading hours
-type OrderStatus string
-type Market string
-type OrderTag string
-type TriggerStatus string
-type BalanceType int32
-type OfDirection int32
-type TimeType string
-type CommissionFreeStatus string
-type DeductionStatus string
-type ChargeCategoryCode string
+type (
+	OrderType            string
+	OrderSide            string
+	OutsideRTH           string // Outside regular trading hours
+	OrderStatus          string
+	Market               string
+	OrderTag             string
+	TriggerStatus        string
+	BalanceType          int32
+	OfDirection          int32
+	TimeType             string
+	CommissionFreeStatus string
+	DeductionStatus      string
+	ChargeCategoryCode   string
+)
 
 const (
 	// Balance type
@@ -56,6 +59,25 @@ const (
 	// Order side
 	OrderSideBuy  OrderSide = "Buy"
 	OrderSideSell OrderSide = "Sell"
+
+	// Order status
+	OrderNotReported          OrderStatus = "NotReported"
+	OrderReplacedNotReported  OrderStatus = "ReplacedNotReported"
+	OrderProtectedNotReported OrderStatus = "ProtectedNotReported"
+	OrderVarietiesNotReported OrderStatus = "VarietiesNotReported"
+	OrderFilledStatus         OrderStatus = "FilledStatus"
+	OrderWaitToNew            OrderStatus = "WaitToNew"
+	OrderNewStatus            OrderStatus = "NewStatus"
+	OrderWaitToReplace        OrderStatus = "WaitToReplace"
+	OrderPendingReplaceStatus OrderStatus = "PendingReplaceStatus"
+	OrderReplacedStatus       OrderStatus = "ReplacedStatus"
+	OrderPartialFilledStatus  OrderStatus = "PartialFilledStatus"
+	OrderWaitToCancel         OrderStatus = "WaitToCancel"
+	OrderPendingCancelStatus  OrderStatus = "PendingCancelStatus"
+	OrderRejectedStatus       OrderStatus = "RejectedStatus"
+	OrderCanceledStatus       OrderStatus = "CanceledStatus"
+	OrderExpiredStatus        OrderStatus = "ExpiredStatus"
+	OrderPartialWithdrawal    OrderStatus = "PartialWithdrawn"
 
 	// Outside RTH
 	OutsideRTHOnly    OutsideRTH = "RTH_ONLY"          // Regular trading hour only
