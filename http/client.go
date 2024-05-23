@@ -159,8 +159,13 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return err
 	}
 	log.Debugf("http call response headers:%v", httpResp.Header)
-
 	defer httpResp.Body.Close()
+  
+	if rb, err = io.ReadAll(httpResp.Body); err != nil {
+		return err
+	}
+	log.Debugf("http call response body:%s", rb)
+
 	apiResp := &apiResponse{}
 
 	if v := httpResp.Header.Get("x-trace-id"); v != "" {
@@ -168,7 +173,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	}
 
 	if isJSON(httpResp.Header.Get("content-type")) {
-		if err = jsonUnmarshal(httpResp.Body, apiResp); err != nil {
+		if err = jsonUnmarshal(bytes.NewReader(rb), apiResp); err != nil {
 			return err
 		}
 	} else {

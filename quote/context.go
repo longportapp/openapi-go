@@ -366,6 +366,9 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 //	qctx, err := quote.NewFromCfg(conf)
 //	// ignore handle error
 //	err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
+//  qctx, err := quote.NewFromCfg(conf)
+//  // ignore handle error
+//  err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
 func (c *QuoteContext) CreateWatchlistGroup(ctx context.Context, name string, symbols []string) (gid int64, err error) {
 	var resp struct {
 		ID int64 `json:"id,string"`
