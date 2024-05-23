@@ -61,13 +61,13 @@ func (c *TradeContext) Unsubscribe(ctx context.Context, topics []string) (unsubR
 //
 // Example:
 //
-//		conf, err := config.NewFromEnv()
-//		tctx, err := trade.NewFromCfg(conf)
-//	 trades, err := tctx.HistoryExecutions(context.Background(), &trade.GetHistoryExecutions{
-//	   Symbol: "AAPL.US",
-//	   StartAt: time.Date(2024, 5, 1, 0, 0, 0, 0, time.UTC),
-//	   EndAt: time.Date(2024, 5, 10, 0, 0, 0, 0, time.UTC),
-//	 })
+//	conf, err := config.NewFromEnv()
+//	tctx, err := trade.NewFromCfg(conf)
+//	trades, err := tctx.HistoryExecutions(context.Background(), &trade.GetHistoryExecutions{
+//	  Symbol: "AAPL.US",
+//	  StartAt: time.Date(2024, 5, 1, 0, 0, 0, 0, time.UTC),
+//	  EndAt: time.Date(2024, 5, 10, 0, 0, 0, 0, time.UTC),
+//	})
 func (c *TradeContext) HistoryExecutions(ctx context.Context, params *GetHistoryExecutions) (trades []*Execution, err error) {
 	resp := &jsontypes.Executions{}
 	err = c.opts.httpClient.Get(ctx, "/v1/trade/execution/history", params.Values(), &resp)
@@ -82,9 +82,9 @@ func (c *TradeContext) HistoryExecutions(ctx context.Context, params *GetHistory
 // Reference: https://open.longportapp.com/en/docs/trade/execution/today_executions
 // Example:
 //
-//		conf, err := config.NewFromEnv()
-//		tctx, err := trade.NewFromCfg(conf)
-//	 trades, err := tctx.TodayExecutions(context.Background(), &trade.GetTodayExecutions{Symbol: "AAPL.US"})
+//	conf, err := config.NewFromEnv()
+//	tctx, err := trade.NewFromCfg(conf)
+//	trades, err := tctx.TodayExecutions(context.Background(), &trade.GetTodayExecutions{Symbol: "AAPL.US"})
 func (c *TradeContext) TodayExecutions(ctx context.Context, params *GetTodayExecutions) (trades []*Execution, err error) {
 	resp := &jsontypes.Executions{}
 	err = c.opts.httpClient.Get(ctx, "/v1/trade/execution/today", params.Values(), resp)

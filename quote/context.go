@@ -20,25 +20,25 @@ import (
 //
 // Example:
 //
-//	 qctx, err := quote.NewFromEnv()
-//   // handle err
-//   // do subscribe
-//   err = qctx.Subscribe(context.Background(), []string{"AAPL.US"}, []quote.SubType{quote.SubTypeQuote, quote.SubTypeTrade, quote.SubTypeDepth, quote.SubTypeBrokers}, true)
+//	qctx, err := quote.NewFromEnv()
+//  // handle err
+//  // do subscribe
+//	err = qctx.Subscribe(context.Background(), []string{"AAPL.US"}, []quote.SubType{quote.SubTypeQuote, quote.SubTypeTrade, quote.SubTypeDepth, quote.SubTypeBrokers}, true)
 //   // handle err
 //
-//   qctx.OnQuote(func (quote *quote.PushQuote) {
-//     // quote callback
+//  qctx.OnQuote(func (quote *quote.PushQuote) {
+//    // quote callback
 //
-//   })
-//   qctx.OnTrade(func (trade *quote.PushTrade) {
-//     // trade callback
-//   })
-//   qctx.OnTrade(func (trade *quote.PushDepth) {
-//     // depth callback
-//   })
-//   qctx.OnBrokers(func (trade *quote.PushBrokers) {
-//     // brokers callback
-//   })
+//  })
+//  qctx.OnTrade(func (trade *quote.PushTrade) {
+//    // trade callback
+//  })
+//  qctx.OnTrade(func (trade *quote.PushDepth) {
+//    // depth callback
+//  })
+//  qctx.OnBrokers(func (trade *quote.PushBrokers) {
+//    // brokers callback
+//  })
 
 type QuoteContext struct {
 	opts *Options
@@ -363,12 +363,12 @@ func (c *QuoteContext) RealtimeBrokers(ctx context.Context, symbol string) (*Sec
 //
 // Example:
 //
-//	qctx, err := quote.NewFromCfg(conf)
-//	// ignore handle error
-//	err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
-//  qctx, err := quote.NewFromCfg(conf)
-//  // ignore handle error
-//  err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
+//		qctx, err := quote.NewFromCfg(conf)
+//		// ignore handle error
+//		err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
+//	 qctx, err := quote.NewFromCfg(conf)
+//	 // ignore handle error
+//	 err = qctx.CreateWatchlistGroup(context.Background(), "test", []string{"AAPL.US"})
 func (c *QuoteContext) CreateWatchlistGroup(ctx context.Context, name string, symbols []string) (gid int64, err error) {
 	var resp struct {
 		ID int64 `json:"id,string"`
