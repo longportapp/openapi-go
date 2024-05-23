@@ -28,6 +28,7 @@ type (
 	WarrantInOutBoundsType int32
 	WarrantLanguage        int32
 	SecurityListCategory   string
+	WatchlistUpdateMode    string
 )
 
 const (
@@ -168,6 +169,20 @@ const (
 
 const (
 	Overnight SecurityListCategory = "Overnight"
+)
+
+const (
+	// AddWatchlist will add securities to watchlist group
+	AddWatchlist WatchlistUpdateMode = "add"
+	// RemoveWatchlist will remove securities from watchlist group
+	RemoveWatchlist WatchlistUpdateMode = "remove"
+	// ReplaceWatchlist will replace securities in watchlist group
+	// For example:
+	//   If the original group contains APPL.US, BABA.US, TSLA.US,
+	//   and it is updated with ["BABA.US", "AAPL.US", "MSFT.US"],
+	//   it will become BABA.US, AAPL.US, MSFT.US,
+	//   removing TSLA.US and adding MSFT.US, while adjusting the order of BABA.US and AAPL.US.
+	ReplaceWatchlist WatchlistUpdateMode = "replace"
 )
 
 // PushQuote is quote info push from server
@@ -525,7 +540,7 @@ type WatchedSecurity struct {
 
 // WatchedGroup a group of the security is watched
 type WatchedGroup struct {
-	Id        string // group id
+	Id        int64  // group id
 	Name      string // group name
 	Securites []*WatchedSecurity
 }
