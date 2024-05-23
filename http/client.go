@@ -160,6 +160,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 	}
 	log.Debugf("http call response headers:%v", httpResp.Header)
 	defer httpResp.Body.Close()
+
 	if rb, err = io.ReadAll(httpResp.Body); err != nil {
 		return err
 	}
@@ -176,9 +177,6 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 			return err
 		}
 	} else {
-		if rb, err = io.ReadAll(httpResp.Body); err != nil {
-			return err
-		}
 		apiResp.Message = string(rb)
 	}
 
