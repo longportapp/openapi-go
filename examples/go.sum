@@ -32,8 +32,11 @@ github.com/longbridgeapp/assert v0.1.0 h1:KkQlHUJSpuUFkUDjwBJgghFl31+wwSDHTq/WRr
 github.com/longbridgeapp/assert v0.1.0/go.mod h1:ew3umReliXtk1bBG4weVURxdvR0tsN+rCEfjnA4YfxI=
 github.com/longportapp/openapi-go v0.9.0 h1:ourTGssgbRNflW6SnMW/ewC3jJaa/vXFHVwFADULq00=
 github.com/longportapp/openapi-go v0.9.0/go.mod h1:wpoQEr+jgZ1+guzfh0BgYd3dT9n0eDByCc5gkfoVrkI=
+github.com/longportapp/openapi-go v0.12.0 h1:63cfkOiMMxhtcWSYRrqeS6Ia0z8UvlPFZM2odcPEf5A=
+github.com/longportapp/openapi-go v0.12.0/go.mod h1:vXazHVeSBuZAfnwDrejdTqgCD8TVgw2JYnScQ7f2IWU=
 github.com/longportapp/openapi-protobufs/gen/go v0.2.1 h1:AaubbUBGkawGYR4+XMorOIHr9Drte2CZBwjEKp6C1mU=
 github.com/longportapp/openapi-protobufs/gen/go v0.2.1/go.mod h1:/chiEwEW4CnOVgKTaCf8rQUwes00Ku8q1CvRpOueWfo=
+github.com/longportapp/openapi-protobufs/gen/go v0.3.0/go.mod h1:/chiEwEW4CnOVgKTaCf8rQUwes00Ku8q1CvRpOueWfo=
 github.com/longportapp/openapi-protocol/go v0.3.0 h1:Zv8YEkmkmbdZvbExunR5tHI8/DvjmidNK4vLy5ZHvUY=
 github.com/longportapp/openapi-protocol/go v0.3.0/go.mod h1:bO8FSq+4Iyg1UPZ5zoBS8V5xgSVXl0gA+Iw5nhWGpdo=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=

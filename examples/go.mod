@@ -3,7 +3,7 @@ module github.com/longportapp/openapi-go/examples
 go 1.17
 
 require (
-	github.com/longportapp/openapi-go v0.9.0
+	github.com/longportapp/openapi-go v0.12.0
 	github.com/shopspring/decimal v1.3.1
 )
 
@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
-	github.com/longportapp/openapi-protobufs/gen/go v0.2.1 // indirect
+	github.com/longportapp/openapi-protobufs/gen/go v0.3.0 // indirect
 	github.com/longportapp/openapi-protocol/go v0.3.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1 // indirect
