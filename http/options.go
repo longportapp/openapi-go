@@ -13,12 +13,13 @@ const DefaultTimeout = 15 * time.Second
 
 // Options for http client
 type Options struct {
-	URL         string
-	AppKey      string
-	AppSecret   string
-	AccessToken string
-	Timeout     time.Duration
-	Client      *http.Client
+	URL          string
+	AppKey       string
+	AppSecret    string
+	AccessToken  string
+	Timeout      time.Duration
+	Client       *http.Client
+	DisableRetry bool
 }
 
 // Option for http client
@@ -75,6 +76,14 @@ func WithTimeout(timeout time.Duration) Option {
 		if timeout > 0 {
 			opts.Timeout = timeout
 		}
+	}
+}
+
+// DisableRetry can disable retry calling when last request is rate limited by server.
+// Client default retry call api after rate limited by server
+func DisableRetry() Option {
+	return func(opts *Options) {
+		opts.DisableRetry = true
 	}
 }
 
