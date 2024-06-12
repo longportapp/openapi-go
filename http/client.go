@@ -6,14 +6,21 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
 	nhttp "net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/google/go-querystring/query"
 
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/log"
+)
+
+const (
+	headerRetryAfter = "retry-after"
+	headerTraceID    = "x-trace-id"
 )
 
 type apiResponse struct {
@@ -26,6 +33,16 @@ type apiResponse struct {
 type otpResponse struct {
 	Otp string
 }
+
+var _ error = (*retryError)(nil)
+
+type retryError struct{}
+
+func (re *retryError) Error() string {
+	return "retry"
+}
+
+var errNeedRetry = &retryError{}
 
 // Client is a http client to access Longbridge REST OpenAPI
 type Client struct {
@@ -145,22 +162,65 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		}
 		req.URL.RawQuery = vals.Encode()
 	}
-	req.Header.Add("x-api-key", c.opts.AppKey)
-	req.Header.Add("authorization", c.opts.AccessToken)
+	req.Header.Set("x-api-key", c.opts.AppKey)
+	req.Header.Set("authorization", c.opts.AccessToken)
 	if len(bb) != 0 {
-		req.Header.Add("content-type", "application/json; charset=utf-8")
+		req.Header.Set("content-type", "application/json; charset=utf-8")
 	}
-	signature(req, c.opts.AppSecret, bb)
 
-	log.Debugf("http call method:%v url:%v body:%v", req.Method, req.URL, string(bb))
-	req.Close = true
-	httpResp, err = c.httpClient.Do(req)
-	if err != nil {
-		return err
+	log.Debugf("http call method:%v url:%v body:%s", req.Method, req.URL, bb)
+	var retryCount int
+	call := func(disabeRetry bool) error {
+		if retryCount > 0 {
+			log.Debugf("retry calling %s %s, count: %d", req.Method, req.URL.Path, retryCount)
+			// reset x-timestamp in signature func
+			req.Header.Set(headerTimestamp, "")
+		}
+
+		signature(req, c.opts.AppSecret, bb)
+
+		httpResp, err = c.httpClient.Do(req)
+		if err != nil {
+			return err
+		}
+
+		// if disabled retry just return
+		if disabeRetry {
+			return nil
+		}
+
+		wait, ok := parseRatelimit(httpResp)
+
+		if !ok {
+			// if not rate limited just return
+			return nil
+		}
+
+		// need retry so close body
+		httpResp.Body.Close()
+		time.Sleep(wait)
+		return errNeedRetry
 	}
+
+	for {
+		err = call(c.opts.DisableRetry)
+
+		if err == nil {
+			break
+		}
+
+		if errors.Is(err, errNeedRetry) {
+			retryCount = retryCount + 1
+			// retry
+			continue
+
+		}
+		// handle error
+		break
+	}
+
 	log.Debugf("http call response headers:%v", httpResp.Header)
 	defer httpResp.Body.Close()
-
 	if rb, err = io.ReadAll(httpResp.Body); err != nil {
 		return err
 	}
@@ -198,6 +258,26 @@ func isJSON(ct string) bool {
 	return strings.Contains(ct, "application/json")
 }
 
+func parseRatelimit(res *nhttp.Response) (time.Duration, bool) {
+	if res.StatusCode != http.StatusTooManyRequests {
+		return 0, false
+	}
+
+	waitStr := res.Header.Get(headerRetryAfter)
+	if waitStr == "" {
+		return 0, false
+	}
+
+	d, err := time.ParseDuration(waitStr)
+	if err != nil {
+		return 0, false
+	}
+
+	log.Warnf("request %s %s (%s) has been rate limited, will retry after %v...", res.Request.Method, res.Request.URL.Path, res.Header.Get(headerTraceID), d)
+
+	return d, true
+}
+
 func jsonUnmarshal(r io.Reader, v interface{}) error {
 	d := json.NewDecoder(r)
 	d.UseNumber()
@@ -205,6 +285,10 @@ func jsonUnmarshal(r io.Reader, v interface{}) error {
 }
 
 // New create http client to call Longbridge REST OpenAPI
+//
+// Example:
+//	cli, err := New(http.WithAppKey("appkey"), http.WithAppSecret("appSecret"), http.WithAccessToken("token"))
+
 func New(opt ...Option) (*Client, error) {
 	opts := newOptions(opt...)
 	if opts.URL == "" {
@@ -226,7 +310,7 @@ func New(opt ...Option) (*Client, error) {
 
 // NewFromCfg init longbridge http client from *config.Config
 func NewFromCfg(c *config.Config) (*Client, error) {
-	return New(
+	cli, err := New(
 		WithAccessToken(c.AccessToken),
 		WithAppKey(c.AppKey),
 		WithAppSecret(c.AppSecret),
@@ -234,4 +318,12 @@ func NewFromCfg(c *config.Config) (*Client, error) {
 		WithClient(c.Client),
 		WithURL(c.HttpURL),
 	)
+	if err != nil {
+		return cli, err
+	}
+
+	if c.DisalbeHTTPRetry {
+		cli.opts.DisableRetry = true
+	}
+	return cli, nil
 }
