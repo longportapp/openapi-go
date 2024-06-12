@@ -288,7 +288,6 @@ func jsonUnmarshal(r io.Reader, v interface{}) error {
 //
 // Example:
 //	cli, err := New(http.WithAppKey("appkey"), http.WithAppSecret("appSecret"), http.WithAccessToken("token"))
-//  cli.Do
 
 func New(opt ...Option) (*Client, error) {
 	opts := newOptions(opt...)
