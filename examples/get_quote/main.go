@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/quote"
@@ -20,6 +23,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+	// close connection
 	defer quoteContext.Close()
 	ctx := context.Background()
 	// Get basic information of securities
@@ -28,7 +32,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	fmt.Printf("quotes: %v\n", quotes)
+	fmt.Printf("quotes: %+v\n", quotes[0])
 
 	warrants, err := quoteContext.WarrantList(ctx, "700.HK", quote.WarrantFilter{
 		SortBy:     quote.WarrantVolume,
@@ -41,5 +45,8 @@ func main() {
 		return
 	}
 
-	fmt.Printf("warrants: %v\n", warrants)
+	fmt.Printf("warrants: %+v\n", warrants[0])
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-quitChannel
 }

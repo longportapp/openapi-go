@@ -108,15 +108,15 @@ func New(opts ...Option) (configData *Config, err error) {
 
 func (c *Config) check() (err error) {
 	if c.AccessToken == "" {
-		err = errors.New("Don't has accessToken. Please set access token on LONGBRIDGE_ACCESS_TOKEN env")
+		err = errors.New("Don't has accessToken. Please set access token on LONGPORT_ACCESS_TOKEN env")
 		return
 	}
 	if c.AppKey == "" {
-		err = errors.New("Don't has appKey. Please set app key on LONGBRIDGE_APP_KEY env")
+		err = errors.New("Don't has appKey. Please set app key on LONGPORT_APP_KEY env")
 		return
 	}
 	if c.AppSecret == "" {
-		err = errors.New("Don't has appSecret. Please set app secret on LONGBRIDGE_APP_SECRET env")
+		err = errors.New("Don't has appSecret. Please set app secret on LONGPORT_APP_SECRET env")
 		return
 	}
 	return

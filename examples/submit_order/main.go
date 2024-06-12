@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/longportapp/openapi-go/config"
 	"github.com/longportapp/openapi-go/trade"
@@ -27,6 +30,7 @@ func main() {
 	// subscribe order status
 	tradeContext.OnTrade(func(ev *trade.PushEvent) {
 		// handle order changing event
+		log.Printf("order event: %+v\n", ev)
 	})
 
 	// submit order
@@ -44,4 +48,7 @@ func main() {
 		return
 	}
 	fmt.Printf("orderId: %v\n", orderId)
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-quitChannel
 }
