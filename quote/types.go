@@ -458,6 +458,7 @@ type SecurityQuote struct {
 	TradeStatus     TradeStatus
 	PreMarketQuote  *PrePostQuote
 	PostMarketQuote *PrePostQuote
+	OverNightQuote  *PrePostQuote
 }
 
 // PrePostQuote is pre or post quote details

@@ -13,11 +13,12 @@ const (
 
 // Options for quote context
 type Options struct {
-	quoteURL   string
-	httpClient *http.Client
-	lbOpts     *longbridge.Options
-	logLevel   string
-	logger     log.Logger
+	quoteURL        string
+	httpClient      *http.Client
+	lbOpts          *longbridge.Options
+	logLevel        string
+	logger          log.Logger
+	enableOvernight bool
 }
 
 // Option
@@ -62,6 +63,12 @@ func WithLogger(l log.Logger) Option {
 		if l != nil {
 			o.logger = l
 		}
+	}
+}
+
+func WithEnableOvernight(enable bool) Option {
+	return func(o *Options) {
+		o.enableOvernight = enable
 	}
 }
 

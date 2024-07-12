@@ -496,6 +496,7 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 		WithLogLevel(cfg.LogLevel),
 		WithLogger(cfg.Logger()),
 		WithLbOptions(lbOpts),
+		WithEnableOvernight(cfg.EnableOvernight),
 	)
 }
 
