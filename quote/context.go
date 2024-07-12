@@ -206,9 +206,60 @@ func (c *QuoteContext) Intraday(ctx context.Context, symbol string) (lines []*In
 // Example:
 //
 //	qctx, err := quote.NewFromEnv()
-//	klines, err := qctx.Candlesticks(context.Background(), "AAPL.US", quote.QuotePeriodDay, 10, quote.AdjustTypeNo)
+//	klines, err := qctx.Candlesticks(context.Background(), "AAPL.US", quote.PeriodDay, 10, quote.AdjustTypeNo)
 func (c *QuoteContext) Candlesticks(ctx context.Context, symbol string, period Period, count int32, adjustType AdjustType) (sticks []*Candlestick, err error) {
 	return c.core.Candlesticks(ctx, symbol, period, count, adjustType)
+}
+
+// HistoryCandlesticksByDate obtains the history candlestick data of security within a date range.
+// Reference: https://open.longportapp.com/en/docs/quote/pull/history-candlestick
+// periond support values:
+//   - quote.PeriodOneMinute - 1m
+//   - quote.PeriodFiveMinute - 5m
+//   - quote.PeriodFifteenMinute - 15m
+//   - quote.PeriodThirtyMinute - 40m
+//   - quote.PeriodDay - 1 day
+//   - quote.PeriodWeek - 1 week
+//   - quote.PeriodMonth - 1 month
+//   - quote.PeriodYear - 1 year
+//
+// adjustType support values:
+//   - quote.AdjustTypeNo
+//   - quote.AdjustTypeForward
+//
+// Example:
+//
+//	qctx, err := quote.NewFromEnv()
+//	dateTime := time.Date(2022, 5, 10, 11, 10, 0, 0, time.UTC)
+//	klines, err := qctx.HistoryCandlesticksByOffset(context.Background(), "AAPL.US", quote.PeriodDay, quote.AdjustTypeNo, true, &dateTime, 100)
+func (c *QuoteContext) HistoryCandlesticksByOffset(ctx context.Context, symbol string, period Period, adjustType AdjustType, isForward bool, dateTime *time.Time, count int32) (sticks []*Candlestick, err error) {
+	return c.core.HistoryCandlesticksByOffset(ctx, symbol, period, adjustType, isForward, dateTime, count)
+}
+
+// HistoryCandlesticksByOffset obtains the history candlestick data of security after or before an offset time.
+// Reference: https://open.longportapp.com/en/docs/quote/pull/history-candlestick
+// periond support values:
+//   - quote.PeriodOneMinute - 1m
+//   - quote.PeriodFiveMinute - 5m
+//   - quote.PeriodFifteenMinute - 15m
+//   - quote.PeriodThirtyMinute - 40m
+//   - quote.PeriodDay - 1 day
+//   - quote.PeriodWeek - 1 week
+//   - quote.PeriodMonth - 1 month
+//   - quote.PeriodYear - 1 year
+//
+// adjustType support values:
+//   - quote.AdjustTypeNo
+//   - quote.AdjustTypeForward
+//
+// Example:
+//
+//	qctx, err := quote.NewFromEnv()
+//	startDate := time.Date(2022, 5, 10, 0, 0, 0, 0, time.UTC)
+//	endDate := time.Date(2022, 6, 10, 0, 0, 0, 0, time.UTC)
+//	klines, err := qctx.HistoryCandlesticksByDate(context.Background(), "AAPL.US", quote.PeriodDay, quote.AdjustTypeNo, &startDate, &endDate)
+func (c *QuoteContext) HistoryCandlesticksByDate(ctx context.Context, symbol string, period Period, adjustType AdjustType, startDate *time.Time, endDate *time.Time) (sticks []*Candlestick, err error) {
+	return c.core.HistoryCandlesticksByDate(ctx, symbol, period, adjustType, startDate, endDate)
 }
 
 // OptionChainExpiryDateList obtain the the list of expiration dates of option chain
