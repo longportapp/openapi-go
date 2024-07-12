@@ -354,6 +354,55 @@ func (c *core) Candlesticks(ctx context.Context, symbol string, period Period, c
 	return
 }
 
+func (c *core) HistoryCandlesticksByOffset(ctx context.Context, symbol string, period Period, adjustType AdjustType, isForward bool, dateTime *time.Time, count int32) (sticks []*Candlestick, err error) {
+	direction := quotev1.Direction_BACKWARD
+	if isForward {
+		direction = quotev1.Direction_FORWARD
+	}
+	req := &quotev1.SecurityHistoryCandlestickRequest{
+		Symbol:     symbol,
+		Period:     quotev1.Period(period),
+		AdjustType: quotev1.AdjustType(adjustType),
+		QueryType:  quotev1.HistoryCandlestickQueryType_QUERY_BY_OFFSET,
+		OffsetRequest: &quotev1.SecurityHistoryCandlestickRequest_OffsetQuery{
+			Direction: direction,
+			Date:      util.FormatDateSimple(dateTime),
+			Minute:    util.FormatMinuteSimple(dateTime),
+			Count:     int32(count),
+		},
+	}
+	return c.historyCandlesticks(ctx, req)
+}
+
+func (c *core) HistoryCandlesticksByDate(ctx context.Context, symbol string, period Period, adjustType AdjustType, startDate *time.Time, endDate *time.Time) (sticks []*Candlestick, err error) {
+	req := &quotev1.SecurityHistoryCandlestickRequest{
+		Symbol:     symbol,
+		Period:     quotev1.Period(period),
+		AdjustType: quotev1.AdjustType(adjustType),
+		QueryType:  quotev1.HistoryCandlestickQueryType_QUERY_BY_DATE,
+		DateRequest: &quotev1.SecurityHistoryCandlestickRequest_DateQuery{
+			StartDate: util.FormatDateSimple(startDate),
+			EndDate:   util.FormatDateSimple(endDate),
+		},
+	}
+	return c.historyCandlesticks(ctx, req)
+}
+
+func (c *core) historyCandlesticks(ctx context.Context, req *quotev1.SecurityHistoryCandlestickRequest) (sticks []*Candlestick, err error) {
+	var res *protocol.Packet
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryHistoryCandlestick), Body: req})
+	if err != nil {
+		return
+	}
+	var ret quotev1.SecurityCandlestickResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	err = util.Copy(&sticks, ret.GetCandlesticks())
+	return
+}
+
 func (c *core) OptionChainExpiryDateList(ctx context.Context, symbol string) (times []time.Time, err error) {
 	req := &quotev1.SecurityRequest{
 		Symbol: symbol,
