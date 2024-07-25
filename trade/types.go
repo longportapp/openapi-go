@@ -344,6 +344,7 @@ type PushOrderChanged struct {
 	TriggerPrice     *decimal.Decimal
 	TriggerStatus    TriggerStatus
 	UpdatedAt        string
+	Remark           string
 }
 
 // SubResponse is subscribe function response
