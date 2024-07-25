@@ -176,6 +176,7 @@ type PushOrderChanged struct {
 	TriggerPrice     string `json:"trigger_price"`
 	TriggerStatus    string `json:"trigger_status"`
 	UpdatedAt        string `json:"updated_at"`
+	Remark           string `json:"remark"`
 }
 
 type ReplaceOrder struct {
