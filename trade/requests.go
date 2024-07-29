@@ -86,3 +86,7 @@ type GetEstimateMaxPurchaseQuantity struct {
 	OrderId   string
 	Side      OrderSide
 }
+
+type GetAccountBalance struct {
+	Currency Currency // optional
+}
