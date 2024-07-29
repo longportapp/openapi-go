@@ -203,10 +203,10 @@ func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err e
 //
 //	conf, err := config.NewFromEnv()
 //	tctx, err := trade.NewFromCfg(conf)
-//	ab, err := trade.AccountBalance(context.Background())
-func (c *TradeContext) AccountBalance(ctx context.Context) (accounts []*AccountBalance, err error) {
+//	ab, err := trade.AccountBalance(context.Background(), &trade.GetAccountBalance{Currency: trade.CurrencyHKD})
+func (c *TradeContext) AccountBalance(ctx context.Context, params *GetAccountBalance) (accounts []*AccountBalance, err error) {
 	var resp jsontypes.AccountBalances
-	err = c.opts.httpClient.Get(ctx, "/v1/asset/account", nil, &resp)
+	err = c.opts.httpClient.Get(ctx, "/v1/asset/account", params.Values(), &resp)
 	if err != nil {
 		return
 	}

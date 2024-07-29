@@ -22,6 +22,7 @@ type (
 	CommissionFreeStatus string
 	DeductionStatus      string
 	ChargeCategoryCode   string
+	Currency             string
 )
 
 const (
@@ -100,6 +101,12 @@ const (
 	ChargeCategoryCodeUnknown    ChargeCategoryCode = "UNKNOWN"
 	ChargeCategoryCodeBrokerFees ChargeCategoryCode = "BROKER_FEES"
 	ChargeCategoryCodeThirdFees  ChargeCategoryCode = "THIRD_FEES"
+
+	// Currency
+	CurrencyHKD     Currency = "HKD"
+	CurrencyUSD     Currency = "USD"
+	CurrencyCNH     Currency = "CNH"
+	CurrencyDefault Currency = ""
 )
 
 // Execution is execution details
