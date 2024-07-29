@@ -106,3 +106,12 @@ func (r *GetEstimateMaxPurchaseQuantity) Values() url.Values {
 	p.Add("side", string(r.Side))
 	return p.Values()
 }
+
+func (r *GetAccountBalance) Values() url.Values {
+	if r == nil {
+		return url.Values{}
+	}
+	p := &params{}
+	p.Add("currency", string(r.Currency))
+	return p.Values()
+}
