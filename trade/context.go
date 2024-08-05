@@ -183,7 +183,7 @@ func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (or
 	return resp.OrderId, nil
 }
 
-// WithdrawOrder to close an open order
+// Deprecated: WithdrawOrder to close an open order. Please use CancelOrder function.
 // Reference: https://open.longportapp.com/en/docs/trade/order/withdraw
 // Example:
 //
@@ -191,6 +191,20 @@ func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (or
 //	tctx, err := trade.NewFromCfg(conf)
 //	err = tctx.WithdrawOrder(context.Background(), "12123123")
 func (c *TradeContext) WithdrawOrder(ctx context.Context, orderId string) (err error) {
+	values := url.Values{}
+	values.Add("order_id", orderId)
+	err = c.opts.httpClient.Delete(ctx, "/v1/trade/order", values, nil)
+	return
+}
+
+// CancelOrder to close an open order
+// Reference: https://open.longportapp.com/en/docs/trade/order/withdraw
+// Example:
+//
+//	conf, err := config.NewFromEnv()
+//	tctx, err := trade.NewFromCfg(conf)
+//	err = tctx.CancelOrder(context.Background(), "12123123")
+func (c *TradeContext) CancelOrder(ctx context.Context, orderId string) (err error) {
 	values := url.Values{}
 	values.Add("order_id", orderId)
 	err = c.opts.httpClient.Delete(ctx, "/v1/trade/order", values, nil)
