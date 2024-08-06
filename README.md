@@ -87,6 +87,7 @@ type Config struct {
     AccessToken string        `env:"LONGPORT_ACCESS_TOKEN" yaml:"LONGPORT_ACCESS_TOKEN" toml:"LONGPORT_ACCESS_TOKEN"`
     TradeUrl    string        `env:"LONGPORT_TRADE_URL" yaml:"LONGPORT_TRADE_URL" toml:"LONGPORT_TRADE_URL"`
     QuoteUrl    string        `env:"LONGPORT_QUOTE_URL" yaml:"LONGPORT_QUOTE_URL" toml:"LONGPORT_QUOTE_URL"`
+	EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"LONGPORT_ENABLE_OVERNIGHT" toml:"LONGPORT_ENABLE_OVERNIGHT"`
 
     LogLevel string `env:"LONGPORT_LOG_LEVEL" yaml:"LONGPORT_LOG_LEVEL" toml:"LONGPORT_LOG_LEVEL"`
     // LONGPORT protocol config
@@ -265,6 +266,7 @@ Support load env from `.env` file.
 | LONGPORT_READ_QUEUE_SIZE  | longport protocol read queue size                                                                     | 16                                  |         |
 | LONGPORT_READ_BUFFER_SIZE | longport protocol read buffer size                                                                    | 4096                                |         |
 | LONGPORT_MIN_GZIP_SIZE    | longport protocol minimal gzip size                                                                   | 1024                                |         |
+| LONGPORT_ENABLE_OVERNIGHT | enable subscribe overnight quote feature                                                              | false                               |         |
 
 ## License
 
