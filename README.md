@@ -266,7 +266,7 @@ Support load env from `.env` file.
 | LONGPORT_READ_QUEUE_SIZE  | longport protocol read queue size                                                                     | 16                                  |         |
 | LONGPORT_READ_BUFFER_SIZE | longport protocol read buffer size                                                                    | 4096                                |         |
 | LONGPORT_MIN_GZIP_SIZE    | longport protocol minimal gzip size                                                                   | 1024                                |         |
-| LONGPORT_ENABLE_OVERNIGHT | enable subscribe overnight quote feature                                                              | false                               |         |
+| LONGPORT_ENABLE_OVERNIGHT | enable overnight quote subscription feature                                                           | false                               |         |
 
 ## License
 
