@@ -183,7 +183,7 @@ func (c *TradeContext) SubmitOrder(ctx context.Context, params *SubmitOrder) (or
 	return resp.OrderId, nil
 }
 
-// WithdrawOrder to close an open order. Please use CancelOrder function.
+// WithdrawOrder to close an open order. It is same as CancelOrder function.
 // Reference: https://open.longportapp.com/en/docs/trade/order/withdraw
 // Example:
 //
