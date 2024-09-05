@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -23,6 +24,19 @@ var opt = copier.Option{
 				}
 
 				return decimal.NewFromString(value)
+			},
+		},
+		{
+			SrcType: copier.String,
+			DstType: int64(0),
+			Fn: func(src interface{}) (interface{}, error) {
+				value, ok := src.(string)
+
+				if !ok {
+					return nil, errors.New("convert string to int64, but src type not matching")
+				}
+
+				return strconv.ParseInt(value, 10, 64)
 			},
 		},
 		{
