@@ -62,11 +62,16 @@ All envs is listed in the last of [README](#environment-variables)
 
 ### Load from file[yaml,toml]
 
-yaml
+#### yaml example
+
+To load configuration from a YAML file, use the following code snippet:
 
 ```golang
 conf, err := config.New(config.WithFilePath("./test.yaml"))
 ```
+
+Here is an example of what the `test.yaml` file might look like:
+
 
 ```yaml
 longport:
@@ -75,11 +80,15 @@ longport:
   access_token: xxxxx 
 ```
 
-toml
+#### toml example
+
+Similarly, to load configuration from a TOML file, use this code snippet:
 
 ```golang
 conf, err := config.New(config.WithFilePath("./test.toml"))
 ```
+
+And here is an example of a `test.toml` file:
 
 ```toml
 [longport]
