@@ -35,26 +35,31 @@ type Config struct {
 	// Client custom http client
 	Client *http.Client
 
-	HttpURL         string        `env:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL" yaml:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL" toml:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL"`
-	HTTPTimeout     time.Duration `env:"LONGBRIDGE_HTTP_TIMEOUT,LONGPORT_HTTP_TIMEOUT" yaml:"LONGBRIDGE_HTTP_TIMEOUT,LONGPORT_HTTP_TIMEOUT" toml:"LONGPORT_HTTP_TIMEOUT"`
-	AppKey          string        `env:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY" yaml:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY" toml:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY"`
-	AppSecret       string        `env:"LONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET" yaml:"eONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET" toml:"LONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET"`
-	AccessToken     string        `env:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN" yaml:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN" toml:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN"`
-	TradeUrl        string        `env:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" yaml:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" toml:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL"`
-	QuoteUrl        string        `env:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" yaml:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" toml:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL"`
-	EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"LONGPORT_ENABLE_OVERNIGHT" toml:"LONGPORT_ENABLE_OVERNIGHT"`
+	HttpURL         string        `env:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL" yaml:"http_url" toml:"http_url"`
+	HTTPTimeout     time.Duration `env:"LONGBRIDGE_HTTP_TIMEOUT,LONGPORT_HTTP_TIMEOUT" yaml:"http_timeout" toml:"http_timeout"`
+	AppKey          string        `env:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY" yaml:"app_key" toml:"app_key"`
+	AppSecret       string        `env:"LONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET" yaml:"app_secret" toml:"app_secret"`
+	AccessToken     string        `env:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN" yaml:"access_token" toml:"access_token"`
+	TradeUrl        string        `env:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" yaml:"trade_url" toml:"trade_url"`
+	QuoteUrl        string        `env:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" yaml:"quote_url" toml:"quote_url"`
+	EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"enable_overnight" toml:"enable_overnight"`
 
-	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL" yaml:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL" toml:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL"`
+	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL" yaml:"log_level" toml:"log_level"`
 	logger   log.Logger
 
 	// longbridge protocol config
-	AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT,LONGPORT_AUTH_TIMEOUT" yaml:"LONGBRIDGE_AUTH_TIMEOUT,LONGPORT_AUTH_TIMEOUT" toml:"LONGBRIDGE_AUTH_TIMEOUT,LONGPORT_AUTH_TIMEOUT"`
-	Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT,LONGPORT_TIMEOUT" yaml:"LONGBRIDGE_TIMEOUT,LONGPORT_TIMEOUT" toml:"LONGBRIDGE_TIMEOUT,LONGPORT_TIMEOUT"`
-	WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE,LONGPORT_WRITE_QUEUE_SIZE" yaml:"LONGBRIDGE_WRITE_QUEUE_SIZE,LONGPORT_WRITE_QUEUE_SIZE" toml:"LONGBRIDGE_WRITE_QUEUE_SIZE,LONGPORT_WRITE_QUEUE_SIZE"`
-	ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE,LONGPORT_READ_QUEUE_SIZE" yaml:"LONGBRIDGE_READ_QUEUE_SIZE,LONGPORT_READ_QUEUE_SIZE" toml:"LONGBRIDGE_READ_QUEUE_SIZE,LONGPORT_READ_QUEUE_SIZE"`
-	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE" yaml:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE" toml:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE"`
-	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE" yaml:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE" toml:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE"`
-	Region         Region        `env:"LONGPORT_REGION" yaml:"LONGPORT_REGION" toml:"LONGPORT_REGION"`
+	AuthTimeout    time.Duration `env:"LONGBRIDGE_AUTH_TIMEOUT,LONGPORT_AUTH_TIMEOUT" yaml:"auth_timeout" toml:"auth_timeout"`
+	Timeout        time.Duration `env:"LONGBRIDGE_TIMEOUT,LONGPORT_TIMEOUT" yaml:"timeout" toml:"timeout"`
+	WriteQueueSize int           `env:"LONGBRIDGE_WRITE_QUEUE_SIZE,LONGPORT_WRITE_QUEUE_SIZE" yaml:"write_queue_size" toml:"write_queue_size"`
+	ReadQueueSize  int           `env:"LONGBRIDGE_READ_QUEUE_SIZE,LONGPORT_READ_QUEUE_SIZE" yaml:"read_queue_size" toml:"read_queue_size"`
+	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE" yaml:"read_buffer_size" toml:"read_buffer_size"`
+	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE" yaml:"min_gzip_size" toml:"min_gzip_size"`
+	Region         Region        `env:"LONGPORT_REGION" yaml:"region" toml:"region"`
+}
+
+// parseConfig is a config for toml/yaml 
+type parseConfig struct {
+	Longport *Config `toml:"longport" yaml:"longport"`
 }
 
 func (c *Config) SetLogger(l log.Logger) {

@@ -62,16 +62,39 @@ All envs is listed in the last of [README](#environment-variables)
 
 ### Load from file[yaml,toml]
 
-yaml
+#### yaml example
+
+To load configuration from a YAML file, use the following code snippet:
 
 ```golang
 conf, err := config.New(config.WithFilePath("./test.yaml"))
 ```
 
-toml
+Here is an example of what the `test.yaml` file might look like:
+
+
+```yaml
+longport:
+  app_key: xxxxx
+  app_secret: xxxxx 
+  access_token: xxxxx 
+```
+
+#### toml example
+
+Similarly, to load configuration from a TOML file, use this code snippet:
 
 ```golang
 conf, err := config.New(config.WithFilePath("./test.toml"))
+```
+
+And here is an example of a `test.toml` file:
+
+```toml
+[longport]
+app_key = "xxxxx"
+app_secret = "xxxxx"
+access_token = "xxxxx"
 ```
 
 ### Init Config manually
@@ -80,24 +103,24 @@ Config structure as follow:
 
 ```golang
 type Config struct {
-    HttpURL     string        `env:"LONGPORT_HTTP_URL" yaml:"LONGPORT_HTTP_URL" toml:"LONGPORT_HTTP_URL"`
-    HTTPTimeout time.Duration `env:"LONGPORT_HTTP_TIMEOUT" yaml:"LONGPORT_HTTP_TIMEOUT" toml:"LONGPORT_HTTP_TIMEOUT"`
-    AppKey      string        `env:"LONGPORT_APP_KEY" yaml:"LONGPORT_APP_KEY" toml:"LONGPORT_APP_KEY"`
-    AppSecret   string        `env:"LONGPORT_APP_SECRET" yaml:"LONGPORT_APP_SECRET" toml:"LONGPORT_APP_SECRET"`
-    AccessToken string        `env:"LONGPORT_ACCESS_TOKEN" yaml:"LONGPORT_ACCESS_TOKEN" toml:"LONGPORT_ACCESS_TOKEN"`
-    TradeUrl    string        `env:"LONGPORT_TRADE_URL" yaml:"LONGPORT_TRADE_URL" toml:"LONGPORT_TRADE_URL"`
-    QuoteUrl    string        `env:"LONGPORT_QUOTE_URL" yaml:"LONGPORT_QUOTE_URL" toml:"LONGPORT_QUOTE_URL"`
-    EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"LONGPORT_ENABLE_OVERNIGHT" toml:"LONGPORT_ENABLE_OVERNIGHT"`
+    HttpURL     string        `env:"LONGPORT_HTTP_URL" yaml:"http_url" toml:"http_url"`
+    HTTPTimeout time.Duration `env:"LONGPORT_HTTP_TIMEOUT" yaml:"http_timeout" toml:"http_timeout"`
+    AppKey      string        `env:"LONGPORT_APP_KEY" yaml:"app_key" toml:"app_key"`
+    AppSecret   string        `env:"LONGPORT_APP_SECRET" yaml:"app_secret" toml:"app_secret"`
+    AccessToken string        `env:"LONGPORT_ACCESS_TOKEN" yaml:"access_token" toml:"access_token"`
+    TradeUrl    string        `env:"LONGPORT_TRADE_URL" yaml:"trade_url" toml:"trade_url"`
+    QuoteUrl    string        `env:"LONGPORT_QUOTE_URL" yaml:"quote_url" toml:"quote_url"`
+    EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"enable_overnight" toml:"enable_overnight"`
 
-    LogLevel string `env:"LONGPORT_LOG_LEVEL" yaml:"LONGPORT_LOG_LEVEL" toml:"LONGPORT_LOG_LEVEL"`
+    LogLevel string `env:"LONGPORT_LOG_LEVEL" yaml:"log_level" toml:"log_level"`
     // LONGPORT protocol config
-    AuthTimeout    time.Duration `env:"LONGPORT_AUTH_TIMEOUT" yaml:"LONGPORT_AUTH_TIMEOUT"toml:"LONGPORT_AUTH_TIMEOUT"`
-    Timeout        time.Duration `env:"LONGPORT_TIMEOUT" yaml:"LONGPORT_TIMEOUT" toml:"LONGPORT_TIMEOUT"`
-    WriteQueueSize int           `env:"LONGPORT_WRITE_QUEUE_SIZE" yaml:"LONGPORT_WRITE_QUEUE_SIZE" toml:"LONGPORT_WRITE_QUEUE_SIZE"`
-    ReadQueueSize  int           `env:"LONGPORT_READ_QUEUE_SIZE" yaml:"LONGPORT_READ_QUEUE_SIZE" toml:"LONGPORT_READ_QUEUE_SIZE"`
-    ReadBufferSize int           `env:"LONGPORT_READ_BUFFER_SIZE" yaml:"LONGPORT_READ_BUFFER_SIZE" toml:"LONGPORT_READ_BUFFER_SIZE"`
-    MinGzipSize    int           `env:"LONGPORT_MIN_GZIP_SIZE" yaml:"LONGPORT_MIN_GZIP_SIZE" toml:"LONGPORT_MIN_GZIP_SIZE"`
-    Region Region `env:"LONGPORT_REGION" yaml:"LONGPORT_REGION" toml:"LONGPORT_REGION"`
+    AuthTimeout    time.Duration `env:"LONGPORT_AUTH_TIMEOUT" yaml:"auth_timeout" toml:"timeout"`
+    Timeout        time.Duration `env:"LONGPORT_TIMEOUT" yaml:"timeout" toml:"timeout"`
+    WriteQueueSize int           `env:"LONGPORT_WRITE_QUEUE_SIZE" yaml:"write_queue_size" toml:"write_queue_size"`
+    ReadQueueSize  int           `env:"LONGPORT_READ_QUEUE_SIZE" yaml:"read_queue_size" toml:"read_queue_size"`
+    ReadBufferSize int           `env:"LONGPORT_READ_BUFFER_SIZE" yaml:"read_buffer_size" toml:"read_buffer_size"`
+    MinGzipSize    int           `env:"LONGPORT_MIN_GZIP_SIZE" yaml:"min_gzip_size" toml:"min_gzip_size"`
+    Region Region `env:"LONGPORT_REGION" yaml:"region" toml:"region"`
 }
 
 ```
