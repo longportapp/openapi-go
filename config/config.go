@@ -55,6 +55,9 @@ type Config struct {
 	ReadBufferSize int           `env:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE" yaml:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE" toml:"LONGBRIDGE_READ_BUFFER_SIZE,LONGPORT_READ_BUFFER_SIZE"`
 	MinGzipSize    int           `env:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE" yaml:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE" toml:"LONGBRIDGE_MIN_GZIP_SIZE,LONGPORT_MIN_GZIP_SIZE"`
 	Region         Region        `env:"LONGPORT_REGION" yaml:"LONGPORT_REGION" toml:"LONGPORT_REGION"`
+
+	// DisalbeHTTPRetry user to disable http client retry request when rate limited by server
+	DisalbeHTTPRetry bool `env:"LONGPORT_HTTP_DISABLE_RETRY" yaml:"LONGPORT_HTTP_DISABLE_RETRY" toml:"LONGPORT_HTTP_DISABLE_RETRY"`
 }
 
 func (c *Config) SetLogger(l log.Logger) {
