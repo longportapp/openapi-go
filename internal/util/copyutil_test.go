@@ -15,7 +15,8 @@ func TestCopy(t *testing.T) {
 		Price1: "a",
 		Price2: "1.1",
 		Price3: "1a",
-		Num: "",
+		Num:    "",
+		Num1:   "12",
 	}}
 	price, err := decimal.NewFromString("0.1")
 	assert.NoError(t, err)
@@ -25,6 +26,7 @@ func TestCopy(t *testing.T) {
 		Price1: &decimal.Decimal{},
 		Price2: price2,
 		Price3: decimal.Decimal{},
+		Num1: 12,
 	}
 	var tv To
 	err = util.Copy(&tv, fv[0])
@@ -38,6 +40,7 @@ type From struct {
 	Price2 string
 	Price3 string
 	Num    string
+	Num1   string
 }
 
 type To struct {
@@ -46,4 +49,5 @@ type To struct {
 	Price2 decimal.Decimal
 	Price3 decimal.Decimal
 	Num    int64
+	Num1   int64
 }
