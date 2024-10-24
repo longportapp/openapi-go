@@ -7,6 +7,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pkg/errors"
 
+	"github.com/longportapp/openapi-go"
 	"github.com/longportapp/openapi-go/log"
 )
 
@@ -35,15 +36,15 @@ type Config struct {
 	// Client custom http client
 	Client *http.Client
 
-	HttpURL         string        `env:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL" yaml:"http_url" toml:"http_url"`
-	HTTPTimeout     time.Duration `env:"LONGBRIDGE_HTTP_TIMEOUT,LONGPORT_HTTP_TIMEOUT" yaml:"http_timeout" toml:"http_timeout"`
-	AppKey          string        `env:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY" yaml:"app_key" toml:"app_key"`
-	AppSecret       string        `env:"LONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET" yaml:"app_secret" toml:"app_secret"`
-	AccessToken     string        `env:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN" yaml:"access_token" toml:"access_token"`
-	TradeUrl        string        `env:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" yaml:"trade_url" toml:"trade_url"`
-	QuoteUrl        string        `env:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" yaml:"quote_url" toml:"quote_url"`
-	EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"enable_overnight" toml:"enable_overnight"`
-	Language        Language      `env:"LONGPORT_LANGUAGE" yaml:"language" toml:"language"`
+	HttpURL         string           `env:"LONGBRIDGE_HTTP_URL,LONGPORT_HTTP_URL" yaml:"http_url" toml:"http_url"`
+	HTTPTimeout     time.Duration    `env:"LONGBRIDGE_HTTP_TIMEOUT,LONGPORT_HTTP_TIMEOUT" yaml:"http_timeout" toml:"http_timeout"`
+	AppKey          string           `env:"LONGBRIDGE_APP_KEY,LONGPORT_APP_KEY" yaml:"app_key" toml:"app_key"`
+	AppSecret       string           `env:"LONGBRIDGE_APP_SECRET,LONGPORT_APP_SECRET" yaml:"app_secret" toml:"app_secret"`
+	AccessToken     string           `env:"LONGBRIDGE_ACCESS_TOKEN,LONGPORT_ACCESS_TOKEN" yaml:"access_token" toml:"access_token"`
+	TradeUrl        string           `env:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" yaml:"trade_url" toml:"trade_url"`
+	QuoteUrl        string           `env:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" yaml:"quote_url" toml:"quote_url"`
+	EnableOvernight bool             `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"enable_overnight" toml:"enable_overnight"`
+	Language        openapi.Language `env:"LONGPORT_LANGUAGE" yaml:"language" toml:"language"`
 
 	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL" yaml:"log_level" toml:"log_level"`
 	logger   log.Logger

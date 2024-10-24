@@ -1,7 +1,7 @@
 package quote
 
 import (
-	"github.com/longportapp/openapi-go/config"
+	"github.com/longportapp/openapi-go"
 	"github.com/longportapp/openapi-go/http"
 	"github.com/longportapp/openapi-go/log"
 	"github.com/longportapp/openapi-go/longbridge"
@@ -20,7 +20,7 @@ type Options struct {
 	logLevel        string
 	logger          log.Logger
 	enableOvernight bool
-	language        config.Language
+	language        openapi.Language
 }
 
 // Option
@@ -74,7 +74,7 @@ func WithEnableOvernight(enable bool) Option {
 	}
 }
 
-func WithLanguage(language config.Language) Option {
+func WithLanguage(language openapi.Language) Option {
 	return func(o *Options) {
 		o.language = language
 	}
