@@ -11,7 +11,7 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/longbridgeapp/assert v0.1.0
-	github.com/longportapp/openapi-protobufs/gen/go v0.4.0
+	github.com/longportapp/openapi-protobufs/gen/go v0.5.0
 	github.com/longportapp/openapi-protocol/go v0.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1

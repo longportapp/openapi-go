@@ -43,6 +43,7 @@ type Config struct {
 	TradeUrl        string        `env:"LONGBRIDGE_TRADE_URL,LONGPORT_TRADE_URL" yaml:"trade_url" toml:"trade_url"`
 	QuoteUrl        string        `env:"LONGBRIDGE_QUOTE_URL,LONGPORT_QUOTE_URL" yaml:"quote_url" toml:"quote_url"`
 	EnableOvernight bool          `env:"LONGPORT_ENABLE_OVERNIGHT" yaml:"enable_overnight" toml:"enable_overnight"`
+	Language        Language      `env:"LONGPORT_LANGUAGE" yaml:"language" toml:"language"`
 
 	LogLevel string `env:"LONGBRIDGE_LOG_LEVEL,LONGPORT_LOG_LEVEL" yaml:"log_level" toml:"log_level"`
 	logger   log.Logger
@@ -57,7 +58,7 @@ type Config struct {
 	Region         Region        `env:"LONGPORT_REGION" yaml:"region" toml:"region"`
 }
 
-// parseConfig is a config for toml/yaml 
+// parseConfig is a config for toml/yaml
 type parseConfig struct {
 	Longport *Config `toml:"longport" yaml:"longport"`
 }
