@@ -76,7 +76,9 @@ func WithEnableOvernight(enable bool) Option {
 
 func WithLanguage(language openapi.Language) Option {
 	return func(o *Options) {
-		o.language = language
+		if language != "" {
+			o.language = language
+		}
 	}
 }
 
@@ -85,6 +87,7 @@ func newOptions(opt ...Option) *Options {
 		quoteURL: DefaultQuoteUrl,
 		lbOpts:   longbridge.NewOptions(),
 		logger:   &protocol.DefaultLogger{},
+		language: openapi.LanguageEN,
 	}
 	for _, o := range opt {
 		o(&opts)
