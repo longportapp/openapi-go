@@ -21,7 +21,7 @@ type core struct {
 	mu            sync.Mutex
 	subscriptions map[string][]SubType
 	store         *store
-	quoteProfile  *UserQuoteProfile
+	quoteProfile  *UserProfile
 }
 
 func newCore(opts *Options) (*core, error) {
@@ -175,6 +175,7 @@ func (c *core) queryProfile(ctx context.Context, lang string) (quoteProfile *Use
 	if err != nil {
 		return
 	}
+	quoteProfile = &UserProfile{}
 	// nolint:govet
 	err = util.Copy(&quoteProfile, ret)
 	return
