@@ -21,6 +21,7 @@ type core struct {
 	mu            sync.Mutex
 	subscriptions map[string][]SubType
 	store         *store
+	userProfile   *UserProfile
 }
 
 func newCore(opts *Options) (*core, error) {
@@ -71,6 +72,10 @@ func newCore(opts *Options) (*core, error) {
 			log.Errorf("faield to do sub, err: %v", err)
 		}
 	})
+	core.userProfile, err = core.queryProfile(context.Background(), string(opts.language))
+	if err != nil {
+		return nil, err
+	}
 	return core, nil
 }
 
@@ -150,6 +155,30 @@ func (c *core) resubscribe(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+func (c *core) Profile() *UserProfile {
+	return c.userProfile
+}
+
+func (c *core) queryProfile(ctx context.Context, lang string) (quoteProfile *UserProfile, err error) {
+	req := &quotev1.UserQuoteProfileRequest{
+		Language: lang,
+	}
+	var res *protocol.Packet
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryUserQuoteProfile), Body: req})
+	if err != nil {
+		return
+	}
+	var ret quotev1.UserQuoteProfileResponse
+	err = res.Unmarshal(&ret)
+	if err != nil {
+		return
+	}
+	quoteProfile = &UserProfile{}
+	// nolint:govet
+	err = util.Copy(&quoteProfile, ret)
+	return
 }
 
 func (c *core) Subscriptions(ctx context.Context) (subscriptions map[string][]SubType, err error) {

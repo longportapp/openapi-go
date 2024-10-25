@@ -631,3 +631,35 @@ func doRatio(calcIndex *SecurityCalcIndex) {
 	calcIndex.ImpliedVolatility = util.Percent(calcIndex.ImpliedVolatility)
 	calcIndex.ToCallPrice = util.Percent(calcIndex.ToCallPrice)
 }
+
+type UserProfile struct {
+	MemberId                int64
+	QuoteLevel              string
+	SubscribeLimit          int32
+	HistoryCandlestickLimit int32
+	RateLimit               []*RateLimit
+	QuoteLevelDetail        *UserQuoteLevelDetail
+}
+
+type RateLimit struct {
+	Cmd   uint32
+	Limit int32
+	Burst int32
+}
+
+type UserQuoteLevelDetail struct {
+	ByPackageKey map[string]*PackageDetail
+	ByMarketCode map[string]*MarketPackageDetail
+}
+
+type PackageDetail struct {
+	PackageKey string
+	Limit      int32
+	Burst      int32
+}
+
+type MarketPackageDetail struct {
+	MarketCode string
+	Limit      int32
+	Burst      int32
+}

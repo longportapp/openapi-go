@@ -45,6 +45,11 @@ type QuoteContext struct {
 	core *core
 }
 
+// Profile obtain the user quote profile
+func (c *QuoteContext) Profile() *UserProfile {
+	return c.core.Profile()
+}
+
 // OnQuote set callback function which will be called when server push quote events.
 func (c *QuoteContext) OnQuote(f func(*PushQuote)) {
 	c.core.SetQuoteHandler(f)
@@ -548,6 +553,7 @@ func NewFromCfg(cfg *config.Config) (*QuoteContext, error) {
 		WithLogger(cfg.Logger()),
 		WithLbOptions(lbOpts),
 		WithEnableOvernight(cfg.EnableOvernight),
+		WithLanguage(cfg.Language),
 	)
 }
 
