@@ -246,7 +246,7 @@ func (c *core) OptionQuote(ctx context.Context, symbols []string) (optionQuotes 
 		Symbol: symbols,
 	}
 	var res *protocol.Packet
-	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QuerySecurityQuote), Body: req})
+	res, err = c.client.Do(ctx, &client.Request{Cmd: uint32(quotev1.Command_QueryOptionQuote), Body: req})
 	if err != nil {
 		return
 	}
