@@ -27,7 +27,6 @@ type core struct {
 func newCore(opts *Options) (*core, error) {
 	getOTP := func() (otp string, err error) {
 		otp, err = opts.httpClient.GetOTP(context.Background())
-
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
@@ -68,8 +67,14 @@ func newCore(opts *Options) (*core, error) {
 		store:         newStore(),
 	}
 	core.client.AfterReconnected(func() {
+		resubFlag := true
+
 		if err := core.resubscribe(context.Background()); err != nil {
 			log.Errorf("faield to do sub, err: %v", err)
+			resubFlag = false
+		}
+		for _, fn := range opts.reconnectCallbacks {
+			fn(resubFlag)
 		}
 	})
 	core.userProfile, err = core.queryProfile(context.Background(), string(opts.language))
