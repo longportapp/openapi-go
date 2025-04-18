@@ -25,7 +25,6 @@ type core struct {
 func newCore(opts *Options) (*core, error) {
 	getOTP := func() (string, error) {
 		otp, err := opts.httpClient.GetOTP(context.Background())
-
 		if err != nil {
 			return "", errors.Wrap(err, "failed to get otp")
 		}
@@ -54,16 +53,24 @@ func newCore(opts *Options) (*core, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	core := &core{client: cl, url: opts.tradeURL}
+
+	core.client.AfterReconnected(func() {
+		resubFlag := true
+		if err := core.resubscribe(context.Background()); err != nil {
+			log.Errorf("failed to do sub, err: %v", err)
+			resubFlag = false
+		}
+		for _, fn := range opts.reconnectCallbacks {
+			fn(resubFlag)
+		}
+	})
+
 	return core, nil
 }
 
 func (c *core) SetHandler(f func(*PushEvent)) {
-	c.client.AfterReconnected(func() {
-		if err := c.resubscribe(context.Background()); err != nil {
-			log.Errorf("failed to do sub, err: %v", err)
-		}
-	})
 	c.client.Subscribe(uint32(tradev1.Command_CMD_NOTIFY), parseNotifyFunc(f))
 }
 
