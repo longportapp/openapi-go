@@ -78,7 +78,7 @@ const (
 	OrderRejectedStatus       OrderStatus = "RejectedStatus"
 	OrderCanceledStatus       OrderStatus = "CanceledStatus"
 	OrderExpiredStatus        OrderStatus = "ExpiredStatus"
-	OrderPartialWithdrawal    OrderStatus = "PartialWithdrawn"
+	OrderPartialWithdrawal    OrderStatus = "PartialWithdrawal"
 
 	// Outside RTH
 	OutsideRTHOnly    OutsideRTH = "RTH_ONLY"          // Regular trading hour only
