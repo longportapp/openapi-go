@@ -5,7 +5,7 @@ type Execution struct {
 	OrderId     string `json:"order_id"`
 	TradeId     string `json:"trade_id"`
 	Symbol      string `json:"symbol"`
-	TradeDoneAt string `json:"trade_done_at"`
+	TradeDoneAt int64  `json:"trade_done_at,string"`
 	Quantity    string `json:"quantity"`
 	Price       string `json:"price"`
 }

@@ -10,8 +10,12 @@ func (req *GetHistoryExecutions) Values() url.Values {
 	}
 	p := &params{}
 	p.Add("symbol", req.Symbol)
-	p.AddDate("start_at", req.StartAt)
-	p.AddDate("end_at", req.EndAt)
+	if v := req.StartAt.Unix(); v > 0 {
+		p.AddInt("start_at", v)
+	}
+	if v := req.EndAt.Unix(); v > 0 {
+		p.AddInt("end_at", v)
+	}
 	return p.Values()
 }
 
