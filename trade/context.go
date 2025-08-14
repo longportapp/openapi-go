@@ -372,6 +372,7 @@ func NewFromCfg(cfg *config.Config) (*TradeContext, error) {
 		http.WithAppKey(cfg.AppKey),
 		http.WithAppSecret(cfg.AppSecret),
 		http.WithURL(cfg.HttpURL),
+		http.WithLanguage(cfg.Language),
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "create http client error")

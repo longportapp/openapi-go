@@ -3,6 +3,8 @@ package http
 import (
 	"net/http"
 	"time"
+
+	"github.com/longportapp/openapi-go"
 )
 
 // DefaultHttpUrl
@@ -19,6 +21,7 @@ type Options struct {
 	AccessToken string
 	Timeout     time.Duration
 	Client      *http.Client
+	Language    openapi.Language
 }
 
 // Option for http client
@@ -74,6 +77,15 @@ func WithTimeout(timeout time.Duration) Option {
 	return func(opts *Options) {
 		if timeout > 0 {
 			opts.Timeout = timeout
+		}
+	}
+}
+
+// WithLanguage to set language
+func WithLanguage(language openapi.Language) Option {
+	return func(opts *Options) {
+		if language != "" {
+			opts.Language = language
 		}
 	}
 }
