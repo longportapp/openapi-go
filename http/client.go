@@ -130,12 +130,20 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		return err
 	}
 
+	// set headers
+	req.Header.Add("accept-language", string(c.opts.Language))
+	req.Header.Add("x-api-key", c.opts.AppKey)
+	req.Header.Add("authorization", c.opts.AccessToken)
 	if ro.Header != nil {
 		for k, v := range ro.Header {
 			req.Header[k] = v
 		}
 	}
+	if len(bb) != 0 {
+		req.Header.Add("content-type", "application/json; charset=utf-8")
+	}
 
+	// set query params
 	if queryParams != nil {
 		vals, ok := queryParams.(url.Values)
 		if !ok {
@@ -145,11 +153,7 @@ func (c *Client) Call(ctx context.Context, method, path string, queryParams inte
 		}
 		req.URL.RawQuery = vals.Encode()
 	}
-	req.Header.Add("x-api-key", c.opts.AppKey)
-	req.Header.Add("authorization", c.opts.AccessToken)
-	if len(bb) != 0 {
-		req.Header.Add("content-type", "application/json; charset=utf-8")
-	}
+	// set signature
 	signature(req, c.opts.AppSecret, bb)
 
 	log.Debugf("http call method:%v url:%v body:%v", req.Method, req.URL, string(bb))
@@ -233,5 +237,6 @@ func NewFromCfg(c *config.Config) (*Client, error) {
 		WithTimeout(c.HTTPTimeout),
 		WithClient(c.Client),
 		WithURL(c.HttpURL),
+		WithLanguage(c.Language),
 	)
 }
